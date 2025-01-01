@@ -1,31 +1,27 @@
 package main
 
 import (
-	"log"
-	"net/http"
+	"errors"
+	"os"
 
-	"github.com/maxence-charriere/go-app/v10/pkg/app"
+	"github.com/bruceesmith/echidna"
+	"github.com/bruceesmith/echidna/logger"
+	"github.com/bruceesmith/echidna/terminator"
+	"github.com/bruceesmith/go-wikiracing/backend/daemon"
+	"github.com/spf13/pflag"
 )
 
 func main() {
-	app.Route("/", func() app.Composer { return newGame() })
-	app.RunWhenOnBrowser()
-	http.Handle("/", &app.Handler{
-		Name:        "WikiRacing",
-		Description: "A wiki racing game",
-		Styles: []string{
-			"/web/game.css",
-		},
-		RawHeaders: []string{
-			`<script>
-				function wikiAnchorClick(event, obj) {
-  					event.preventDefault();
-					wikiUrlClicked(obj);
-				}
-			</script>`,
-		},
-	})
-	if err := http.ListenAndServe(":8000", nil); err != nil {
-		log.Fatal(err)
+	daemon, err := daemon.New()
+	if err != nil {
+		if errors.Is(err, pflag.ErrHelp) || errors.Is(err, echidna.ErrVersion) {
+			os.Exit(0)
+		}
+		logger.Error("initialisation error", "error", err.Error())
+		os.Exit(1)
+
 	}
+	daemon.Start()
+	<-terminator.ShutDown()
+	daemon.Terminate()
 }

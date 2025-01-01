@@ -1,0 +1,52 @@
+package server
+
+import (
+	"io"
+	"net/http"
+	"strings"
+
+	"github.com/bruceesmith/echidna/logger"
+)
+
+var client *http.Client
+
+func init() {
+	client = &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+}
+
+func getRandom() (path string) {
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			path = strings.TrimPrefix(req.URL.Path, "/wiki/")
+			return http.ErrUseLastResponse
+		},
+	}
+	r, err := client.Get("https://en.wikipedia.org/wiki/Special:Random")
+	if err != nil {
+		logger.Error("error fetching Special:Random", "error", err.Error())
+		return
+	}
+	defer r.Body.Close()
+	return
+}
+
+func get(subject string) (page string, err error) {
+	var resp *http.Response
+	resp, err = http.Get("https://en.wikipedia.org/wiki/" + subject)
+	if err != nil {
+		logger.Error("error fetching "+subject, "error", err.Error())
+		return
+	}
+	defer resp.Body.Close()
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		logger.Error("error reading response to GET("+subject+")", "error", err.Error())
+		return
+	}
+	page = string(body)
+	return
+}
