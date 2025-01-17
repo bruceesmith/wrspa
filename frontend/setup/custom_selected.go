@@ -13,6 +13,7 @@ import (
 
 type customSelected struct {
 	app.Compo
+	start, goal string
 }
 
 // ---------------------------------------------------------------------------
@@ -21,12 +22,33 @@ type customSelected struct {
 //
 // ---------------------------------------------------------------------------
 
-func (c *customSelected) Render() app.UI {
-	return app.Div().Body(
-		app.Text("Enter the custom endpoints for this game:"),
-		app.Br(),
-		app.Text("(only Wikipedia subjects, not URLs)"),
-		app.Br(),
+func (c *customSelected) nextstep() app.UI {
+	next := app.Input().
+		Type("submit").
+		Value("Next").
+		OnClick(c.next).
+		Style("background", "#ADC6FF").
+		Style("border-radius", "10px").
+		Style("color", "#002E68").
+		Style("font-size", "20px").
+		Style("margin-top", "10px")
+	if len(c.start) == 0 || len(c.goal) == 0 {
+		return next.Disabled(true)
+	} else {
+		return next
+	}
+}
+
+func (c *customSelected) view() []app.UI {
+	return []app.UI{
+		app.Hr(),
+		app.P().
+			Text("Enter the custom endpoints for this game:").
+			Style("justify-self", "center"),
+		app.P().
+			Text("(only Wikipedia subjects, not URLs)").
+			Style("justify-self", "center").
+			Style("margin-bottom", "10px"),
 		app.Label().
 			For("start").
 			Text("Start"),
@@ -34,7 +56,7 @@ func (c *customSelected) Render() app.UI {
 			Type("text").
 			ID("start").
 			Name("start").
-			OnChange(c.ValueTo(&start)),
+			OnChange(c.ValueTo(&c.start)),
 		app.Label().
 			For("goal").
 			Text("Goal"),
@@ -42,28 +64,8 @@ func (c *customSelected) Render() app.UI {
 			Type("text").
 			ID("goal").
 			Name("goal").
-			OnChange(c.ValueTo(&goal)),
-		// app.Input().
-		// 	Type("submit").
-		// 	Value("Next").
-		// 	Disabled(true).
-		// 	OnClick(c.next),
+			OnChange(c.ValueTo(&c.goal)),
 		c.nextstep(),
-	)
-}
-
-func (c *customSelected) nextstep() app.UI {
-	if len(start) == 0 || len(goal) == 0 {
-		return app.Input().
-			Type("submit").
-			Value("Next").
-			Disabled(true).
-			OnClick(c.next)
-	} else {
-		return app.Input().
-			Type("submit").
-			Value("Next").
-			OnClick(c.next)
 	}
 }
 
@@ -74,8 +76,11 @@ func (c *customSelected) nextstep() app.UI {
 // ---------------------------------------------------------------------------
 
 func (c *customSelected) next(ctx app.Context, e app.Event) {
-	if len(start) > 0 && len(goal) > 0 {
-		ctx.NewActionWithValue("setupComplete", nil, app.T("start", start), app.T("goal", goal))
+	if len(c.start) > 0 && len(c.goal) > 0 {
+		tags := app.Tags{}
+		tags.Set("start", c.start)
+		tags.Set("goal", c.goal)
+		ctx.SetState("gameSelected", tags)
 	} else {
 		logger.Info("customSelected one or both fields not filled")
 	}

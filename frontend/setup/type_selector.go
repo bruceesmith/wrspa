@@ -1,6 +1,8 @@
 package setup
 
-import "github.com/maxence-charriere/go-app/v10/pkg/app"
+import (
+	"github.com/maxence-charriere/go-app/v10/pkg/app"
+)
 
 // ---------------------------------------------------------------------------
 //
@@ -8,17 +10,7 @@ import "github.com/maxence-charriere/go-app/v10/pkg/app"
 //
 // ---------------------------------------------------------------------------
 
-type gametype string
-
-const (
-	custom gametype = "custom"
-	random gametype = "random"
-	unset  gametype = "unset"
-)
-
-type typeSelector struct {
-	app.Compo
-}
+type typeSelector struct{}
 
 // ---------------------------------------------------------------------------
 //
@@ -26,31 +18,32 @@ type typeSelector struct {
 //
 // ---------------------------------------------------------------------------
 
-func (t *typeSelector) Render() app.UI {
+func (t *typeSelector) view() []app.UI {
+	return []app.UI{
+		app.P().Text("Choose the type of game").
+			Style("justify-self", "center"),
+		t.selectors(),
+	}
+}
+
+func (t *typeSelector) button(label string, value gametype) app.HTMLButton {
+	return app.Button().Text(label).
+		Style("background", "#44474E").
+		Style("border-radius", "10px").
+		Style("color", "#002E68").
+		Style("font-size", "20px").
+		Value(value).
+		OnClick(t.selectType(value))
+}
+
+func (t *typeSelector) selectors() app.UI {
 	return app.Div().Body(
-		app.P().
-			Body(
-				app.Text("Choose the type of game"),
-			),
-		app.Input().
-			Type("radio").
-			ID("custom").
-			Name("game_type").
-			Value(string(custom)).
-			OnChange(t.selectType),
-		app.Label().
-			For("custom").
-			Text("Custom"),
-		app.Input().
-			Type("radio").
-			ID("random").
-			Name("game_type").
-			Value(string(random)).
-			OnChange(t.selectType),
-		app.Label().
-			For("random").
-			Text("Random"),
-	)
+		t.button("Custom", custom),
+		t.button("Random", random),
+	).
+		Style("display", "grid").
+		Style("grid-template-columns", "1fr 1fr").
+		Style("gap", "5px")
 }
 
 // ---------------------------------------------------------------------------
@@ -59,6 +52,8 @@ func (t *typeSelector) Render() app.UI {
 //
 // ---------------------------------------------------------------------------
 
-func (t *typeSelector) selectType(ctx app.Context, e app.Event) {
-	ctx.NewActionWithValue("gameTypeSelected", gametype(ctx.JSSrc().Get("value").String()))
+func (t *typeSelector) selectType(tipe gametype) func(ctx app.Context, e app.Event) {
+	return func(ctx app.Context, e app.Event) {
+		ctx.SetState("gameTypeSelected", tipe)
+	}
 }

@@ -16,31 +16,34 @@ import (
 //
 // ---------------------------------------------------------------------------
 
-type state int
+type gametype string
 
 const (
-	initial state = iota
-	typeSelected
-	queryingEndpoints
+	custom gametype = "custom"
+	random gametype = "random"
+	unset  gametype = "unset"
 )
+
+func (gt gametype) String() string {
+	return string(gt)
+}
 
 type Setup struct {
 	app.Compo
-	ctx   app.Context
-	state state
-	tipe  gametype
+	Tipe           gametype
+	selector       typeSelector
+	customSelected customSelected
+	randomSelected randomSelected
 }
 
 var (
-	start, goal             string
 	randomStart, randomGoal string
 	Default                 Setup
 )
 
 func init() {
 	Default = Setup{
-		state: initial,
-		tipe:  unset,
+		Tipe: unset,
 	}
 }
 
@@ -50,34 +53,34 @@ func init() {
 //
 // ---------------------------------------------------------------------------
 
-func (s *Setup) Render() (ui app.UI) {
-	switch s.state {
-	case initial:
-		ui = app.Div().
-			Body(
-				app.Text("Wiki Racing"),
-				&typeSelector{},
-			)
-	case typeSelected:
-		ui = app.Div().
-			Body(
-				app.Text("Wiki Racing"),
-				app.Br(),
-				app.If(
-					s.tipe == random,
-					func() app.UI {
-						return &randomSelected{}
-					},
-				).Else(
-					func() app.UI {
-						return &customSelected{}
-					},
-				),
-			)
-	default:
-		ui = app.Text("unknown Setup state")
+func (s *Setup) Render() app.UI {
+	components := []app.UI{
+		app.P().Text("Wiki Racing").
+			Style("font-size", "x-large").
+			Style("font-style", "italic").
+			Style("font-weight", "bold").
+			Style("justify-self", "center"),
 	}
-	return
+	components = append(
+		components,
+		s.selector.view()...,
+	)
+	if s.Tipe == custom {
+		components = append(
+			components,
+			s.customSelected.view()...,
+		)
+	} else if s.Tipe == random {
+		components = append(
+			components,
+			s.randomSelected.view()...,
+		)
+	}
+	return app.Div().
+		Body(components...).
+		Style("display", "grid").
+		Style("place-content", "center").
+		Style("gap", "5px")
 }
 
 // ---------------------------------------------------------------------------
@@ -87,8 +90,7 @@ func (s *Setup) Render() (ui app.UI) {
 // ---------------------------------------------------------------------------
 
 func (s *Setup) OnMount(ctx app.Context) {
-	s.ctx = ctx
-	ctx.Handle("gameTypeSelected", s.typeSelected)
+	ctx.ObserveState("gameTypeSelected", &s.Tipe)
 	ctx.Async(
 		func() {
 			resp, err := http.Get("/api/SpecialRandom")
@@ -112,9 +114,4 @@ func (s *Setup) OnMount(ctx app.Context) {
 			randomGoal = response.Goal
 		},
 	)
-}
-
-func (s *Setup) typeSelected(ctx app.Context, a app.Action) {
-	s.state = typeSelected
-	s.tipe, _ = a.Value.(gametype)
 }

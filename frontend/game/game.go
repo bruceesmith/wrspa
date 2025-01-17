@@ -2,7 +2,6 @@ package game
 
 import (
 	"github.com/bruceesmith/go-wikiracing/frontend/setup"
-	"github.com/bruceesmith/go-wikiracing/frontend/timer"
 	"github.com/bruceesmith/go-wikiracing/frontend/wiki"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 )
@@ -13,28 +12,14 @@ import (
 //
 // ---------------------------------------------------------------------------
 
-// GameState is the state of the WikiRacing finite state machine
-type GameState int
-
-const (
-	preparing GameState = iota
-	ready
-	running
-	paused
-)
-
-//go:generate stringer --type GameState
-
 type Game struct {
 	app.Compo
-	ctx         app.Context
-	state       GameState
-	start, goal string
+	EndPoints app.Tags
 }
 
 func New() (g *Game) {
 	g = &Game{
-		state: preparing,
+		EndPoints: make(app.Tags),
 	}
 	return
 }
@@ -46,18 +31,24 @@ func New() (g *Game) {
 // ---------------------------------------------------------------------------
 
 func (g *Game) Render() app.UI {
-	switch g.state {
-	case preparing:
-		return &setup.Default
-	case ready:
-		wiki.Default.Targets(g.start, g.goal)
-		return app.Div().Body(
-			&wiki.Default,
-			&timer.Timer{},
-		)
+	var ui app.HTMLDiv
+	switch {
+	case g.EndPoints.Get("start") == "":
+		ui = app.Div().
+			Body(
+				&setup.Default,
+			)
 	default:
-		return app.Text("unknown game state")
+		wiki.Default.Targets(g.EndPoints.Get("start"), g.EndPoints.Get("goal"))
+		ui = app.Div().
+			Body(
+				&wiki.Default,
+			)
 	}
+	return ui.Style("color-scheme", "dark").
+		Style("background", "#006d77").
+		Style("color", "#E1E2EB").
+		Style("height", "100%")
 }
 
 // ---------------------------------------------------------------------------
@@ -67,13 +58,5 @@ func (g *Game) Render() app.UI {
 // ---------------------------------------------------------------------------
 
 func (g *Game) OnMount(ctx app.Context) {
-	g.ctx = ctx
-	ctx.Handle("setupComplete", g.setupComplete)
-}
-
-func (g *Game) setupComplete(ctx app.Context, a app.Action) {
-	g.state = ready
-	g.start = a.Tags.Get("start")
-	g.goal = a.Tags.Get("goal")
-	g.ctx.Update()
+	ctx.ObserveState("gameSelected", &g.EndPoints)
 }

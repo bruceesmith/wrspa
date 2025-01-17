@@ -34,17 +34,17 @@ func getRandom() (path string) {
 	return
 }
 
-func get(subject string) (page string, err error) {
+func get(path string) (page string, err error) {
 	var resp *http.Response
-	resp, err = http.Get("https://en.wikipedia.org/wiki/" + subject)
+	resp, err = http.Get("https://en.wikipedia.org/" + path)
 	if err != nil {
-		logger.Error("error fetching "+subject, "error", err.Error())
+		logger.Error("error fetching "+path, "error", err.Error())
 		return
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		logger.Error("error reading response to GET("+subject+")", "error", err.Error())
+		logger.Error("error reading response to GET("+path+")", "error", err.Error())
 		return
 	}
 	page = string(body)
