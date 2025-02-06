@@ -1,27 +1,39 @@
 package main
 
 import (
-	"errors"
-	"os"
+	"context"
+	"fmt"
 
+	"github.com/asaskevich/govalidator"
 	"github.com/bruceesmith/echidna"
-	"github.com/bruceesmith/echidna/logger"
-	"github.com/bruceesmith/echidna/terminator"
 	"github.com/bruceesmith/go-wikiracing/backend/daemon"
-	"github.com/spf13/pflag"
+	"github.com/urfave/cli/v3"
 )
 
 func main() {
-	daemon, err := daemon.New()
-	if err != nil {
-		if errors.Is(err, pflag.ErrHelp) || errors.Is(err, echidna.ErrVersion) {
-			os.Exit(0)
-		}
-		logger.Error("initialisation error", "error", err.Error())
-		os.Exit(1)
-
+	var cmd = &cli.Command{
+		Name:        "gwr",
+		Action:      daemon.Daemon,
+		Description: "Go Wiki Racing",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:  "port",
+				Usage: "port where the server will listen",
+				Validator: func(p string) error {
+					if !govalidator.IsPort(p) {
+						return fmt.Errorf("invalid port %s", p)
+					}
+					return nil
+				},
+				Value: "8080",
+			},
+		},
+		Usage:   "Server for Go Wiki Racing",
+		Version: "1.0",
 	}
-	daemon.Start()
-	<-terminator.ShutDown()
-	daemon.Terminate()
+
+	echidna.Run(
+		context.Background(),
+		cmd,
+	)
 }

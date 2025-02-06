@@ -1,7 +1,7 @@
 package setup
 
 import (
-	"github.com/bruceesmith/echidna/logger"
+	"github.com/bruceesmith/logger"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 )
 

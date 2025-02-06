@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/bruceesmith/echidna/logger"
 	"github.com/bruceesmith/go-wikiracing/backend/api"
+	"github.com/bruceesmith/logger"
 )
 
 // apiHandler handles REST requests to the various /api/ endpoints

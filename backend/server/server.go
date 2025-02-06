@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/bruceesmith/echidna/logger"
-	"github.com/bruceesmith/echidna/terminator"
+	"github.com/bruceesmith/logger"
+	"github.com/bruceesmith/terminator"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 )
 
@@ -16,10 +16,10 @@ type Server struct {
 }
 
 // New returns a Server
-func New() (s *Server, err error) {
+func New(port string) (s *Server, err error) {
 	s = &Server{
 		server: &http.Server{
-			Addr: ":8000",
+			Addr: ":" + port,
 		},
 	}
 	mux := http.NewServeMux()

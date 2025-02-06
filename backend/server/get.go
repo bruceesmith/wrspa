@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/bruceesmith/echidna/logger"
+	"github.com/bruceesmith/logger"
 )
 
 var client *http.Client

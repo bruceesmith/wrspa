@@ -1,40 +1,31 @@
 package daemon
 
 import (
-	"github.com/bruceesmith/echidna/logger"
-	"github.com/bruceesmith/echidna/terminator"
-	"github.com/bruceesmith/echidna/vpr"
+	"context"
+	"fmt"
+
 	"github.com/bruceesmith/go-wikiracing/backend/server"
 	"github.com/bruceesmith/go-wikiracing/frontend/game"
+	"github.com/bruceesmith/logger"
+	"github.com/bruceesmith/terminator"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
+	"github.com/urfave/cli/v3"
 )
 
-// Daemon is the controller for the server-side execution
-type daemon struct {
-	server *server.Server
-}
-
-type config struct{}
-
-var cfg config
-
-func New() (d *daemon, err error) {
+func Daemon(ctx context.Context, cmd *cli.Command) error {
+	var (
+		err error
+		svr *server.Server
+	)
 	if app.IsServer {
-		err = vpr.Init(program, version, &cfg, "", nil)
+		svr, err = server.New(cmd.String("port"))
 		if err != nil {
-			return
-		}
-		d = &daemon{}
-		d.server, err = server.New()
-		if err != nil {
-			logger.Error(err.Error())
+			logger.Error("initialisation error", "error", err.Error())
+			err = fmt.Errorf("initialisation error: [%w]", err)
+			return err
 		}
 	}
-	return
-}
 
-func (d *daemon) Start() {
-	logger.Info(program + " starting")
 	app.Route(
 		"/",
 		func() app.Composer {
@@ -43,12 +34,14 @@ func (d *daemon) Start() {
 	)
 	app.RunWhenOnBrowser()
 
-	go d.server.Serve()
-}
+	logger.Info("gwr server starting")
+	go svr.Serve()
 
-// Terminate shuts down the daemon
-func (d *daemon) Terminate() {
-	// Wait for all the independent goroutines to stop
+	// Wait for SIGTERM
+	<-terminator.ShutDown()
+
+	// Wait for all goroutines to stop
 	terminator.Wait()
-	logger.Info(program + " exiting")
+	logger.Info("gwr server exiting")
+	return nil
 }
