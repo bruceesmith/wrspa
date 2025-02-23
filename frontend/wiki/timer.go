@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/bruceesmith/go-wikiracing/frontend/observables"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 )
 
@@ -52,21 +53,22 @@ func (t *Timer) Render() app.UI {
 func (t *Timer) OnMount(ctx app.Context) {
 	tmr.ticker = time.NewTicker(time.Second)
 	tmr.done = make(chan bool)
-	ctx.ObserveState("time", &t.Value)
+	ctx.ObserveState(observables.ElapsedTime(), &t.Value)
 	ctx.Async(
 		func() {
 			defer t.ticker.Stop()
+		loop:
 			for {
 				select {
 				case <-t.done:
-					break
+					break loop
 				case <-t.ticker.C:
 					switch Default.State {
 					case ready, paused, finished:
 					case playing:
 						t.elapsed += time.Second
 						ctx.SetState(
-							"time",
+							observables.ElapsedTime(),
 							fmt.Sprintf(
 								"%02.0f:%02.0f:%02.0f",
 								t.elapsed.Hours(),

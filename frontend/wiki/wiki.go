@@ -1,8 +1,12 @@
+/*
+Package wiki is the page component for playing the game
+*/
 package wiki
 
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -10,6 +14,8 @@ import (
 	"strings"
 
 	"github.com/bruceesmith/go-wikiracing/backend/api"
+	"github.com/bruceesmith/go-wikiracing/frontend/actions"
+	"github.com/bruceesmith/go-wikiracing/frontend/observables"
 	"github.com/bruceesmith/logger"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 )
@@ -19,15 +25,6 @@ import (
 // Model
 //
 // ---------------------------------------------------------------------------
-
-type state int
-
-const (
-	ready state = iota
-	playing
-	paused
-	finished
-)
 
 // Wiki represents the Wikipedia section of the game's web page
 type Wiki struct {
@@ -79,34 +76,33 @@ func (w *Wiki) Render() app.UI {
 // ---------------------------------------------------------------------------
 
 // get fetches an HTML page from Wikipedia
-func (w *Wiki) get(subject string) (s string) {
-	var err error
+func (w *Wiki) get(subject string) (s string, err error) {
 	req := api.WikiPageRequest{Subject: subject}
 	bites, err := json.Marshal(req)
 	resp, err := http.Post("/api/wikipage", "application/json", bytes.NewBuffer(bites))
 	if err != nil {
 		logger.Error("Wiki.OnMount error fetching "+subject, "error", err.Error())
-		return
+		return "", fmt.Errorf("Wiki.OnMount error fetching %s: [%w]", subject, err)
 	}
 	defer resp.Body.Close()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		logger.Error("Wiki.OnMount error reading WikiPage response", "error", err.Error())
-		return
+		return "", fmt.Errorf("Wiki.OnMount error reading WikiPage response: [%w]", err)
 	}
 	pageResponse := api.WikiPageResponse{}
 	err = json.Unmarshal(body, &pageResponse)
 	if err != nil {
 		logger.Error("Wiki.OnMount error unmarshaing WikiPage response", "error", err.Error())
-		return
+		return "", fmt.Errorf("Wiki.OnMount error unmarshaing WikiPage response: [%w]", err)
 	}
-	return pageResponse.Page
+	return pageResponse.Page, nil
 }
 
 // goalReached is an Action handler invoked when the "goal"
 // Action is triggered
 func (w *Wiki) goalReached(ctx app.Context) {
-	ctx.SetState("wikiState", finished)
+	ctx.SetState(observables.WikiState(), finished)
 	tmr.finished()
 }
 
@@ -114,15 +110,18 @@ func (w *Wiki) goalReached(ctx app.Context) {
 func (w *Wiki) OnMount(ctx app.Context) {
 	// Register the action "pageloaded" which is triggered each
 	// time a fresh Wkipedia page is fetched
-	ctx.Handle("pageloaded", w.updatePage)
-	ctx.ObserveState("wikiState", &w.State)
+	ctx.Handle(actions.PageLoaded(), w.updatePage)
+	ctx.ObserveState(observables.WikiState(), &w.State)
 
 	// Load the starting page in the background
 	ctx.Async(
 		func() {
-			page := w.get("/wiki/" + w.start)
+			page, err := w.get("/wiki/" + w.start)
+			if err != nil {
+				return
+			}
 			w.current = w.start
-			ctx.NewActionWithValue("pageloaded", page)
+			ctx.NewActionWithValue(actions.PageLoaded(), page)
 		},
 	)
 	w.ctx = ctx
@@ -133,9 +132,9 @@ func (w *Wiki) OnMount(ctx app.Context) {
 }
 
 // Targets sets the start and goal Wikipedia subjects
-func (t *Wiki) Targets(start, goal string) {
-	t.start = start
-	t.goal = goal
+func (w *Wiki) Targets(start, goal string) {
+	w.start = start
+	w.goal = goal
 }
 
 // updatePage is an Action handler invoked when the "pageloaded"
@@ -183,9 +182,12 @@ func (w *Wiki) urlclick(this app.Value, args []app.Value) (x any) {
 		// Load the requested page in the background
 		w.ctx.Async(
 			func() {
-				page := w.get(url.Path)
+				page, err := w.get(url.Path)
+				if err != nil {
+					return
+				}
 				w.current = url.Path
-				w.ctx.NewActionWithValue("pageloaded", page)
+				w.ctx.NewActionWithValue(actions.PageLoaded(), page)
 			},
 		)
 	}

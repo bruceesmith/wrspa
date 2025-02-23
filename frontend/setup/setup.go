@@ -1,3 +1,8 @@
+/*
+Package setup is the page component for handling game initialisation, specifically
+the choice of game type (custom or random) and the selection of endpoints (start
+and goal)
+*/
 package setup
 
 import (

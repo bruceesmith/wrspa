@@ -1,3 +1,7 @@
+/*
+Package server provides the static file handler for the WASM side of Go-WikiRacing plus
+the REST API handler for the WASM game
+*/
 package server
 
 import (
@@ -13,6 +17,7 @@ import (
 // Server is the HTTP server for this program
 type Server struct {
 	server *http.Server
+	port   string
 }
 
 // New returns a Server
@@ -21,6 +26,7 @@ func New(port string) (s *Server, err error) {
 		server: &http.Server{
 			Addr: ":" + port,
 		},
+		port: port,
 	}
 	mux := http.NewServeMux()
 	mux.Handle("/api/", apiHandler{})
@@ -70,7 +76,7 @@ func (s *Server) Serve() {
 	}()
 
 	// Start the server
-	logger.Debug("API server starting on :8000")
+	logger.Debug("API server starting on :" + s.port)
 	if err := s.server.ListenAndServe(); err != nil {
 		if err != http.ErrServerClosed {
 			logger.Error("Server.Serve() ListenAndServe error", "error", err.Error())

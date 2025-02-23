@@ -1,3 +1,7 @@
+/*
+Package game is the top level component in Go-WikiRacing. Its controller determines which
+page is displayed depending on whether game endpoints (start and goal) have yet been set
+*/
 package game
 
 import (

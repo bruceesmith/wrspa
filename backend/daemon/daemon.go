@@ -1,3 +1,7 @@
+/*
+Package daemon is the heart of Go WikiRacing. On the server, it controls the REST server. In the
+browser it hosts the game itself.
+*/
 package daemon
 
 import (
@@ -33,6 +37,8 @@ func Daemon(ctx context.Context, cmd *cli.Command) error {
 		},
 	)
 	app.RunWhenOnBrowser()
+
+	// Following code is only executed on the server, never in the browser
 
 	logger.Info("gwr server starting")
 	go svr.Serve()

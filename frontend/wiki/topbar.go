@@ -1,6 +1,7 @@
 package wiki
 
 import (
+	"github.com/bruceesmith/go-wikiracing/frontend/observables"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 )
 
@@ -101,13 +102,13 @@ func (t *Topbar) Render() app.UI {
 // ---------------------------------------------------------------------------
 
 func (t *Topbar) OnMount(ctx app.Context) {
-	ctx.ObserveState("wikiState", &t.State)
+	ctx.ObserveState(observables.WikiState(), &t.State)
 }
 
 func (t *Topbar) pause(ctx app.Context, e app.Event) {
-	ctx.SetState("wikiState", paused)
+	ctx.SetState(observables.WikiState(), paused)
 }
 
 func (t *Topbar) play(ctx app.Context, e app.Event) {
-	ctx.SetState("wikiState", playing)
+	ctx.SetState(observables.WikiState(), playing)
 }

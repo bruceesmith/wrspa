@@ -8,16 +8,6 @@ import (
 	"github.com/bruceesmith/logger"
 )
 
-var client *http.Client
-
-func init() {
-	client = &http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-	}
-}
-
 func getRandom() (path string) {
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {

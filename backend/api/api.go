@@ -1,3 +1,6 @@
+/*
+Package api defines the external REST API of the backend
+*/
 package api
 
 type SpecialRandomResponse struct {
