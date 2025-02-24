@@ -9,6 +9,11 @@ func ElapsedTime() string {
 	return "elapsedTime"
 }
 
+// GameSelected is updated when either Custom or Random is chosen
+func GameSelected() string {
+	return "gameSelected"
+}
+
 // WikiState is updated according to button or anchor clicks
 func WikiState() string {
 	return "wikiState"
