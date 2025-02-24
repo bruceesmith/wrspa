@@ -3,6 +3,7 @@ package server
 import (
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/bruceesmith/logger"
@@ -26,6 +27,7 @@ func getRandom() (path string) {
 
 func get(path string) (page string, err error) {
 	var resp *http.Response
+	path = url.PathEscape(path)
 	resp, err = http.Get("https://en.wikipedia.org/" + path)
 	if err != nil {
 		logger.Error("error fetching "+path, "error", err.Error())
