@@ -21,17 +21,14 @@ type typeSelector struct{}
 func (t *typeSelector) view() []app.UI {
 	return []app.UI{
 		app.P().Text("Choose the type of game").
-			Style("justify-self", "center"),
+			Class("gwr-ts-text-1"),
 		t.selectors(),
 	}
 }
 
 func (t *typeSelector) button(label string, value gametype) app.HTMLButton {
 	return app.Button().Text(label).
-		Style("background", "#44474E").
-		Style("border-radius", "10px").
-		Style("color", "#002E68").
-		Style("font-size", "20px").
+		Class("gwr-ts-text-2").
 		Value(value).
 		OnClick(t.selectType(value))
 }
@@ -41,9 +38,7 @@ func (t *typeSelector) selectors() app.UI {
 		t.button("Custom", custom),
 		t.button("Random", random),
 	).
-		Style("display", "grid").
-		Style("grid-template-columns", "1fr 1fr").
-		Style("gap", "5px")
+		Class("gwr-ts-selector")
 }
 
 // ---------------------------------------------------------------------------

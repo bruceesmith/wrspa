@@ -5,6 +5,7 @@ page is displayed depending on whether game endpoints (start and goal) have yet 
 package game
 
 import (
+	"github.com/bruceesmith/go-wikiracing/frontend/observables"
 	"github.com/bruceesmith/go-wikiracing/frontend/setup"
 	"github.com/bruceesmith/go-wikiracing/frontend/wiki"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
@@ -49,10 +50,7 @@ func (g *Game) Render() app.UI {
 				&wiki.Default,
 			)
 	}
-	return ui.Style("color-scheme", "dark").
-		Style("background", "#006d77").
-		Style("color", "#E1E2EB").
-		Style("height", "100%")
+	return ui.Class("gwr-game")
 }
 
 // ---------------------------------------------------------------------------
@@ -62,5 +60,5 @@ func (g *Game) Render() app.UI {
 // ---------------------------------------------------------------------------
 
 func (g *Game) OnMount(ctx app.Context) {
-	ctx.ObserveState("gameSelected", &g.EndPoints)
+	ctx.ObserveState(observables.GameSelected(), &g.EndPoints)
 }

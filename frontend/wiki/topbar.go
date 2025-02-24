@@ -29,14 +29,11 @@ var (
 func (t *Topbar) Render() app.UI {
 	// https://www.streamlinehq.com
 	return app.Div().
-		Style("display", "grid").
-		Style("grid-template-columns", "1fr 1fr 1fr").
-		Style("gap", "5px").
+		Class("gwr-wiki-topbar").
 		Body(
 			app.Button().
 				Disabled(true).
-				Style("display", "grid").
-				Style("grid-template-columns", "1fr 3fr").
+				Class("gwr-wiki-topbar-back").
 				Body(
 					app.Img().
 						Src("/web/Line-Start-Arrow-Notch-Fill--Streamline-Outlined-Fill-Material.svg"),
@@ -44,8 +41,7 @@ func (t *Topbar) Render() app.UI {
 				),
 			app.Button().
 				Disabled(true).
-				Style("display", "grid").
-				Style("grid-template-columns", "3fr 1fr").
+				Class("gwr-wiki-topbar-forward").
 				Body(
 					app.Text("Forward"),
 					app.Img().
@@ -56,8 +52,7 @@ func (t *Topbar) Render() app.UI {
 				func() app.UI {
 					return app.Button().
 						OnClick(t.play).
-						Style("display", "grid").
-						Style("grid-template-columns", "3fr 1fr").
+						Class("gwr-wiki-topbar-playpause").
 						AutoFocus(true).
 						Body(
 							app.Text("Play"),
@@ -70,8 +65,7 @@ func (t *Topbar) Render() app.UI {
 				func() app.UI {
 					return app.Button().
 						OnClick(t.pause).
-						Style("display", "grid").
-						Style("grid-template-columns", "3fr 1fr").
+						Class("gwr-wiki-topbar-playpause").
 						Body(
 							app.Text("Pause"),
 							app.Img().
@@ -82,8 +76,7 @@ func (t *Topbar) Render() app.UI {
 				func() app.UI {
 					return app.Button().
 						OnClick(t.play).
-						Style("display", "grid").
-						Style("grid-template-columns", "3fr 1fr").
+						Class("gwr-wiki-topbar-playpause").
 						Disabled(true).
 						Body(
 							app.Text("Play"),

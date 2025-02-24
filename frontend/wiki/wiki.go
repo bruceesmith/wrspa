@@ -60,13 +60,12 @@ func (w *Wiki) Render() app.UI {
 				return app.Div().Body(
 					app.Text("Goal reached!"),
 				).
-					Style("place-content", "center")
+					Class("gwr-wiki-text-1")
 			},
 		),
 		app.Raw(w.Page),
 	).
-		Style("display", "grid").
-		Style("place-content", "center")
+		Class("gwr-wiki-page")
 }
 
 // ---------------------------------------------------------------------------

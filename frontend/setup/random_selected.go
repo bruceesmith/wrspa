@@ -1,6 +1,9 @@
 package setup
 
-import "github.com/maxence-charriere/go-app/v10/pkg/app"
+import (
+	"github.com/bruceesmith/go-wikiracing/frontend/observables"
+	"github.com/maxence-charriere/go-app/v10/pkg/app"
+)
 
 // ---------------------------------------------------------------------------
 //
@@ -41,6 +44,6 @@ func (r *randomSelected) next(ctx app.Context, e app.Event) {
 	tags := app.Tags{}
 	tags.Set("start", randomStart)
 	tags.Set("goal", randomGoal)
-	ctx.SetState("gameSelected", tags)
+	ctx.SetState(observables.GameSelected(), tags)
 
 }

@@ -1,6 +1,7 @@
 package setup
 
 import (
+	"github.com/bruceesmith/go-wikiracing/frontend/observables"
 	"github.com/bruceesmith/logger"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 )
@@ -27,11 +28,7 @@ func (c *customSelected) nextstep() app.UI {
 		Type("submit").
 		Value("Next").
 		OnClick(c.next).
-		Style("background", "#ADC6FF").
-		Style("border-radius", "10px").
-		Style("color", "#002E68").
-		Style("font-size", "20px").
-		Style("margin-top", "10px")
+		Class("gwr-custom-next-step")
 	if len(c.start) == 0 || len(c.goal) == 0 {
 		return next.Disabled(true)
 	} else {
@@ -44,11 +41,10 @@ func (c *customSelected) view() []app.UI {
 		app.Hr(),
 		app.P().
 			Text("Enter the custom endpoints for this game:").
-			Style("justify-self", "center"),
+			Class("gwr-custom-text-1"),
 		app.P().
 			Text("(only Wikipedia subjects, not URLs)").
-			Style("justify-self", "center").
-			Style("margin-bottom", "10px"),
+			Class("gwr-custom-text-2"),
 		app.Label().
 			For("start").
 			Text("Start"),
@@ -80,7 +76,7 @@ func (c *customSelected) next(ctx app.Context, e app.Event) {
 		tags := app.Tags{}
 		tags.Set("start", c.start)
 		tags.Set("goal", c.goal)
-		ctx.SetState("gameSelected", tags)
+		ctx.SetState(observables.GameSelected(), tags)
 	} else {
 		logger.Info("customSelected one or both fields not filled")
 	}

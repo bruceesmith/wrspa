@@ -37,11 +37,10 @@ var (
 func (t *Timer) Render() app.UI {
 	return app.Div().Body(
 		app.Text(
-			"time is "+t.Value,
+			"time is " + t.Value,
 		),
 	).
-		Style("display", "grid").
-		Style("place-content", "center")
+		Class("gwr-wiki-timer")
 }
 
 // ---------------------------------------------------------------------------

@@ -59,12 +59,10 @@ func init() {
 // ---------------------------------------------------------------------------
 
 func (s *Setup) Render() app.UI {
+	logger.Trace("setup.Render called")
 	components := []app.UI{
 		app.P().Text("Wiki Racing").
-			Style("font-size", "x-large").
-			Style("font-style", "italic").
-			Style("font-weight", "bold").
-			Style("justify-self", "center"),
+			Class("gwr-title"),
 	}
 	components = append(
 		components,
@@ -83,9 +81,7 @@ func (s *Setup) Render() app.UI {
 	}
 	return app.Div().
 		Body(components...).
-		Style("display", "grid").
-		Style("place-content", "center").
-		Style("gap", "5px")
+		Class("gwr-selector")
 }
 
 // ---------------------------------------------------------------------------
@@ -117,6 +113,7 @@ func (s *Setup) OnMount(ctx app.Context) {
 			}
 			randomStart = response.Start
 			randomGoal = response.Goal
+			logger.Trace("setup.OnMount random points fetched")
 		},
 	)
 }
