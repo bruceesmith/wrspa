@@ -60,5 +60,5 @@ func (g *Game) Render() app.UI {
 // ---------------------------------------------------------------------------
 
 func (g *Game) OnMount(ctx app.Context) {
-	ctx.ObserveState(observables.GameSelected(), &g.EndPoints)
+	ctx.ObserveState(observables.GameSelected, &g.EndPoints)
 }
