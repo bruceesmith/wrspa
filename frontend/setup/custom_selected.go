@@ -24,9 +24,6 @@ type customSelected struct {
 // ---------------------------------------------------------------------------
 
 func (c *customSelected) nextstep() app.UI {
-	// next := app.Input().
-	// Type("submit").
-	// Value("Next").
 	next := app.MWFilledButton().Text("Next").
 		OnClick(c.next).
 		Class("gwr-custom-next-step")
@@ -41,26 +38,20 @@ func (c *customSelected) view() []app.UI {
 	return []app.UI{
 		app.Hr(),
 		app.P().
-			Text("Enter the custom endpoints for this game:").
+			Text("Choose the custom endpoints for this game:").
 			Class("gwr-custom-text-1"),
 		app.P().
 			Text("(only Wikipedia subjects, not URLs)").
 			Class("gwr-custom-text-2"),
-		app.Label().
-			For("start").
-			Text("Start"),
-		app.Input().
-			Type("text").
-			ID("start").
-			Name("start").
+		app.MWOutlinedTextField().
+			Label("Start").
+			Placeholder("Starting topic").
+			Required(true).
 			OnChange(c.ValueTo(&c.start)),
-		app.Label().
-			For("goal").
-			Text("Goal"),
-		app.Input().
-			Type("text").
-			ID("goal").
-			Name("goal").
+		app.MWOutlinedTextField().
+			Label("Goal").
+			Placeholder("Target (goal) topic").
+			Required(true).
 			OnChange(c.ValueTo(&c.goal)),
 		c.nextstep(),
 	}
