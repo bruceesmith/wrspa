@@ -24,9 +24,10 @@ type customSelected struct {
 // ---------------------------------------------------------------------------
 
 func (c *customSelected) nextstep() app.UI {
-	next := app.Input().
-		Type("submit").
-		Value("Next").
+	// next := app.Input().
+	// Type("submit").
+	// Value("Next").
+	next := app.MWFilledButton().Text("Next").
 		OnClick(c.next).
 		Class("gwr-custom-next-step")
 	if len(c.start) == 0 || len(c.goal) == 0 {

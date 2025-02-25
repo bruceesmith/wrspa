@@ -29,7 +29,7 @@ func (t *typeSelector) view() []app.UI {
 func (t *typeSelector) button(label string, value gametype) (u app.UI) {
 	switch value {
 	case custom:
-		u = app.MWFilledButton().Text(label).
+		u = app.MWFilledTonalButton().Text(label).
 			Class("gwr-ts-text-2").
 			Value(value).
 			OnClick(t.selectType(value))
