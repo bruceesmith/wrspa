@@ -76,7 +76,7 @@ func (c *customSelected) next(ctx app.Context, e app.Event) {
 		tags := app.Tags{}
 		tags.Set("start", c.start)
 		tags.Set("goal", c.goal)
-		ctx.SetState(observables.GameSelected(), tags)
+		ctx.SetState(observables.GameSelected, tags)
 	} else {
 		logger.Info("customSelected one or both fields not filled")
 	}

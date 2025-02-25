@@ -52,7 +52,7 @@ func (t *Timer) Render() app.UI {
 func (t *Timer) OnMount(ctx app.Context) {
 	tmr.ticker = time.NewTicker(time.Second)
 	tmr.done = make(chan bool)
-	ctx.ObserveState(observables.ElapsedTime(), &t.Value)
+	ctx.ObserveState(observables.ElapsedTime, &t.Value)
 	ctx.Async(
 		func() {
 			defer t.ticker.Stop()
@@ -67,7 +67,7 @@ func (t *Timer) OnMount(ctx app.Context) {
 					case playing:
 						t.elapsed += time.Second
 						ctx.SetState(
-							observables.ElapsedTime(),
+							observables.ElapsedTime,
 							fmt.Sprintf(
 								"%02.0f:%02.0f:%02.0f",
 								t.elapsed.Hours(),

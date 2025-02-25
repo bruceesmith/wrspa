@@ -44,6 +44,6 @@ func (r *randomSelected) next(ctx app.Context, e app.Event) {
 	tags := app.Tags{}
 	tags.Set("start", randomStart)
 	tags.Set("goal", randomGoal)
-	ctx.SetState(observables.GameSelected(), tags)
+	ctx.SetState(observables.GameSelected, tags)
 
 }

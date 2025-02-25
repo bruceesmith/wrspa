@@ -95,13 +95,13 @@ func (t *Topbar) Render() app.UI {
 // ---------------------------------------------------------------------------
 
 func (t *Topbar) OnMount(ctx app.Context) {
-	ctx.ObserveState(observables.WikiState(), &t.State)
+	ctx.ObserveState(observables.WikiState, &t.State)
 }
 
 func (t *Topbar) pause(ctx app.Context, e app.Event) {
-	ctx.SetState(observables.WikiState(), paused)
+	ctx.SetState(observables.WikiState, paused)
 }
 
 func (t *Topbar) play(ctx app.Context, e app.Event) {
-	ctx.SetState(observables.WikiState(), playing)
+	ctx.SetState(observables.WikiState, playing)
 }

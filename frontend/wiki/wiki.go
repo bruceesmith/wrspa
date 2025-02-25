@@ -101,7 +101,7 @@ func (w *Wiki) get(subject string) (s string, err error) {
 // goalReached is an Action handler invoked when the "goal"
 // Action is triggered
 func (w *Wiki) goalReached(ctx app.Context) {
-	ctx.SetState(observables.WikiState(), finished)
+	ctx.SetState(observables.WikiState, finished)
 	tmr.finished()
 }
 
@@ -109,8 +109,8 @@ func (w *Wiki) goalReached(ctx app.Context) {
 func (w *Wiki) OnMount(ctx app.Context) {
 	// Register the action "pageloaded" which is triggered each
 	// time a fresh Wkipedia page is fetched
-	ctx.Handle(actions.PageLoaded(), w.updatePage)
-	ctx.ObserveState(observables.WikiState(), &w.State)
+	ctx.Handle(actions.PageLoaded, w.updatePage)
+	ctx.ObserveState(observables.WikiState, &w.State)
 
 	// Load the starting page in the background
 	ctx.Async(
@@ -120,7 +120,7 @@ func (w *Wiki) OnMount(ctx app.Context) {
 				return
 			}
 			w.current = w.start
-			ctx.NewActionWithValue(actions.PageLoaded(), page)
+			ctx.NewActionWithValue(actions.PageLoaded, page)
 		},
 	)
 	w.ctx = ctx
@@ -186,7 +186,7 @@ func (w *Wiki) urlclick(this app.Value, args []app.Value) (x any) {
 					return
 				}
 				w.current = url.Path
-				w.ctx.NewActionWithValue(actions.PageLoaded(), page)
+				w.ctx.NewActionWithValue(actions.PageLoaded, page)
 			},
 		)
 	}
