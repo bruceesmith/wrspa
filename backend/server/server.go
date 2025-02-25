@@ -54,7 +54,19 @@ func (s *Server) apiHandlerFunc(restHandler http.Handler) http.Handler {
         		history.pushState("minus-1","");
 			</script>
 			<link rel="stylesheet" href="https://en.wikipedia.com/w/load.php?lang=en&amp;modules=ext.cite.styles%7Cext.tmh.player.styles%7Cext.uls.interlanguage%7Cext.visualEditor.desktopArticleTarget.noscript%7Cext.wikimediaBadges%7Cext.wikimediamessages.styles%7Cjquery.makeCollapsible.styles%7Cmediawiki.page.gallery.styles%7Cskins.vector.icons%2Cstyles%7Cskins.vector.search.codex.styles%7Cwikibase.client.init&amp;only=styles&amp;skin=vector-2022">
-			<link rel="stylesheet" href="https://en.wikipedia.com/w/load.php?lang=en&amp;modules=site.styles&amp;only=styles&amp;skin=vector-2022">`,
+			<link rel="stylesheet" href="https://en.wikipedia.com/w/load.php?lang=en&amp;modules=site.styles&amp;only=styles&amp;skin=vector-2022">
+			<script type="importmap">
+				{
+					"imports": {
+						"@material/web/": "https://esm.run/@material/web/"
+					}
+				}
+			</script>
+			<script type="module">
+				import '@material/web/all.js';
+				import {styles as typescaleStyles} from '@material/web/typography/md-typescale-styles.js';
+				document.adoptedStyleSheets.push(typescaleStyles.styleSheet);
+			</script>`,
 		},
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
