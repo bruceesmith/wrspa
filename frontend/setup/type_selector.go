@@ -26,17 +26,26 @@ func (t *typeSelector) view() []app.UI {
 	}
 }
 
-func (t *typeSelector) button(label string, value gametype) app.HTMLButton {
-	return app.Button().Text(label).
-		Class("gwr-ts-text-2").
-		Value(value).
-		OnClick(t.selectType(value))
+func (t *typeSelector) button(label string, value gametype) (u app.UI) {
+	switch value {
+	case custom:
+		u = app.MWFilledButton().Text(label).
+			Class("gwr-ts-text-2").
+			Value(value).
+			OnClick(t.selectType(value))
+	case random:
+		u = app.MWOutlinedButton().Text(label).
+			Class("gwr-ts-text-2").
+			Value(value).
+			OnClick(t.selectType(value))
+	}
+	return u
 }
 
 func (t *typeSelector) selectors() app.UI {
 	return app.Div().Body(
-		t.button("Custom", custom),
-		t.button("Random", random),
+		t.button("Custom", custom), // Custom should be a Filled Button
+		t.button("Random", random), // Random should be an Outlined Button
 	).
 		Class("gwr-ts-selector")
 }
