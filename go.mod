@@ -4,7 +4,7 @@ go 1.24.0
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
-	github.com/bruceesmith/echidna v1.0.0
+	github.com/bruceesmith/echidna v1.0.1
 	github.com/bruceesmith/logger v1.1.0
 	github.com/bruceesmith/terminator v1.0.0
 	github.com/maxence-charriere/go-app/v10 v10.0.10
@@ -43,3 +43,5 @@ tool (
 	golang.org/x/vuln/cmd/govulncheck
 	honnef.co/go/tools/cmd/staticcheck
 )
+
+replace github.com/maxence-charriere/go-app/v10 => /home/bruce/Dropbox/Code/goapp/
