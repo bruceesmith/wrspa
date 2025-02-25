@@ -29,12 +29,12 @@ func (t *typeSelector) view() []app.UI {
 func (t *typeSelector) button(label string, value gametype) (u app.UI) {
 	switch value {
 	case custom:
-		u = app.MWFilledTonalButton().Text(label).
+		u = app.MDFilledTonalButton().Text(label).
 			Class("gwr-ts-text-2").
 			Value(value).
 			OnClick(t.selectType(value))
 	case random:
-		u = app.MWOutlinedButton().Text(label).
+		u = app.MDOutlinedButton().Text(label).
 			Class("gwr-ts-text-2").
 			Value(value).
 			OnClick(t.selectType(value))

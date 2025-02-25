@@ -24,7 +24,7 @@ type customSelected struct {
 // ---------------------------------------------------------------------------
 
 func (c *customSelected) nextstep() app.UI {
-	next := app.MWFilledButton().Text("Next").
+	next := app.MDFilledButton().Text("Next").
 		OnClick(c.next).
 		Class("gwr-custom-next-step")
 	if len(c.start) == 0 || len(c.goal) == 0 {
@@ -43,12 +43,12 @@ func (c *customSelected) view() []app.UI {
 		app.P().
 			Text("(only Wikipedia subjects, not URLs)").
 			Class("gwr-custom-text-2"),
-		app.MWOutlinedTextField().
+		app.MDOutlinedTextField().
 			Label("Start").
 			Placeholder("Starting topic").
 			Required(true).
 			OnChange(c.ValueTo(&c.start)),
-		app.MWOutlinedTextField().
+		app.MDOutlinedTextField().
 			Label("Goal").
 			Placeholder("Target (goal) topic").
 			Required(true).
