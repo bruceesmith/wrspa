@@ -15,6 +15,8 @@ import (
 )
 
 const (
+	font = `<link rel="stylesheet"
+  href="https://fonts.googleapis.com/css?family=Roboto:i,300,400,500,700&display=swap" />`
 	materialHeader = `<script type="importmap">
 	{
 		"imports": {
@@ -59,12 +61,13 @@ func New(port string) (s *Server, err error) {
 	}
 	mux := http.NewServeMux()
 	mux.Handle("/api/", apiHandler{})
-	s.server.Handler = s.apiHandlerFunc(mux)
+	mux.Handle("/static/", staticHandler{})
+	s.server.Handler = s.multiHandler(mux)
 	return
 }
 
-// apiHandlerFunc allows both go-app and REST HTTP(S) calls to co-exist
-func (s *Server) apiHandlerFunc(restHandler http.Handler) http.Handler {
+// multiHandler allows go-app, REST HTTP(S) and Wikipediea static file calls to co-exist
+func (s *Server) multiHandler(mux http.Handler) http.Handler {
 	h := &app.Handler{
 		Name:        "WikiRacing",
 		Description: "A wiki racing game",
@@ -72,14 +75,16 @@ func (s *Server) apiHandlerFunc(restHandler http.Handler) http.Handler {
 			"/web/game.css",
 		},
 		RawHeaders: []string{
+			font,
 			wikiAnchorClick,
 			wikiLinks,
 			materialHeader,
 		},
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, "/api/") {
-			restHandler.ServeHTTP(w, r)
+		logger.TraceID("server", "multiHandler", "path", r.URL.Path)
+		if strings.HasPrefix(r.URL.Path, "/api/") || strings.HasPrefix(r.URL.Path, "/static/") {
+			mux.ServeHTTP(w, r)
 		} else {
 			h.ServeHTTP(w, r)
 		}

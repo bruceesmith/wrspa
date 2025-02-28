@@ -25,7 +25,7 @@ func getRandom() (path string) {
 	return
 }
 
-func get(path string) (page string, err error) {
+func get(path string) (body []byte, err error) {
 	var resp *http.Response
 	path = url.PathEscape(path)
 	resp, err = http.Get("https://en.wikipedia.org/" + path)
@@ -34,11 +34,21 @@ func get(path string) (page string, err error) {
 		return
 	}
 	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
+	body, err = io.ReadAll(resp.Body)
 	if err != nil {
 		logger.Error("error reading response to GET("+path+")", "error", err.Error())
 		return
 	}
-	page = string(body)
+	// page = string(body)
+	return
+}
+
+func getString(path string) (body string, err error) {
+	var b []byte
+	b, err = get(path)
+	if err != nil {
+		return
+	}
+	body = string(b)
 	return
 }

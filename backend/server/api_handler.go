@@ -58,7 +58,7 @@ func (a apiHandler) WikiPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Fetch the wiki page for the requested aubject
-	page, err := get(request.Subject)
+	page, err := getString(request.Subject)
 	if err != nil {
 		logger.Error("wikipage fetch failure", "error", err.Error())
 	}
