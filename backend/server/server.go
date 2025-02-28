@@ -14,6 +14,35 @@ import (
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 )
 
+const (
+	materialHeader = `<script type="importmap">
+	{
+		"imports": {
+			"@material/web/": "https://esm.run/@material/web/"
+		}
+	}
+</script>
+<script type="module">
+	import '@material/web/all.js';
+	import {styles as typescaleStyles} from '@material/web/typography/md-typescale-styles.js';
+	document.adoptedStyleSheets.push(typescaleStyles.styleSheet);
+</script>`
+
+	wikiAnchorClick = `<script>
+	function wikiAnchorClick(a) {
+		console.log("wikiAnchorClick called");
+  		a.preventDefault();
+		a.stopImmediatePropagation();
+		wikiUrlClicked(a.target.href);
+	};
+	history.pushState("minus-2","");
+	history.pushState("minus-1","");
+</script>`
+
+	wikiLinks = `<link rel="stylesheet" href="https://en.wikipedia.com/w/load.php?lang=en&amp;modules=ext.cite.styles%7Cext.tmh.player.styles%7Cext.uls.interlanguage%7Cext.visualEditor.desktopArticleTarget.noscript%7Cext.wikimediaBadges%7Cext.wikimediamessages.styles%7Cjquery.makeCollapsible.styles%7Cmediawiki.page.gallery.styles%7Cskins.vector.icons%2Cstyles%7Cskins.vector.search.codex.styles%7Cwikibase.client.init&amp;only=styles&amp;skin=vector-2022">
+<link rel="stylesheet" href="https://en.wikipedia.com/w/load.php?lang=en&amp;modules=site.styles&amp;only=styles&amp;skin=vector-2022">`
+)
+
 // Server is the HTTP server for this program
 type Server struct {
 	server *http.Server
@@ -43,30 +72,9 @@ func (s *Server) apiHandlerFunc(restHandler http.Handler) http.Handler {
 			"/web/game.css",
 		},
 		RawHeaders: []string{
-			`<script>
-				function wikiAnchorClick(a) {
-					console.log("wikiAnchorClick called");
-  					a.preventDefault();
-					a.stopImmediatePropagation();
-					wikiUrlClicked(a.target.href);
-				};
-				history.pushState("minus-2","");
-        		history.pushState("minus-1","");
-			</script>
-			<link rel="stylesheet" href="https://en.wikipedia.com/w/load.php?lang=en&amp;modules=ext.cite.styles%7Cext.tmh.player.styles%7Cext.uls.interlanguage%7Cext.visualEditor.desktopArticleTarget.noscript%7Cext.wikimediaBadges%7Cext.wikimediamessages.styles%7Cjquery.makeCollapsible.styles%7Cmediawiki.page.gallery.styles%7Cskins.vector.icons%2Cstyles%7Cskins.vector.search.codex.styles%7Cwikibase.client.init&amp;only=styles&amp;skin=vector-2022">
-			<link rel="stylesheet" href="https://en.wikipedia.com/w/load.php?lang=en&amp;modules=site.styles&amp;only=styles&amp;skin=vector-2022">
-			<script type="importmap">
-				{
-					"imports": {
-						"@material/web/": "https://esm.run/@material/web/"
-					}
-				}
-			</script>
-			<script type="module">
-				import '@material/web/all.js';
-				import {styles as typescaleStyles} from '@material/web/typography/md-typescale-styles.js';
-				document.adoptedStyleSheets.push(typescaleStyles.styleSheet);
-			</script>`,
+			wikiAnchorClick,
+			wikiLinks,
+			materialHeader,
 		},
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
