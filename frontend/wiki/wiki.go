@@ -29,7 +29,6 @@ import (
 // Wiki represents the Wikipedia section of the game's web page
 type Wiki struct {
 	app.Compo
-	ctx                  app.Context
 	start, goal, current string
 	Page                 string
 	State                state
@@ -63,7 +62,10 @@ func (w *Wiki) Render() app.UI {
 					Class("gwr-wiki-text-1")
 			},
 		),
-		app.Raw(w.Page),
+		app.Div().Body(
+			app.Raw(w.Page),
+		).
+			OnClick(w.wikiclick),
 	).
 		Class("gwr-wiki-page")
 }
@@ -123,11 +125,6 @@ func (w *Wiki) OnMount(ctx app.Context) {
 			ctx.NewActionWithValue(actions.PageLoaded, page)
 		},
 	)
-	w.ctx = ctx
-	// Register a Go function that is called from the Javascript
-	// onclick event handler to analyze the href and potentially
-	// fetch & load a fresh Wikipedia page
-	app.Window().Set("wikiUrlClicked", app.FuncOf(w.urlclick))
 }
 
 // Targets sets the start and goal Wikipedia subjects
@@ -153,25 +150,21 @@ func (w *Wiki) updatePage(ctx app.Context, a app.Action) {
 		logger.Error("Wiki.updatePage got zero matches")
 		return
 	}
-	// Update every <a> to include an onclick event trap
-	body := strings.Replace(string(matches[1]), `<a `, `<a onclick="wikiAnchorClick(event)" `, -1)
-	body = strings.Replace(body, `action="/w/index.php"`, `action="/wiki/Special:Search" onclick="wikiAnchorClick(event)"`, -1)
 	// Update the Wiki Racing content
-	w.Page = "<div>" + body + "</div>"
+	w.Page = "<div>" + string(matches[1]) + "</div>"
 	if strings.ToLower(w.current) == "/wiki/"+strings.ToLower(w.goal) {
 		w.goalReached(ctx)
 	}
 }
 
-// urlclick is a method that is called from the Javascript
-// onclick event handler to analyze the href and potentially
-// fetch & load a fresh Wikipedia page
-func (w *Wiki) urlclick(this app.Value, args []app.Value) (x any) {
-	if len(args) == 0 {
-		logger.Error("onclick handler received no arguments")
+func (w *Wiki) wikiclick(ctx app.Context, e app.Event) {
+	e.PreventDefault()
+	e.StopImmediatePropagation()
+	tag := e.Value.Get("target").Get("tagName").String()
+	if tag != "A" {
 		return
 	}
-	href := args[0].String()
+	href := e.Value.Get("target").Get("href").String()
 	url, err := url.Parse(href)
 	if err != nil {
 		logger.Error("cannot parse href", "href", href, "error", err.Error())
@@ -179,16 +172,15 @@ func (w *Wiki) urlclick(this app.Value, args []app.Value) (x any) {
 	}
 	if (strings.HasPrefix(url.Path, "/wiki/") || strings.HasPrefix(url.Path, "/static/")) && !strings.Contains(url.Path, "Special:Search") {
 		// Load the requested page in the background
-		w.ctx.Async(
+		ctx.Async(
 			func() {
 				page, err := w.get(url.Path)
 				if err != nil {
 					return
 				}
 				w.current = url.Path
-				w.ctx.NewActionWithValue(actions.PageLoaded, page)
+				ctx.NewActionWithValue(actions.PageLoaded, page)
 			},
 		)
 	}
-	return
 }

@@ -30,17 +30,6 @@ const (
 	document.adoptedStyleSheets.push(typescaleStyles.styleSheet);
 </script>`
 
-	wikiAnchorClick = `<script>
-	function wikiAnchorClick(a) {
-		console.log("wikiAnchorClick called");
-  		a.preventDefault();
-		a.stopImmediatePropagation();
-		wikiUrlClicked(a.target.href);
-	};
-	history.pushState("minus-2","");
-	history.pushState("minus-1","");
-</script>`
-
 	wikiLinks = `<link rel="stylesheet" href="https://en.wikipedia.com/w/load.php?lang=en&amp;modules=ext.cite.styles%7Cext.tmh.player.styles%7Cext.uls.interlanguage%7Cext.visualEditor.desktopArticleTarget.noscript%7Cext.wikimediaBadges%7Cext.wikimediamessages.styles%7Cjquery.makeCollapsible.styles%7Cmediawiki.page.gallery.styles%7Cskins.vector.icons%2Cstyles%7Cskins.vector.search.codex.styles%7Cwikibase.client.init&amp;only=styles&amp;skin=vector-2022">
 <link rel="stylesheet" href="https://en.wikipedia.com/w/load.php?lang=en&amp;modules=site.styles&amp;only=styles&amp;skin=vector-2022">`
 )
@@ -76,7 +65,6 @@ func (s *Server) multiHandler(mux http.Handler) http.Handler {
 		},
 		RawHeaders: []string{
 			font,
-			wikiAnchorClick,
 			wikiLinks,
 			materialHeader,
 		},
