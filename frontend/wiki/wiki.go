@@ -76,7 +76,7 @@ func (w *Wiki) Render() app.UI {
 //
 // ---------------------------------------------------------------------------
 
-// get fetches an HTML page from Wikipedia
+// get fetches an HTML page or a static asset from Wikipedia
 func (w *Wiki) get(subject string) (s string, err error) {
 	req := api.WikiPageRequest{Subject: subject}
 	bites, err := json.Marshal(req)
@@ -170,7 +170,7 @@ func (w *Wiki) wikiclick(ctx app.Context, e app.Event) {
 		logger.Error("cannot parse href", "href", href, "error", err.Error())
 		return
 	}
-	if (strings.HasPrefix(url.Path, "/wiki/") || strings.HasPrefix(url.Path, "/static/")) && !strings.Contains(url.Path, "Special:Search") {
+	if (strings.HasPrefix(url.Path, "/wiki/") || strings.HasPrefix(url.Path, "/static/")) && (url.Host == "" || url.Host == "en.wikipedia.org") {
 		// Load the requested page in the background
 		ctx.Async(
 			func() {
