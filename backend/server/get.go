@@ -3,7 +3,6 @@ package server
 import (
 	"io"
 	"net/http"
-	"net/url"
 	"strings"
 
 	"github.com/bruceesmith/logger"
@@ -27,8 +26,8 @@ func getRandom() (path string) {
 
 func get(path string) (body []byte, err error) {
 	var resp *http.Response
-	path = url.PathEscape(path)
-	resp, err = http.Get("https://en.wikipedia.org/" + path)
+	logger.TraceID("server", "get", "URL", "https://en.wikipedia.org"+path)
+	resp, err = http.Get("https://en.wikipedia.org" + path)
 	if err != nil {
 		logger.Error("error fetching "+path, "error", err.Error())
 		return
@@ -39,7 +38,6 @@ func get(path string) (body []byte, err error) {
 		logger.Error("error reading response to GET("+path+")", "error", err.Error())
 		return
 	}
-	// page = string(body)
 	return
 }
 
