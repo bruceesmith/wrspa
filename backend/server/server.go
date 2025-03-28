@@ -51,6 +51,7 @@ func New(port string) (s *Server, err error) {
 	mux := http.NewServeMux()
 	mux.Handle("/api/", apiHandler{})
 	mux.Handle("/static/", staticHandler{})
+	mux.Handle("/w/", staticHandler{})
 	s.server.Handler = s.multiHandler(mux)
 	return
 }
@@ -71,7 +72,7 @@ func (s *Server) multiHandler(mux http.Handler) http.Handler {
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logger.TraceID("server", "multiHandler", "path", r.URL.Path)
-		if strings.HasPrefix(r.URL.Path, "/api/") || strings.HasPrefix(r.URL.Path, "/static/") {
+		if strings.HasPrefix(r.URL.Path, "/api/") || strings.HasPrefix(r.URL.Path, "/static/") || strings.HasPrefix(r.URL.Path, "/w/") {
 			mux.ServeHTTP(w, r)
 		} else {
 			h.ServeHTTP(w, r)
