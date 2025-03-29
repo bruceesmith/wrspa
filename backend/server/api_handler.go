@@ -18,12 +18,31 @@ type apiHandler struct {
 func (a apiHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	function := api.EndPoint(strings.ToLower(strings.TrimPrefix(r.URL.Path, "/api/")))
 	switch {
+	case r.Method == http.MethodGet && function == api.Settings:
+		a.Settings(w, r)
+		return
 	case r.Method == http.MethodGet && function == api.SpecialRandom:
 		a.SpecialRandom(w, r)
 		return
 	case r.Method == http.MethodPost && function == api.WikiPage:
 		a.WikiPage(w, r)
 		return
+	}
+}
+
+// Settings is the handler for the /api/settings REST endpoint
+func (a apiHandler) Settings(w http.ResponseWriter, r *http.Request) {
+	// Package up a JSON response
+	// Get the current log level and trace IDs
+	response := api.SettingsResponse{
+		LogLevel: logger.Level(),
+		TraceIDs: logger.TraceIDs(),
+	}
+	jason, err := json.Marshal(response)
+	if err != nil {
+		w.Write([]byte(marshalFailure("settings", err, response)))
+	} else {
+		w.Write(jason)
 	}
 }
 
