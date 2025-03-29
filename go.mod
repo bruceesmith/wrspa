@@ -5,7 +5,7 @@ go 1.24.1
 require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
 	github.com/bruceesmith/echidna v1.1.0
-	github.com/bruceesmith/logger v1.2.0
+	github.com/bruceesmith/logger v1.3.0
 	github.com/bruceesmith/terminator v1.0.0
 	github.com/maxence-charriere/go-app/v10 v10.0.10
 	github.com/urfave/cli/v3 v3.0.0-beta1

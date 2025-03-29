@@ -33,8 +33,8 @@ github.com/boyter/scc v2.12.0+incompatible h1:Sxhi1Ry3gdreoaF0xEITQSdjR+pJT0cXHX
 github.com/boyter/scc v2.12.0+incompatible/go.mod h1:VB5w4e0dahmIiKnpZ7LRh/sjauoY0BmCWjIzZcShNY0=
 github.com/bruceesmith/echidna v1.1.0 h1:SzPRYjGmbYIE4SlGJQD7PEnW0nuDNjyfyKqFAL1oHrI=
 github.com/bruceesmith/echidna v1.1.0/go.mod h1:ms8EhEBE9/PdzRpuPHraXPnO7919mQ/vHNKUu8x1ucw=
-github.com/bruceesmith/logger v1.2.0 h1:is7dDRTVZzyKEbYuq+CiyIvZoBTK1tjdM9LStWM7iEY=
-github.com/bruceesmith/logger v1.2.0/go.mod h1:TEDAEVN0PZgt0iSb/3NMMUh6e5nvsO53mM/HZWXjOlM=
+github.com/bruceesmith/logger v1.3.0 h1:rBUIICaJB2/PmWkbqR+acdsYQvKuScAhfX1Zj3lfsA8=
+github.com/bruceesmith/logger v1.3.0/go.mod h1:TEDAEVN0PZgt0iSb/3NMMUh6e5nvsO53mM/HZWXjOlM=
 github.com/bruceesmith/sflags v0.3.2 h1:J1tRUtRBwscJP5NGqYu2SWc/TO4rxMB2Bd/cI0udA5U=
 github.com/bruceesmith/sflags v0.3.2/go.mod h1:XBaPSh5f++8ExaRoJWUG4cEB80pLjS82Ng37RGVPPfg=
 github.com/bruceesmith/terminator v1.0.0 h1:CUIWFacYk6M7nlFA8zBAob/IaFCx3UhShHRdYBKh1OE=
