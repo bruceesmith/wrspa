@@ -162,15 +162,17 @@ func (w *Wiki) wikiclick(ctx app.Context, e app.Event) {
 	e.StopImmediatePropagation()
 	tag := e.Value.Get("target").Get("tagName").String()
 	if tag != "A" {
+		logger.TraceID("wiki", "click", "nonAnchor", tag)
 		return
 	}
 	href := e.Value.Get("target").Get("href").String()
+	logger.TraceID("wiki", "click", "href", href)
 	url, err := url.Parse(href)
 	if err != nil {
 		logger.Error("cannot parse href", "href", href, "error", err.Error())
 		return
 	}
-	if (strings.HasPrefix(url.Path, "/wiki/") || strings.HasPrefix(url.Path, "/static/")) && (url.Host == "" || url.Host == "en.wikipedia.org") {
+	if strings.HasPrefix(url.Path, "/wiki/") || strings.HasPrefix(url.Path, "/static/") {
 		// Load the requested page in the background
 		ctx.Async(
 			func() {
