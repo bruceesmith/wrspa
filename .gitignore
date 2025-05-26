@@ -1,2 +1,4 @@
 .github/
-frontend//build/
+backend/wrserver
+frontend/build
+frontend/priv/static/fontawesome-free-6.7.2-web
