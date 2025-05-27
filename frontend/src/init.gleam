@@ -6,7 +6,7 @@ import gleam/option.{None}
 import lustre/effect.{type Effect}
 
 import effects.{dark_mode_on, special_random}
-import endpoints
+import endpoints.{type EP, type Start, EP}
 import model.{type Model, ChoosingGame, Model}
 import msg.{type Msg, DarkModeFetched, SpecialRandomFetched}
 import navigation
@@ -56,7 +56,10 @@ pub fn reset(model: Model) -> Model {
     elapsed: 0,
     goal_error: None,
     navigation: navigation.new(),
-    pending: model.endpoints |> endpoints.actual_start,
+    pending: {
+      let EP(st): EP(Start) = model.endpoints |> endpoints.actual_start
+      st
+    },
     rsvp_error: None,
     start_error: None,
     state: model.ReadyToPlay,

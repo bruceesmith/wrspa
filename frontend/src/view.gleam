@@ -18,7 +18,8 @@ import button.{button}
 import chip.{chip}
 import colours.{PrimaryContainer, TertiaryContainer}
 import endpoints.{
-  type Endpoints, custom_goal, custom_start, random_goal, random_start,
+  type EP, type Endpoints, type Goal, type Start, EP, custom_goal, custom_start,
+  random_goal, random_start,
 }
 import input.{input}
 import model.{
@@ -143,8 +144,8 @@ fn choosing(
 ///   start_error: error in the request Start
 ///
 fn custom(
-  start: String,
-  goal: String,
+  start: EP(Start),
+  goal: EP(Goal),
   goal_error: Option(String),
   start_error: Option(String),
 ) -> Element(Msg) {
@@ -170,6 +171,8 @@ fn custom(
     )
     None, None -> #([element.none()], "grid-rows-3")
   }
+  let EP(gl): EP(Goal) = goal
+  let EP(st): EP(Start) = start
 
   h.div([class("grid grid-rows-[1fr_3fr_1fr] gap-2")], [
     h.div([class("self-center justify-self-center text-xl")], [
@@ -206,7 +209,7 @@ fn custom(
         PrimaryContainer,
         [
           event.on_click(CustomEndPointsSelected),
-          disabled(or(string.is_empty(start), string.is_empty(goal))),
+          disabled(or(string.is_empty(st), string.is_empty(gl))),
         ],
         [h.text("Continue")],
       ),
@@ -252,11 +255,13 @@ fn goal(state: State) -> Element(Msg) {
 ///   rsvp_error: error interacting with or from the API server
 ///
 fn random(
-  start: String,
-  goal: String,
+  start: EP(Start),
+  goal: EP(Goal),
   rsvp_error: Option(String),
 ) -> Element(Msg) {
-  let loading = case start, goal, rsvp_error {
+  let EP(gl): EP(Goal) = goal
+  let EP(st): EP(Start) = start
+  let loading = case st, gl, rsvp_error {
     "", "", None ->
       h.div([class("justify-self-center")], [
         h.i(
@@ -293,7 +298,7 @@ fn random(
           "grid grid-cols-2 lg:px-50 md:px-25 sm:px-5 gap-1 content-center justify-items-center",
         ),
       ],
-      [h.p([], [h.text(start)]), h.p([], [h.text(goal)])],
+      [h.p([], [h.text(st)]), h.p([], [h.text(gl)])],
     ),
     h.div(
       [

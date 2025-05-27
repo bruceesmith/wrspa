@@ -18,8 +18,9 @@ import effects.{
   stop_timer,
 }
 import endpoints.{
-  actual_from_custom, actual_from_random, actual_goal, actual_start,
-  custom_start, new_random, random_start, set_custom_goal, set_custom_start,
+  type EP, type Goal, type Start, EP, actual_from_custom, actual_from_random,
+  actual_goal, actual_start, custom_start, new_random, random_start,
+  set_custom_goal, set_custom_start,
 }
 import init.{initial, reset}
 import model.{
@@ -57,7 +58,10 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     CustomSelected -> #(Model(..model, state: CustomGame), effect.none())
 
     CustomEndPointsSelected -> {
-      let subject = "/wiki/" <> model.endpoints |> custom_start
+      let subject = {
+        let EP(st): EP(Start) = model.endpoints |> custom_start
+        "/wiki/" <> st
+      }
       #(
         Model(
           ..model,
@@ -75,11 +79,12 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
           Model(
             ..model,
             endpoints: model.endpoints
-              |> set_custom_start(val),
+              |> set_custom_start(EP(val)),
             start_error: None,
           ),
           effect.none(),
         )
+
         Error(e) -> {
           #(Model(..model, start_error: Some(e)), effect.none())
         }
@@ -92,7 +97,7 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
           Model(
             ..model,
             endpoints: model.endpoints
-              |> set_custom_goal(val),
+              |> set_custom_goal(EP(val)),
             goal_error: None,
           ),
           effect.none(),
@@ -106,7 +111,8 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     RandomSelected -> #(Model(..model, state: RandomGame), effect.none())
 
     RandomEndPointsDisplayed -> {
-      let subject = "/wiki/" <> model.endpoints |> random_start
+      let EP(st): EP(Start) = model.endpoints |> random_start
+      let subject = "/wiki/" <> st
       #(
         Model(
           ..model,
@@ -121,7 +127,7 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     SpecialRandomFetched(Ok(sr)) -> #(
       Model(
         ..model,
-        endpoints: model.endpoints |> new_random(sr.0, sr.1),
+        endpoints: model.endpoints |> new_random(EP(sr.0), EP(sr.1)),
         rsvp_error: None,
       ),
       effect.none(),
@@ -159,27 +165,23 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     )
 
     RedrawRandom -> #(
-      Model(..model, endpoints: model.endpoints |> new_random("", "")),
+      Model(..model, endpoints: model.endpoints |> new_random(EP(""), EP(""))),
       special_random(SpecialRandomFetched),
     )
 
-    RestartGame -> #(
-      reset(model),
-      get_wiki_page(
-        "/wiki/" <> model.endpoints |> actual_start,
-        WikiPageFetched,
-      ),
-    )
+    RestartGame -> {
+      let EP(st): EP(Start) = model.endpoints |> actual_start
+      #(reset(model), get_wiki_page("/wiki/" <> st, WikiPageFetched))
+    }
 
     Scrolled -> #(model, effect.none())
 
     WikiPageFetched(Ok(response)) -> {
-      let #(st, effie) = case
-        string.lowercase(model.pending)
-        == "/wiki/"
-        <> model.endpoints
+      let EP(g): EP(Goal) =
+        model.endpoints
         |> actual_goal
-        |> string.lowercase
+      let #(st, effie) = case
+        string.lowercase(model.pending) == "/wiki/" <> string.lowercase(g)
       {
         True -> #(
           Completed,
