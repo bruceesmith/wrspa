@@ -17,6 +17,9 @@ import lustre/event
 import button.{button}
 import chip.{chip}
 import colours.{PrimaryContainer, TertiaryContainer}
+import endpoints.{
+  type Endpoints, custom_goal, custom_start, random_goal, random_start,
+}
 import input.{input}
 import model.{
   type Model, type State, ChoosingGame, Completed, CustomGame, Paused, Playing,
@@ -91,7 +94,7 @@ pub fn view(model: Model) -> Element(Msg) {
 ///
 fn choosing(
   state: State,
-  endpoints: model.Endpoints,
+  endpoints: Endpoints,
   goal_error: Option(String),
   start_error: Option(String),
   rsvp_error: Option(String),
@@ -99,11 +102,11 @@ fn choosing(
   let second_row = case state {
     ChoosingGame -> element.none()
     RandomGame ->
-      random(endpoints.random_start, endpoints.random_goal, rsvp_error)
+      random(endpoints |> random_start, endpoints |> random_goal, rsvp_error)
     CustomGame ->
       custom(
-        endpoints.custom_start,
-        endpoints.custom_goal,
+        endpoints |> custom_start,
+        endpoints |> custom_goal,
         goal_error,
         start_error,
       )

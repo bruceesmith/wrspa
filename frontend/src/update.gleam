@@ -17,10 +17,14 @@ import effects.{
   dark_mode_on, get_wiki_page, scroll_up, special_random, start_timer,
   stop_timer,
 }
+import endpoints.{
+  actual_from_custom, actual_from_random, actual_goal, actual_start,
+  custom_start, new_random, random_start, set_custom_goal, set_custom_start,
+}
 import init.{initial, reset}
 import model.{
-  type Model, Completed, CustomGame, Endpoints, Model, Paused, Playing,
-  RandomGame, ReadyToPlay,
+  type Model, Completed, CustomGame, Model, Paused, Playing, RandomGame,
+  ReadyToPlay,
 }
 import msg.{
   type Msg, Click, CustomEndPointsSelected, CustomGoalChanged, CustomSelected,
@@ -53,15 +57,11 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     CustomSelected -> #(Model(..model, state: CustomGame), effect.none())
 
     CustomEndPointsSelected -> {
-      let subject = "/wiki/" <> model.endpoints.custom_start
+      let subject = "/wiki/" <> model.endpoints |> custom_start
       #(
         Model(
           ..model,
-          endpoints: Endpoints(
-            ..model.endpoints,
-            actual_goal: model.endpoints.custom_goal,
-            actual_start: model.endpoints.custom_start,
-          ),
+          endpoints: model.endpoints |> actual_from_custom,
           pending: subject,
           state: ReadyToPlay,
         ),
@@ -74,7 +74,8 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
         Ok(Nil) -> #(
           Model(
             ..model,
-            endpoints: Endpoints(..model.endpoints, custom_start: val),
+            endpoints: model.endpoints
+              |> set_custom_start(val),
             start_error: None,
           ),
           effect.none(),
@@ -90,7 +91,8 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
         Ok(Nil) -> #(
           Model(
             ..model,
-            endpoints: Endpoints(..model.endpoints, custom_goal: val),
+            endpoints: model.endpoints
+              |> set_custom_goal(val),
             goal_error: None,
           ),
           effect.none(),
@@ -104,15 +106,11 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     RandomSelected -> #(Model(..model, state: RandomGame), effect.none())
 
     RandomEndPointsDisplayed -> {
-      let subject = "/wiki/" <> model.endpoints.random_start
+      let subject = "/wiki/" <> model.endpoints |> random_start
       #(
         Model(
           ..model,
-          endpoints: Endpoints(
-            ..model.endpoints,
-            actual_goal: model.endpoints.random_goal,
-            actual_start: model.endpoints.random_start,
-          ),
+          endpoints: model.endpoints |> actual_from_random,
           pending: subject,
           state: ReadyToPlay,
         ),
@@ -123,11 +121,7 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     SpecialRandomFetched(Ok(sr)) -> #(
       Model(
         ..model,
-        endpoints: Endpoints(
-          ..model.endpoints,
-          random_goal: sr.0,
-          random_start: sr.1,
-        ),
+        endpoints: model.endpoints |> new_random(sr.0, sr.1),
         rsvp_error: None,
       ),
       effect.none(),
@@ -165,20 +159,16 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     )
 
     RedrawRandom -> #(
-      Model(
-        ..model,
-        endpoints: Endpoints(
-          ..model.endpoints,
-          random_goal: "",
-          random_start: "",
-        ),
-      ),
+      Model(..model, endpoints: model.endpoints |> new_random("", "")),
       special_random(SpecialRandomFetched),
     )
 
     RestartGame -> #(
       reset(model),
-      get_wiki_page("/wiki/" <> model.endpoints.actual_start, WikiPageFetched),
+      get_wiki_page(
+        "/wiki/" <> model.endpoints |> actual_start,
+        WikiPageFetched,
+      ),
     )
 
     Scrolled -> #(model, effect.none())
@@ -186,7 +176,10 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     WikiPageFetched(Ok(response)) -> {
       let #(st, effie) = case
         string.lowercase(model.pending)
-        == "/wiki/" <> string.lowercase(model.endpoints.actual_goal)
+        == "/wiki/"
+        <> model.endpoints
+        |> actual_goal
+        |> string.lowercase
       {
         True -> #(
           Completed,

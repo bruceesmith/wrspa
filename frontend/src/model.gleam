@@ -3,6 +3,7 @@
 
 import gleam/option.{type Option}
 
+import endpoints.{type Endpoints}
 import navigation.{type Navigation}
 
 /// Model is the central data structure of this SPA
@@ -22,19 +23,6 @@ pub type Model {
     steps: Int,
     timer_id: Int,
     wiki_html: String,
-  )
-}
-
-/// Endpoints defines the start and goal Wiki topics
-///
-pub type Endpoints {
-  Endpoints(
-    actual_goal: String,
-    actual_start: String,
-    custom_goal: String,
-    custom_start: String,
-    random_goal: String,
-    random_start: String,
   )
 }
 
