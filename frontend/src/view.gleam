@@ -2,10 +2,12 @@
 //// Lustre Model-View-Update triumvirate, and a series of helper
 //// functions
 
+import gleam/bool.{or}
 import gleam/dynamic/decode
 import gleam/int
 import gleam/list
 import gleam/option.{type Option, None, Some}
+import gleam/string
 
 import lustre/attribute.{class, disabled, for, id, placeholder}
 import lustre/element.{type Element}
@@ -47,8 +49,7 @@ pub fn view(model: Model) -> Element(Msg) {
     ChoosingGame | RandomGame | CustomGame ->
       choosing(
         model.state,
-        model.endpoints.start,
-        model.endpoints.goal,
+        model.endpoints,
         model.goal_error,
         model.start_error,
         model.rsvp_error,
@@ -83,24 +84,29 @@ pub fn view(model: Model) -> Element(Msg) {
 ///
 /// Parameters:
 ///   state: current game state (one of the setup phase values)
-///   start: the selected starting Wiki topic
-///   goal: the selected Wiki goal topic
+///   endpoints: the games' start and goal
 ///   goal_error: error in the requested Goal
 ///   start_error: error in the request Start
 ///   rsvp_error: error interacting with or from the API server
 ///
 fn choosing(
   state: State,
-  start: String,
-  goal: String,
+  endpoints: model.Endpoints,
   goal_error: Option(String),
   start_error: Option(String),
   rsvp_error: Option(String),
 ) -> List(Element(Msg)) {
   let second_row = case state {
     ChoosingGame -> element.none()
-    RandomGame -> random(start, goal, rsvp_error)
-    CustomGame -> custom(goal_error, start_error)
+    RandomGame ->
+      random(endpoints.random_start, endpoints.random_goal, rsvp_error)
+    CustomGame ->
+      custom(
+        endpoints.custom_start,
+        endpoints.custom_goal,
+        goal_error,
+        start_error,
+      )
     _ -> element.none()
   }
   [
@@ -128,10 +134,14 @@ fn choosing(
 /// user selection of Start and Goal
 ///
 /// Parameters:
+///   start: the selected starting Wiki topic
+///   goal: the selected Wiki goal topic
 ///   goal_error: error in the requested Goal
 ///   start_error: error in the request Start
 ///
 fn custom(
+  start: String,
+  goal: String,
   goal_error: Option(String),
   start_error: Option(String),
 ) -> Element(Msg) {
@@ -191,7 +201,10 @@ fn custom(
         button.Solid,
         Large,
         PrimaryContainer,
-        [event.on_click(CustomEndPointsSelected)],
+        [
+          event.on_click(CustomEndPointsSelected),
+          disabled(or(string.is_empty(start), string.is_empty(goal))),
+        ],
         [h.text("Continue")],
       ),
     ]),

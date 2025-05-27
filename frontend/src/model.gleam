@@ -28,7 +28,14 @@ pub type Model {
 /// Endpoints defines the start and goal Wiki topics
 ///
 pub type Endpoints {
-  Endpoints(goal: String, start: String)
+  Endpoints(
+    actual_goal: String,
+    actual_start: String,
+    custom_goal: String,
+    custom_start: String,
+    random_goal: String,
+    random_start: String,
+  )
 }
 
 /// State defines the current state of game setup and

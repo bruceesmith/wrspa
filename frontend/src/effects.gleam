@@ -8,7 +8,6 @@ import gleam/json
 import lustre/effect.{type Effect}
 import rsvp
 
-import model.{type Endpoints, Endpoints}
 import msg.{type Msg}
 
 /// dark_mode determines if OS/browser Dark mode is in effect
@@ -74,13 +73,13 @@ const api_special_random = "/api/specialrandom"
 ///             topics have been fetched
 ///
 pub fn special_random(
-  on_fetch: fn(Result(Endpoints, rsvp.Error)) -> Msg,
+  on_fetch: fn(Result(#(String, String), rsvp.Error)) -> Msg,
 ) -> Effect(Msg) {
   let decoder = {
-    use start <- decode.field("start", decode.string)
-    use goal <- decode.field("goal", decode.string)
+    use random_goal <- decode.field("goal", decode.string)
+    use random_start <- decode.field("start", decode.string)
 
-    decode.success(Endpoints(goal:, start:))
+    decode.success(#(random_goal, random_start))
   }
   let handler = rsvp.expect_json(decoder, on_fetch)
 
