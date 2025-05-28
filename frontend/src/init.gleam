@@ -57,7 +57,7 @@ pub fn reset(model: Model) -> Model {
     goal_error: None,
     navigation: navigation.new(),
     pending: {
-      let EP(st): EP(Start) = model.endpoints |> endpoints.actual_start
+      let EP(st): EP(Start) = model.endpoints |> endpoints.active_start
       st
     },
     rsvp_error: None,

@@ -18,9 +18,9 @@ import effects.{
   stop_timer,
 }
 import endpoints.{
-  type EP, type Goal, type Start, EP, actual_from_custom, actual_from_random,
-  actual_goal, actual_start, custom_start, new_random, random_start,
-  set_custom_goal, set_custom_start,
+  type EP, type Goal, type Start, EP, active_from_custom, active_from_random,
+  active_goal, active_start, custom_start, ep_from_string, new_random,
+  random_start, update_custom_goal, update_custom_start, update_random,
 }
 import init.{initial, reset}
 import model.{
@@ -65,7 +65,7 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
       #(
         Model(
           ..model,
-          endpoints: model.endpoints |> actual_from_custom,
+          endpoints: model.endpoints |> active_from_custom,
           pending: subject,
           state: ReadyToPlay,
         ),
@@ -74,12 +74,13 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     }
 
     CustomStartChanged(val) -> {
+      let ep: EP(Start) = ep_from_string(val)
       case check_subject(val) {
         Ok(Nil) -> #(
           Model(
             ..model,
             endpoints: model.endpoints
-              |> set_custom_start(EP(val)),
+              |> update_custom_start(ep),
             start_error: None,
           ),
           effect.none(),
@@ -92,12 +93,13 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     }
 
     CustomGoalChanged(val) -> {
+      let ep: EP(Goal) = ep_from_string(val)
       case check_subject(val) {
         Ok(Nil) -> #(
           Model(
             ..model,
             endpoints: model.endpoints
-              |> set_custom_goal(EP(val)),
+              |> update_custom_goal(ep),
             goal_error: None,
           ),
           effect.none(),
@@ -116,7 +118,7 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
       #(
         Model(
           ..model,
-          endpoints: model.endpoints |> actual_from_random,
+          endpoints: model.endpoints |> active_from_random,
           pending: subject,
           state: ReadyToPlay,
         ),
@@ -124,14 +126,18 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
       )
     }
 
-    SpecialRandomFetched(Ok(sr)) -> #(
-      Model(
-        ..model,
-        endpoints: model.endpoints |> new_random(EP(sr.0), EP(sr.1)),
-        rsvp_error: None,
-      ),
-      effect.none(),
-    )
+    SpecialRandomFetched(Ok(sr)) -> {
+      let goal: EP(Goal) = ep_from_string(sr.0)
+      let start: EP(Start) = ep_from_string(sr.1)
+      #(
+        Model(
+          ..model,
+          endpoints: model.endpoints |> update_random(goal, start),
+          rsvp_error: None,
+        ),
+        effect.none(),
+      )
+    }
 
     SpecialRandomFetched(Error(err)) -> #(
       Model(..model, rsvp_error: Some(rsvp_error_to_string(err))),
@@ -165,12 +171,12 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     )
 
     RedrawRandom -> #(
-      Model(..model, endpoints: model.endpoints |> new_random(EP(""), EP(""))),
+      Model(..model, endpoints: model.endpoints |> new_random),
       special_random(SpecialRandomFetched),
     )
 
     RestartGame -> {
-      let EP(st): EP(Start) = model.endpoints |> actual_start
+      let EP(st): EP(Start) = model.endpoints |> active_start
       #(reset(model), get_wiki_page("/wiki/" <> st, WikiPageFetched))
     }
 
@@ -179,7 +185,7 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     WikiPageFetched(Ok(response)) -> {
       let EP(g): EP(Goal) =
         model.endpoints
-        |> actual_goal
+        |> active_goal
       let #(st, effie) = case
         string.lowercase(model.pending) == "/wiki/" <> string.lowercase(g)
       {

@@ -3,7 +3,7 @@
 /// Endpoints defines the start and goal Wiki topics
 ///
 pub opaque type Endpoints {
-  Endpoints(actual: EndpointPair, custom: EndpointPair, random: EndpointPair)
+  Endpoints(active: EndpointPair, custom: EndpointPair, random: EndpointPair)
 }
 
 /// EP uses phantom typiing to add safety to a simple String
@@ -30,36 +30,36 @@ type EndpointPair {
   EndpointPair(goal: EP(Goal), start: EP(Start))
 }
 
-/// actual returns the actual endpoints ... these are set once a choice
+/// active returns the active endpoints ... these are set once a choice
 /// has been made of either a custom or a random game
 /// 
-fn actual(ep: Endpoints) -> EndpointPair {
-  ep.actual
+fn active(ep: Endpoints) -> EndpointPair {
+  ep.active
 }
 
-/// actual_from_custom sets the actual endpoints that will be used in a
+/// active_from_custom sets the active endpoints that will be used in a
 /// game from the set of randomly selected endpoints
 /// 
-pub fn actual_from_custom(ep: Endpoints) -> Endpoints {
-  Endpoints(..ep, actual: ep.custom)
+pub fn active_from_custom(ep: Endpoints) -> Endpoints {
+  Endpoints(..ep, active: ep.custom)
 }
 
-/// actual_from_random sets the actual endpoints that will be used in a
+/// active_from_random sets the active endpoints that will be used in a
 /// game from the set of customer entered endpoints
 /// 
-pub fn actual_from_random(ep: Endpoints) -> Endpoints {
-  Endpoints(..ep, actual: ep.random)
+pub fn active_from_random(ep: Endpoints) -> Endpoints {
+  Endpoints(..ep, active: ep.random)
 }
 
-/// actual_goal returns the active goal
+/// active_goal returns the active goal
 /// 
-pub fn actual_goal(ep: Endpoints) -> EP(Goal) {
-  ep |> actual |> goal
+pub fn active_goal(ep: Endpoints) -> EP(Goal) {
+  ep |> active |> goal
 }
 
-/// actual_start returns the active goal
-pub fn actual_start(ep: Endpoints) -> EP(Start) {
-  ep |> actual |> start
+/// active_start returns the active goal
+pub fn active_start(ep: Endpoints) -> EP(Start) {
+  ep |> active |> start
 }
 
 /// custom returns the manually selected end points
@@ -80,6 +80,11 @@ pub fn custom_start(ep: Endpoints) -> EP(Start) {
   ep |> custom |> start
 }
 
+/// ep_from_string creates a type-safe EP from a string
+pub fn ep_from_string(str: String) -> EP(a) {
+  EP(str)
+}
+
 /// goal returns the goal from any endpoint pair
 /// 
 fn goal(epp: EndpointPair) -> EP(Goal) {
@@ -89,34 +94,21 @@ fn goal(epp: EndpointPair) -> EP(Goal) {
 /// new creates a new Endpoints record with all blank end points
 /// 
 pub fn new() -> Endpoints {
-  Endpoints(
-    EndpointPair(EP(""), EP("")),
-    EndpointPair(EP(""), EP("")),
-    EndpointPair(EP(""), EP("")),
-  )
+  Endpoints(new_epp(), new_epp(), new_epp())
 }
 
 /// new_epp creates a new end point pair with the provided values
 /// 
-fn new_epp(goal goal: EP(Goal), start start: EP(Start)) -> EndpointPair {
-  EndpointPair(goal, start)
-}
-
-/// new_goal updates the goal field of any end point pair
-/// 
-fn new_goal(epp: EndpointPair, goal: EP(Goal)) -> EndpointPair {
-  EndpointPair(..epp, goal: goal)
+fn new_epp() -> EndpointPair {
+  let gl: EP(Goal) = EP("")
+  let st: EP(Start) = EP("")
+  EndpointPair(gl, st)
 }
 
 /// new_random sets a new end point pair into the random field
 /// 
-pub fn new_random(ep: Endpoints, goal: EP(Goal), start: EP(Start)) -> Endpoints {
-  Endpoints(..ep, random: new_epp(goal, start))
-}
-
-/// new_start updates the start field of any end point pair
-fn new_start(epp: EndpointPair, start: EP(Start)) -> EndpointPair {
-  EndpointPair(..epp, start: start)
+pub fn new_random(ep: Endpoints) -> Endpoints {
+  Endpoints(..ep, random: new_epp())
 }
 
 /// random returns the randomly selected end points
@@ -137,32 +129,53 @@ pub fn random_start(ep: Endpoints) -> EP(Start) {
   ep |> random |> start
 }
 
-/// set_custom_goal sets the goal endpoint in the custom pair
-/// 
-pub fn set_custom_goal(ep: Endpoints, goal: EP(Goal)) -> Endpoints {
-  ep
-  |> custom
-  |> new_goal(goal)
-  |> set_custom(ep)
-}
-
-/// set_custom_start sets the start endpoint in the custom pair
-/// 
-pub fn set_custom_start(ep: Endpoints, start: EP(Start)) -> Endpoints {
-  ep
-  |> custom
-  |> new_start(start)
-  |> set_custom(ep)
-}
-
-/// set_custom sets the pair of custom selected end points
-/// 
-fn set_custom(epp: EndpointPair, ep: Endpoints) -> Endpoints {
-  Endpoints(..ep, custom: epp)
-}
-
 /// start returns the atart field of any pair of end points
 /// 
 fn start(epp: EndpointPair) -> EP(Start) {
   epp.start
+}
+
+/// update_custom sets the pair of custom selected end points
+/// 
+fn update_custom(epp: EndpointPair, ep: Endpoints) -> Endpoints {
+  Endpoints(..ep, custom: epp)
+}
+
+/// update_custom_goal sets the goal endpoint in the custom pair
+/// 
+pub fn update_custom_goal(ep: Endpoints, goal: EP(Goal)) -> Endpoints {
+  ep
+  |> custom
+  |> update_goal(goal)
+  |> update_custom(ep)
+}
+
+/// update_custom_start sets the start endpoint in the custom pair
+/// 
+pub fn update_custom_start(ep: Endpoints, start: EP(Start)) -> Endpoints {
+  ep
+  |> custom
+  |> update_start(start)
+  |> update_custom(ep)
+}
+
+/// update_goal updates the goal field of any end point pair
+/// 
+fn update_goal(epp: EndpointPair, goal: EP(Goal)) -> EndpointPair {
+  EndpointPair(..epp, goal: goal)
+}
+
+/// update_random sets a new end point pair into the random field
+/// 
+pub fn update_random(
+  ep: Endpoints,
+  goal: EP(Goal),
+  start: EP(Start),
+) -> Endpoints {
+  Endpoints(..ep, random: EndpointPair(goal, start))
+}
+
+/// update_start updates the start field of any end point pair
+fn update_start(epp: EndpointPair, start: EP(Start)) -> EndpointPair {
+  EndpointPair(..epp, start: start)
 }
