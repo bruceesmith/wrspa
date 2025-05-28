@@ -81,6 +81,7 @@ pub fn custom_start(ep: Endpoints) -> EP(Start) {
 }
 
 /// ep_from_string creates a type-safe EP from a string
+/// 
 pub fn ep_from_string(str: String) -> EP(a) {
   EP(str)
 }
