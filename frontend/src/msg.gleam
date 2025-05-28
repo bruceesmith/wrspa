@@ -2,6 +2,8 @@
 
 import rsvp
 
+import endpoints.{type EP, type Goal, type Start}
+
 pub type Msg {
   // Setup messages
   CustomEndPointsSelected
@@ -11,7 +13,7 @@ pub type Msg {
   DarkModeFetched(Bool)
   RandomEndPointsDisplayed
   RandomSelected
-  SpecialRandomFetched(Result(#(String, String), rsvp.Error))
+  SpecialRandomFetched(Result(#(EP(Goal), EP(Start)), rsvp.Error))
 
   // Game play messages
   Click(String)

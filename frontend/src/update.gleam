@@ -126,18 +126,14 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
       )
     }
 
-    SpecialRandomFetched(Ok(sr)) -> {
-      let goal: EP(Goal) = ep_from_string(sr.0)
-      let start: EP(Start) = ep_from_string(sr.1)
-      #(
-        Model(
-          ..model,
-          endpoints: model.endpoints |> update_random(goal, start),
-          rsvp_error: None,
-        ),
-        effect.none(),
-      )
-    }
+    SpecialRandomFetched(Ok(sr)) -> #(
+      Model(
+        ..model,
+        endpoints: model.endpoints |> update_random(sr.0, sr.1),
+        rsvp_error: None,
+      ),
+      effect.none(),
+    )
 
     SpecialRandomFetched(Error(err)) -> #(
       Model(..model, rsvp_error: Some(rsvp_error_to_string(err))),
