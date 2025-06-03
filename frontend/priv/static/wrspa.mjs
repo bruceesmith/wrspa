@@ -2034,6 +2034,9 @@ function field(field_name, field_decoder, next) {
 }
 
 // build/dev/javascript/gleam_stdlib/gleam/bool.mjs
+function or(a, b) {
+  return a || b;
+}
 function guard(requirement, consequence, alternative) {
   if (requirement) {
     return consequence;
@@ -2949,12 +2952,12 @@ function diff_attributes(loop$controlled, loop$path, loop$mapper, loop$events, l
     let mapper = loop$mapper;
     let events = loop$events;
     let old = loop$old;
-    let new$9 = loop$new;
+    let new$10 = loop$new;
     let added = loop$added;
     let removed = loop$removed;
-    if (old.hasLength(0) && new$9.hasLength(0)) {
+    if (old.hasLength(0) && new$10.hasLength(0)) {
       return new AttributeChange(added, removed, events);
-    } else if (old.atLeastLength(1) && old.head instanceof Event2 && new$9.hasLength(0)) {
+    } else if (old.atLeastLength(1) && old.head instanceof Event2 && new$10.hasLength(0)) {
       let prev = old.head;
       let name = old.head.name;
       let old$1 = old.tail;
@@ -2965,10 +2968,10 @@ function diff_attributes(loop$controlled, loop$path, loop$mapper, loop$events, l
       loop$mapper = mapper;
       loop$events = events$1;
       loop$old = old$1;
-      loop$new = new$9;
+      loop$new = new$10;
       loop$added = added;
       loop$removed = removed$1;
-    } else if (old.atLeastLength(1) && new$9.hasLength(0)) {
+    } else if (old.atLeastLength(1) && new$10.hasLength(0)) {
       let prev = old.head;
       let old$1 = old.tail;
       let removed$1 = prepend(prev, removed);
@@ -2977,14 +2980,14 @@ function diff_attributes(loop$controlled, loop$path, loop$mapper, loop$events, l
       loop$mapper = mapper;
       loop$events = events;
       loop$old = old$1;
-      loop$new = new$9;
+      loop$new = new$10;
       loop$added = added;
       loop$removed = removed$1;
-    } else if (old.hasLength(0) && new$9.atLeastLength(1) && new$9.head instanceof Event2) {
-      let next = new$9.head;
-      let name = new$9.head.name;
-      let handler = new$9.head.handler;
-      let new$1 = new$9.tail;
+    } else if (old.hasLength(0) && new$10.atLeastLength(1) && new$10.head instanceof Event2) {
+      let next = new$10.head;
+      let name = new$10.head.name;
+      let handler = new$10.head.handler;
+      let new$1 = new$10.tail;
       let added$1 = prepend(next, added);
       let events$1 = add_event(events, mapper, path, name, handler);
       loop$controlled = controlled;
@@ -2995,9 +2998,9 @@ function diff_attributes(loop$controlled, loop$path, loop$mapper, loop$events, l
       loop$new = new$1;
       loop$added = added$1;
       loop$removed = removed;
-    } else if (old.hasLength(0) && new$9.atLeastLength(1)) {
-      let next = new$9.head;
-      let new$1 = new$9.tail;
+    } else if (old.hasLength(0) && new$10.atLeastLength(1)) {
+      let next = new$10.head;
+      let new$1 = new$10.tail;
       let added$1 = prepend(next, added);
       loop$controlled = controlled;
       loop$path = path;
@@ -3010,8 +3013,8 @@ function diff_attributes(loop$controlled, loop$path, loop$mapper, loop$events, l
     } else {
       let prev = old.head;
       let remaining_old = old.tail;
-      let next = new$9.head;
-      let remaining_new = new$9.tail;
+      let next = new$10.head;
+      let remaining_new = new$10.tail;
       let $ = compare3(prev, next);
       if (prev instanceof Attribute && $ instanceof Eq && next instanceof Attribute) {
         let _block;
@@ -3166,7 +3169,7 @@ function diff_attributes(loop$controlled, loop$path, loop$mapper, loop$events, l
         loop$mapper = mapper;
         loop$events = events$1;
         loop$old = remaining_old;
-        loop$new = new$9;
+        loop$new = new$10;
         loop$added = added;
         loop$removed = removed$1;
       } else {
@@ -3176,7 +3179,7 @@ function diff_attributes(loop$controlled, loop$path, loop$mapper, loop$events, l
         loop$mapper = mapper;
         loop$events = events;
         loop$old = remaining_old;
-        loop$new = new$9;
+        loop$new = new$10;
         loop$added = added;
         loop$removed = removed$1;
       }
@@ -3187,7 +3190,7 @@ function do_diff(loop$old, loop$old_keyed, loop$new, loop$new_keyed, loop$moved,
   while (true) {
     let old = loop$old;
     let old_keyed = loop$old_keyed;
-    let new$9 = loop$new;
+    let new$10 = loop$new;
     let new_keyed = loop$new_keyed;
     let moved = loop$moved;
     let moved_offset = loop$moved_offset;
@@ -3199,12 +3202,12 @@ function do_diff(loop$old, loop$old_keyed, loop$new, loop$new_keyed, loop$moved,
     let children = loop$children;
     let mapper = loop$mapper;
     let events = loop$events;
-    if (old.hasLength(0) && new$9.hasLength(0)) {
+    if (old.hasLength(0) && new$10.hasLength(0)) {
       return new Diff(
         new Patch(patch_index, removed, changes, children),
         events
       );
-    } else if (old.atLeastLength(1) && new$9.hasLength(0)) {
+    } else if (old.atLeastLength(1) && new$10.hasLength(0)) {
       let prev = old.head;
       let old$1 = old.tail;
       let _block;
@@ -3218,7 +3221,7 @@ function do_diff(loop$old, loop$old_keyed, loop$new, loop$new_keyed, loop$moved,
       let events$1 = remove_child(events, path, node_index, prev);
       loop$old = old$1;
       loop$old_keyed = old_keyed;
-      loop$new = new$9;
+      loop$new = new$10;
       loop$new_keyed = new_keyed;
       loop$moved = moved;
       loop$moved_offset = moved_offset;
@@ -3230,32 +3233,32 @@ function do_diff(loop$old, loop$old_keyed, loop$new, loop$new_keyed, loop$moved,
       loop$children = children;
       loop$mapper = mapper;
       loop$events = events$1;
-    } else if (old.hasLength(0) && new$9.atLeastLength(1)) {
+    } else if (old.hasLength(0) && new$10.atLeastLength(1)) {
       let events$1 = add_children(
         events,
         mapper,
         path,
         node_index,
-        new$9
+        new$10
       );
-      let insert5 = insert4(new$9, node_index - moved_offset);
+      let insert5 = insert4(new$10, node_index - moved_offset);
       let changes$1 = prepend(insert5, changes);
       return new Diff(
         new Patch(patch_index, removed, changes$1, children),
         events$1
       );
-    } else if (old.atLeastLength(1) && new$9.atLeastLength(1) && old.head.key !== new$9.head.key) {
+    } else if (old.atLeastLength(1) && new$10.atLeastLength(1) && old.head.key !== new$10.head.key) {
       let prev = old.head;
       let old_remaining = old.tail;
-      let next = new$9.head;
-      let new_remaining = new$9.tail;
+      let next = new$10.head;
+      let new_remaining = new$10.tail;
       let next_did_exist = get(old_keyed, next.key);
       let prev_does_exist = get(new_keyed, prev.key);
       let prev_has_moved = contains(moved, prev.key);
       if (prev_does_exist.isOk() && next_did_exist.isOk() && prev_has_moved) {
         loop$old = old_remaining;
         loop$old_keyed = old_keyed;
-        loop$new = new$9;
+        loop$new = new$10;
         loop$new_keyed = new_keyed;
         loop$moved = moved;
         loop$moved_offset = moved_offset - advance(prev);
@@ -3277,7 +3280,7 @@ function do_diff(loop$old, loop$old_keyed, loop$new, loop$new_keyed, loop$moved,
         let moved_offset$1 = moved_offset + count;
         loop$old = prepend(match, old);
         loop$old_keyed = old_keyed;
-        loop$new = new$9;
+        loop$new = new$10;
         loop$new_keyed = new_keyed;
         loop$moved = moved$1;
         loop$moved_offset = moved_offset$1;
@@ -3297,7 +3300,7 @@ function do_diff(loop$old, loop$old_keyed, loop$new, loop$new_keyed, loop$moved,
         let changes$1 = prepend(remove3, changes);
         loop$old = old_remaining;
         loop$old_keyed = old_keyed;
-        loop$new = new$9;
+        loop$new = new$10;
         loop$new_keyed = new_keyed;
         loop$moved = moved;
         loop$moved_offset = moved_offset$1;
@@ -3353,11 +3356,11 @@ function do_diff(loop$old, loop$old_keyed, loop$new, loop$new_keyed, loop$moved,
         loop$mapper = mapper;
         loop$events = events$1;
       }
-    } else if (old.atLeastLength(1) && old.head instanceof Fragment && new$9.atLeastLength(1) && new$9.head instanceof Fragment) {
+    } else if (old.atLeastLength(1) && old.head instanceof Fragment && new$10.atLeastLength(1) && new$10.head instanceof Fragment) {
       let prev = old.head;
       let old$1 = old.tail;
-      let next = new$9.head;
-      let new$1 = new$9.tail;
+      let next = new$10.head;
+      let new$1 = new$10.tail;
       let node_index$1 = node_index + 1;
       let prev_count = prev.children_count;
       let next_count = next.children_count;
@@ -3402,11 +3405,11 @@ function do_diff(loop$old, loop$old_keyed, loop$new, loop$new_keyed, loop$moved,
       loop$children = child.patch.children;
       loop$mapper = mapper;
       loop$events = child.events;
-    } else if (old.atLeastLength(1) && old.head instanceof Element && new$9.atLeastLength(1) && new$9.head instanceof Element && (old.head.namespace === new$9.head.namespace && old.head.tag === new$9.head.tag)) {
+    } else if (old.atLeastLength(1) && old.head instanceof Element && new$10.atLeastLength(1) && new$10.head instanceof Element && (old.head.namespace === new$10.head.namespace && old.head.tag === new$10.head.tag)) {
       let prev = old.head;
       let old$1 = old.tail;
-      let next = new$9.head;
-      let new$1 = new$9.tail;
+      let next = new$10.head;
+      let new$1 = new$10.tail;
       let composed_mapper = compose_mapper(mapper, next.mapper);
       let child_path = add2(path, node_index, next.key);
       let controlled = is_controlled(
@@ -3473,11 +3476,11 @@ function do_diff(loop$old, loop$old_keyed, loop$new, loop$new_keyed, loop$moved,
       loop$children = children$1;
       loop$mapper = mapper;
       loop$events = child.events;
-    } else if (old.atLeastLength(1) && old.head instanceof Text && new$9.atLeastLength(1) && new$9.head instanceof Text && old.head.content === new$9.head.content) {
+    } else if (old.atLeastLength(1) && old.head instanceof Text && new$10.atLeastLength(1) && new$10.head instanceof Text && old.head.content === new$10.head.content) {
       let prev = old.head;
       let old$1 = old.tail;
-      let next = new$9.head;
-      let new$1 = new$9.tail;
+      let next = new$10.head;
+      let new$1 = new$10.tail;
       loop$old = old$1;
       loop$old_keyed = old_keyed;
       loop$new = new$1;
@@ -3492,10 +3495,10 @@ function do_diff(loop$old, loop$old_keyed, loop$new, loop$new_keyed, loop$moved,
       loop$children = children;
       loop$mapper = mapper;
       loop$events = events;
-    } else if (old.atLeastLength(1) && old.head instanceof Text && new$9.atLeastLength(1) && new$9.head instanceof Text) {
+    } else if (old.atLeastLength(1) && old.head instanceof Text && new$10.atLeastLength(1) && new$10.head instanceof Text) {
       let old$1 = old.tail;
-      let next = new$9.head;
-      let new$1 = new$9.tail;
+      let next = new$10.head;
+      let new$1 = new$10.tail;
       let child = new$4(
         node_index,
         0,
@@ -3516,11 +3519,11 @@ function do_diff(loop$old, loop$old_keyed, loop$new, loop$new_keyed, loop$moved,
       loop$children = prepend(child, children);
       loop$mapper = mapper;
       loop$events = events;
-    } else if (old.atLeastLength(1) && old.head instanceof UnsafeInnerHtml && new$9.atLeastLength(1) && new$9.head instanceof UnsafeInnerHtml) {
+    } else if (old.atLeastLength(1) && old.head instanceof UnsafeInnerHtml && new$10.atLeastLength(1) && new$10.head instanceof UnsafeInnerHtml) {
       let prev = old.head;
       let old$1 = old.tail;
-      let next = new$9.head;
-      let new$1 = new$9.tail;
+      let next = new$10.head;
+      let new$1 = new$10.tail;
       let composed_mapper = compose_mapper(mapper, next.mapper);
       let child_path = add2(path, node_index, next.key);
       let $ = diff_attributes(
@@ -3581,8 +3584,8 @@ function do_diff(loop$old, loop$old_keyed, loop$new, loop$new_keyed, loop$moved,
     } else {
       let prev = old.head;
       let old_remaining = old.tail;
-      let next = new$9.head;
-      let new_remaining = new$9.tail;
+      let next = new$10.head;
+      let new_remaining = new$10.tail;
       let prev_count = advance(prev);
       let next_count = advance(next);
       let change = replace2(node_index - moved_offset, prev_count, next);
@@ -3608,11 +3611,11 @@ function do_diff(loop$old, loop$old_keyed, loop$new, loop$new_keyed, loop$moved,
     }
   }
 }
-function diff(events, old, new$9) {
+function diff(events, old, new$10) {
   return do_diff(
     toList([old]),
     empty2(),
-    toList([new$9]),
+    toList([new$10]),
     empty2(),
     empty_set(),
     0,
@@ -6113,112 +6116,128 @@ function set_interval(interval, cb) {
   return id2;
 }
 
-// build/dev/javascript/wrspa/navigation.mjs
-var Navigation = class extends CustomType {
-  constructor(left, right) {
-    super();
-    this.left = left;
-    this.right = right;
-  }
-};
-function new$7() {
-  return new Navigation(toList([]), toList([]));
-}
-function navigate_back(nav) {
-  let $ = nav.right;
-  if ($.hasLength(0)) {
-    return [nav, ""];
-  } else if ($.hasLength(1)) {
-    return [nav, ""];
-  } else {
-    let first = $.head;
-    let second = $.tail.head;
-    let remainder = $.tail.tail;
-    return [new Navigation(prepend(first, nav.left), remainder), second];
-  }
-}
-function navigate_forward(nav) {
-  let $ = nav.left;
-  if ($.hasLength(0)) {
-    return [nav, ""];
-  } else if ($.hasLength(1)) {
-    let only = $.head;
-    return [new Navigation(toList([]), nav.right), only];
-  } else {
-    let first = $.head;
-    let second = $.tail.head;
-    let remainder = $.tail.tail;
-    return [new Navigation(prepend(second, remainder), nav.right), first];
-  }
-}
-function navigation_possible(nav) {
-  let $ = nav.right;
-  let $1 = nav.left;
-  if ($.hasLength(0) && $1.hasLength(0)) {
-    return [false, false];
-  } else if ($.hasLength(1) && $1.hasLength(0)) {
-    return [false, false];
-  } else if ($.atLeastLength(2) && $1.hasLength(0)) {
-    return [true, false];
-  } else if ($.hasLength(0) && $1.hasLength(1)) {
-    return [false, true];
-  } else if ($.hasLength(0) && $1.atLeastLength(2)) {
-    return [false, true];
-  } else if ($.hasLength(1) && $1.hasLength(1)) {
-    return [false, true];
-  } else if ($.hasLength(1) && $1.atLeastLength(2)) {
-    return [false, true];
-  } else if ($.atLeastLength(2) && $1.hasLength(1)) {
-    return [true, true];
-  } else {
-    return [true, true];
-  }
-}
-function navigated_to(new$9, nav) {
-  let _record = nav;
-  return new Navigation(_record.left, prepend(new$9, nav.right));
-}
-
-// build/dev/javascript/wrspa/model.mjs
-var Model = class extends CustomType {
-  constructor(dark, displayed, elapsed, endpoints, goal_error, navigation, pending, rsvp_error, start_error, state, steps, timer_id, wiki_html) {
-    super();
-    this.dark = dark;
-    this.displayed = displayed;
-    this.elapsed = elapsed;
-    this.endpoints = endpoints;
-    this.goal_error = goal_error;
-    this.navigation = navigation;
-    this.pending = pending;
-    this.rsvp_error = rsvp_error;
-    this.start_error = start_error;
-    this.state = state;
-    this.steps = steps;
-    this.timer_id = timer_id;
-    this.wiki_html = wiki_html;
-  }
-};
+// build/dev/javascript/wrspa/endpoints.mjs
 var Endpoints = class extends CustomType {
-  constructor(goal2, start4) {
+  constructor(active2, custom3, random4) {
     super();
-    this.goal = goal2;
-    this.start = start4;
+    this.active = active2;
+    this.custom = custom3;
+    this.random = random4;
   }
 };
-var ChoosingGame = class extends CustomType {
+var EP = class extends CustomType {
+  constructor(x0) {
+    super();
+    this[0] = x0;
+  }
 };
-var Completed = class extends CustomType {
+var EndpointPair = class extends CustomType {
+  constructor(goal3, start5) {
+    super();
+    this.goal = goal3;
+    this.start = start5;
+  }
 };
-var CustomGame = class extends CustomType {
-};
-var Playing = class extends CustomType {
-};
-var Paused = class extends CustomType {
-};
-var RandomGame = class extends CustomType {
-};
-var ReadyToPlay = class extends CustomType {
-};
+function active(ep) {
+  return ep.active;
+}
+function active_from_custom(ep) {
+  let _record = ep;
+  return new Endpoints(ep.custom, _record.custom, _record.random);
+}
+function active_from_random(ep) {
+  let _record = ep;
+  return new Endpoints(ep.random, _record.custom, _record.random);
+}
+function custom(ep) {
+  return ep.custom;
+}
+function ep_from_string(str) {
+  return new EP(str);
+}
+function goal(epp) {
+  return epp.goal;
+}
+function active_goal(ep) {
+  let _pipe = ep;
+  let _pipe$1 = active(_pipe);
+  return goal(_pipe$1);
+}
+function custom_goal(ep) {
+  let _pipe = ep;
+  let _pipe$1 = custom(_pipe);
+  return goal(_pipe$1);
+}
+function new_epp() {
+  let gl = new EP("");
+  let st = new EP("");
+  return new EndpointPair(gl, st);
+}
+function new$7() {
+  return new Endpoints(new_epp(), new_epp(), new_epp());
+}
+function new_random(ep) {
+  let _record = ep;
+  return new Endpoints(_record.active, _record.custom, new_epp());
+}
+function random2(ep) {
+  return ep.random;
+}
+function random_goal(ep) {
+  let _pipe = ep;
+  let _pipe$1 = random2(_pipe);
+  return goal(_pipe$1);
+}
+function start4(epp) {
+  return epp.start;
+}
+function active_start(ep) {
+  let _pipe = ep;
+  let _pipe$1 = active(_pipe);
+  return start4(_pipe$1);
+}
+function custom_start(ep) {
+  let _pipe = ep;
+  let _pipe$1 = custom(_pipe);
+  return start4(_pipe$1);
+}
+function random_start(ep) {
+  let _pipe = ep;
+  let _pipe$1 = random2(_pipe);
+  return start4(_pipe$1);
+}
+function update_custom(epp, ep) {
+  let _record = ep;
+  return new Endpoints(_record.active, epp, _record.random);
+}
+function update_goal(epp, goal3) {
+  let _record = epp;
+  return new EndpointPair(goal3, _record.start);
+}
+function update_custom_goal(ep, goal3) {
+  let _pipe = ep;
+  let _pipe$1 = custom(_pipe);
+  let _pipe$2 = update_goal(_pipe$1, goal3);
+  return update_custom(_pipe$2, ep);
+}
+function update_random(ep, goal3, start5) {
+  let _record = ep;
+  return new Endpoints(
+    _record.active,
+    _record.custom,
+    new EndpointPair(goal3, start5)
+  );
+}
+function update_start(epp, start5) {
+  let _record = epp;
+  return new EndpointPair(_record.goal, start5);
+}
+function update_custom_start(ep, start5) {
+  let _pipe = ep;
+  let _pipe$1 = custom(_pipe);
+  let _pipe$2 = update_start(_pipe$1, start5);
+  return update_custom(_pipe$2, ep);
+}
 
 // build/dev/javascript/wrspa/msg.mjs
 var CustomEndPointsSelected = class extends CustomType {
@@ -6338,14 +6357,16 @@ function get_wiki_page(subject, on_fetch) {
 var api_special_random = "/api/specialrandom";
 function special_random(on_fetch) {
   let decoder = field(
-    "start",
+    "goal",
     string2,
-    (start4) => {
+    (random_goal2) => {
       return field(
-        "goal",
+        "start",
         string2,
-        (goal2) => {
-          return success(new Endpoints(goal2, start4));
+        (random_start2) => {
+          let goal3 = new EP(random_goal2);
+          let start5 = new EP(random_start2);
+          return success([goal3, start5]);
         }
       );
     }
@@ -6354,15 +6375,115 @@ function special_random(on_fetch) {
   return get2(api_special_random, handler);
 }
 
+// build/dev/javascript/wrspa/navigation.mjs
+var Navigation = class extends CustomType {
+  constructor(left, right) {
+    super();
+    this.left = left;
+    this.right = right;
+  }
+};
+function new$8() {
+  return new Navigation(toList([]), toList([]));
+}
+function navigate_back(nav) {
+  let $ = nav.right;
+  if ($.hasLength(0)) {
+    return [nav, ""];
+  } else if ($.hasLength(1)) {
+    return [nav, ""];
+  } else {
+    let first = $.head;
+    let second = $.tail.head;
+    let remainder = $.tail.tail;
+    return [new Navigation(prepend(first, nav.left), remainder), second];
+  }
+}
+function navigate_forward(nav) {
+  let $ = nav.left;
+  if ($.hasLength(0)) {
+    return [nav, ""];
+  } else if ($.hasLength(1)) {
+    let only = $.head;
+    return [new Navigation(toList([]), nav.right), only];
+  } else {
+    let first = $.head;
+    let second = $.tail.head;
+    let remainder = $.tail.tail;
+    return [new Navigation(prepend(second, remainder), nav.right), first];
+  }
+}
+function navigation_possible(nav) {
+  let $ = nav.right;
+  let $1 = nav.left;
+  if ($.hasLength(0) && $1.hasLength(0)) {
+    return [false, false];
+  } else if ($.hasLength(1) && $1.hasLength(0)) {
+    return [false, false];
+  } else if ($.atLeastLength(2) && $1.hasLength(0)) {
+    return [true, false];
+  } else if ($.hasLength(0) && $1.hasLength(1)) {
+    return [false, true];
+  } else if ($.hasLength(0) && $1.atLeastLength(2)) {
+    return [false, true];
+  } else if ($.hasLength(1) && $1.hasLength(1)) {
+    return [false, true];
+  } else if ($.hasLength(1) && $1.atLeastLength(2)) {
+    return [false, true];
+  } else if ($.atLeastLength(2) && $1.hasLength(1)) {
+    return [true, true];
+  } else {
+    return [true, true];
+  }
+}
+function navigated_to(new$10, nav) {
+  let _record = nav;
+  return new Navigation(_record.left, prepend(new$10, nav.right));
+}
+
+// build/dev/javascript/wrspa/model.mjs
+var Model = class extends CustomType {
+  constructor(dark, displayed, elapsed, endpoints, goal_error, navigation, pending, rsvp_error, start_error, state, steps, timer_id, wiki_html) {
+    super();
+    this.dark = dark;
+    this.displayed = displayed;
+    this.elapsed = elapsed;
+    this.endpoints = endpoints;
+    this.goal_error = goal_error;
+    this.navigation = navigation;
+    this.pending = pending;
+    this.rsvp_error = rsvp_error;
+    this.start_error = start_error;
+    this.state = state;
+    this.steps = steps;
+    this.timer_id = timer_id;
+    this.wiki_html = wiki_html;
+  }
+};
+var ChoosingGame = class extends CustomType {
+};
+var Completed = class extends CustomType {
+};
+var CustomGame = class extends CustomType {
+};
+var Playing = class extends CustomType {
+};
+var Paused = class extends CustomType {
+};
+var RandomGame = class extends CustomType {
+};
+var ReadyToPlay = class extends CustomType {
+};
+
 // build/dev/javascript/wrspa/init.mjs
 function initial() {
   return new Model(
     false,
     "",
     0,
-    new Endpoints("", ""),
-    new None(),
     new$7(),
+    new None(),
+    new$8(),
     "",
     new None(),
     new None(),
@@ -6395,8 +6516,15 @@ function reset(model) {
     0,
     _record.endpoints,
     new None(),
-    new$7(),
-    model.endpoints.start,
+    new$8(),
+    (() => {
+      let _block;
+      let _pipe = model.endpoints;
+      _block = active_start(_pipe);
+      let $ = _block;
+      let st = $[0];
+      return st;
+    })(),
     new None(),
     new None(),
     new ReadyToPlay(),
@@ -6577,7 +6705,16 @@ function update2(model, msg) {
       none()
     ];
   } else if (msg instanceof CustomEndPointsSelected) {
-    let subject = "/wiki/" + model.endpoints.start;
+    let _block;
+    {
+      let _block$1;
+      let _pipe = model.endpoints;
+      _block$1 = custom_start(_pipe);
+      let $ = _block$1;
+      let st = $[0];
+      _block = "/wiki/" + st;
+    }
+    let subject = _block;
     return [
       (() => {
         let _record = model;
@@ -6585,7 +6722,10 @@ function update2(model, msg) {
           _record.dark,
           _record.displayed,
           _record.elapsed,
-          _record.endpoints,
+          (() => {
+            let _pipe = model.endpoints;
+            return active_from_custom(_pipe);
+          })(),
           _record.goal_error,
           _record.navigation,
           subject,
@@ -6603,6 +6743,7 @@ function update2(model, msg) {
     ];
   } else if (msg instanceof CustomStartChanged) {
     let val = msg[0];
+    let ep = ep_from_string(val);
     let $ = check_subject(val);
     if ($.isOk() && !$[0]) {
       return [
@@ -6613,8 +6754,8 @@ function update2(model, msg) {
             _record.displayed,
             _record.elapsed,
             (() => {
-              let _record$1 = model.endpoints;
-              return new Endpoints(_record$1.goal, val);
+              let _pipe = model.endpoints;
+              return update_custom_start(_pipe, ep);
             })(),
             _record.goal_error,
             _record.navigation,
@@ -6655,6 +6796,7 @@ function update2(model, msg) {
     }
   } else if (msg instanceof CustomGoalChanged) {
     let val = msg[0];
+    let ep = ep_from_string(val);
     let $ = check_subject(val);
     if ($.isOk() && !$[0]) {
       return [
@@ -6665,8 +6807,8 @@ function update2(model, msg) {
             _record.displayed,
             _record.elapsed,
             (() => {
-              let _record$1 = model.endpoints;
-              return new Endpoints(val, _record$1.start);
+              let _pipe = model.endpoints;
+              return update_custom_goal(_pipe, ep);
             })(),
             new None(),
             _record.navigation,
@@ -6728,7 +6870,12 @@ function update2(model, msg) {
       none()
     ];
   } else if (msg instanceof RandomEndPointsDisplayed) {
-    let subject = "/wiki/" + model.endpoints.start;
+    let _block;
+    let _pipe = model.endpoints;
+    _block = random_start(_pipe);
+    let $ = _block;
+    let st = $[0];
+    let subject = "/wiki/" + st;
     return [
       (() => {
         let _record = model;
@@ -6736,7 +6883,10 @@ function update2(model, msg) {
           _record.dark,
           _record.displayed,
           _record.elapsed,
-          _record.endpoints,
+          (() => {
+            let _pipe$1 = model.endpoints;
+            return active_from_random(_pipe$1);
+          })(),
           _record.goal_error,
           _record.navigation,
           subject,
@@ -6761,7 +6911,10 @@ function update2(model, msg) {
           _record.dark,
           _record.displayed,
           _record.elapsed,
-          new Endpoints(sr.start, sr.goal),
+          (() => {
+            let _pipe = model.endpoints;
+            return update_random(_pipe, sr[0], sr[1]);
+          })(),
           _record.goal_error,
           _record.navigation,
           _record.pending,
@@ -6901,7 +7054,10 @@ function update2(model, msg) {
           _record.dark,
           _record.displayed,
           _record.elapsed,
-          new Endpoints("", ""),
+          (() => {
+            let _pipe = model.endpoints;
+            return new_random(_pipe);
+          })(),
           _record.goal_error,
           _record.navigation,
           _record.pending,
@@ -6918,10 +7074,15 @@ function update2(model, msg) {
       })
     ];
   } else if (msg instanceof RestartGame) {
+    let _block;
+    let _pipe = model.endpoints;
+    _block = active_start(_pipe);
+    let $ = _block;
+    let st = $[0];
     return [
       reset(model),
       get_wiki_page(
-        "/wiki/" + model.endpoints.start,
+        "/wiki/" + st,
         (var0) => {
           return new WikiPageFetched(var0);
         }
@@ -6932,11 +7093,16 @@ function update2(model, msg) {
   } else if (msg instanceof WikiPageFetched && msg[0].isOk()) {
     let response = msg[0][0];
     let _block;
-    let $1 = lowercase(model.pending) === "/wiki/" + lowercase(
-      model.endpoints.goal
+    let _pipe = model.endpoints;
+    _block = active_goal(_pipe);
+    let $ = _block;
+    let g = $[0];
+    let _block$1;
+    let $2 = lowercase(model.pending) === "/wiki/" + lowercase(
+      g
     );
-    if ($1) {
-      _block = [
+    if ($2) {
+      _block$1 = [
         new Completed(),
         batch(
           toList([
@@ -6946,11 +7112,11 @@ function update2(model, msg) {
         )
       ];
     } else {
-      _block = [model.state, scroll_up(new Scrolled())];
+      _block$1 = [model.state, scroll_up(new Scrolled())];
     }
-    let $ = _block;
-    let st = $[0];
-    let effie = $[1];
+    let $1 = _block$1;
+    let st = $1[0];
+    let effie = $1[1];
     {
       let dest = model.pending;
       return [
@@ -7554,7 +7720,7 @@ function input2(variety, size2, colour, attributes) {
 }
 
 // build/dev/javascript/wrspa/view.mjs
-function custom(goal_error, start_error) {
+function custom2(start5, goal3, goal_error, start_error) {
   let _block;
   if (start_error instanceof Some && goal_error instanceof Some) {
     let se = start_error[0];
@@ -7600,6 +7766,8 @@ function custom(goal_error, start_error) {
   let $ = _block;
   let error_line = $[0];
   let rows = $[1];
+  let gl = goal3[0];
+  let st = start5[0];
   return div(
     toList([class$("grid grid-rows-[1fr_3fr_1fr] gap-2")]),
     toList([
@@ -7670,7 +7838,10 @@ function custom(goal_error, start_error) {
             new Solid(),
             new Large(),
             new PrimaryContainer(),
-            toList([on_click(new CustomEndPointsSelected())]),
+            toList([
+              on_click(new CustomEndPointsSelected()),
+              disabled(or(is_empty(st), is_empty(gl)))
+            ]),
             toList([text3("Continue")])
           )
         ])
@@ -7689,7 +7860,7 @@ function error_message(rsvp_error) {
     return none2();
   }
 }
-function goal(state) {
+function goal2(state) {
   if (state instanceof Completed) {
     return div(
       toList([class$("grid font-bold place-content-center text-xl bg-teal-500")]),
@@ -7704,9 +7875,11 @@ function goal(state) {
     return none2();
   }
 }
-function random2(start4, goal2, rsvp_error) {
+function random3(start5, goal3, rsvp_error) {
+  let gl = goal3[0];
+  let st = start5[0];
   let _block;
-  if (start4 === "" && goal2 === "" && rsvp_error instanceof None) {
+  if (st === "" && gl === "" && rsvp_error instanceof None) {
     _block = div(
       toList([class$("justify-self-center")]),
       toList([
@@ -7720,7 +7893,7 @@ function random2(start4, goal2, rsvp_error) {
         )
       ])
     );
-  } else if (start4 === "" && goal2 === "" && rsvp_error instanceof Some) {
+  } else if (st === "" && gl === "" && rsvp_error instanceof Some) {
     _block = error_message(rsvp_error);
   } else {
     _block = none2();
@@ -7752,8 +7925,8 @@ function random2(start4, goal2, rsvp_error) {
           )
         ]),
         toList([
-          p(toList([]), toList([text3(start4)])),
-          p(toList([]), toList([text3(goal2)]))
+          p(toList([]), toList([text3(st)])),
+          p(toList([]), toList([text3(gl)]))
         ])
       ),
       div(
@@ -7785,14 +7958,35 @@ function random2(start4, goal2, rsvp_error) {
     ])
   );
 }
-function choosing(state, start4, goal2, goal_error, start_error, rsvp_error) {
+function choosing(state, endpoints, goal_error, start_error, rsvp_error) {
   let _block;
   if (state instanceof ChoosingGame) {
     _block = none2();
   } else if (state instanceof RandomGame) {
-    _block = random2(start4, goal2, rsvp_error);
+    _block = random3(
+      (() => {
+        let _pipe = endpoints;
+        return random_start(_pipe);
+      })(),
+      (() => {
+        let _pipe = endpoints;
+        return random_goal(_pipe);
+      })(),
+      rsvp_error
+    );
   } else if (state instanceof CustomGame) {
-    _block = custom(goal_error, start_error);
+    _block = custom2(
+      (() => {
+        let _pipe = endpoints;
+        return custom_start(_pipe);
+      })(),
+      (() => {
+        let _pipe = endpoints;
+        return custom_goal(_pipe);
+      })(),
+      goal_error,
+      start_error
+    );
   } else {
     _block = none2();
   }
@@ -7849,17 +8043,15 @@ function playing_controls(state, nav) {
   }
   let fwd_disablement = _block$1;
   return div(
-    toList([class$("grid grid-cols-7 gap-4 justify-center")]),
+    toList([
+      class$("grid grid-cols-5 lg:px-50 md:px-25 sm:px-5 gap-1 justify-center")
+    ]),
     toList([
       button2(
         new Solid(),
         new Large(),
         new PrimaryContainer(),
-        toList([
-          on_click(new NavigateBack()),
-          back_disablement,
-          class$("col-start-3")
-        ]),
+        toList([on_click(new NavigateBack()), back_disablement]),
         toList([text3("Back")])
       ),
       button2(
@@ -8068,12 +8260,28 @@ function wiki(page, pending, rsvp_error) {
   );
 }
 function playing(model) {
+  let $ = active_goal(model.endpoints);
+  let g = $[0];
+  let target = div(
+    toList([class$("grid grid-cols-2 gap-4 text-xl")]),
+    toList([
+      p(
+        toList([class$("justify-self-end self-center")]),
+        toList([text3("Target:")])
+      ),
+      span(
+        toList([class$("font-bold justify-self-start self-center")]),
+        toList([text3(g)])
+      )
+    ])
+  );
   return toList([
     div(
       toList([class$("grid gap-4")]),
       toList([
+        target,
         playing_controls(model.state, model.navigation),
-        goal(model.state),
+        goal2(model.state),
         progress(model.steps, model.elapsed)
       ])
     ),
@@ -8086,8 +8294,7 @@ function view(model) {
   if ($ instanceof ChoosingGame) {
     _block = choosing(
       model.state,
-      model.endpoints.start,
-      model.endpoints.goal,
+      model.endpoints,
       model.goal_error,
       model.start_error,
       model.rsvp_error
@@ -8095,8 +8302,7 @@ function view(model) {
   } else if ($ instanceof RandomGame) {
     _block = choosing(
       model.state,
-      model.endpoints.start,
-      model.endpoints.goal,
+      model.endpoints,
       model.goal_error,
       model.start_error,
       model.rsvp_error
@@ -8104,8 +8310,7 @@ function view(model) {
   } else if ($ instanceof CustomGame) {
     _block = choosing(
       model.state,
-      model.endpoints.start,
-      model.endpoints.goal,
+      model.endpoints,
       model.goal_error,
       model.start_error,
       model.rsvp_error
