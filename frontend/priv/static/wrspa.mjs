@@ -7719,6 +7719,31 @@ function input2(variety, size2, colour, attributes) {
   return input(append(variant_classes3(variety), attr));
 }
 
+// build/dev/javascript/wrspa/tooltip.mjs
+var Bottom = class extends CustomType {
+};
+var Left = class extends CustomType {
+};
+var Right = class extends CustomType {
+};
+function tooltip(text4, pos) {
+  let _block;
+  if (pos instanceof Bottom) {
+    _block = class$("absolute z-1 top-[100%] left-[50%] ml-[-60px]");
+  } else if (pos instanceof Left) {
+    _block = class$("absolute z-1 top-[-5px] right-[105%]");
+  } else if (pos instanceof Right) {
+    _block = class$("absolute z-1 top-[-5px] left-[106%]");
+  } else {
+    _block = class$("absolute z-1 bottom-[100%] left-[50%] ml-[-60px]");
+  }
+  let positioning = _block;
+  return span(
+    toList([class$("font-[sans-serif] tooltiptext text-base"), positioning]),
+    toList([text3(text4)])
+  );
+}
+
 // build/dev/javascript/wrspa/view.mjs
 function custom2(start5, goal3, goal_error, start_error) {
   let _block;
@@ -7886,7 +7911,7 @@ function random3(start5, goal3, rsvp_error) {
         i(
           toList([
             class$(
-              "fa-solid fa-solid fa-spinner fa-spin-pulse justify-self-center text-5xl"
+              "fa-solid fa-spinner fa-spin-pulse justify-self-center text-5xl"
             )
           ]),
           toList([none2()])
@@ -8042,10 +8067,21 @@ function playing_controls(state, nav) {
     _block$1 = disabled(false);
   }
   let fwd_disablement = _block$1;
+  let _block$2;
+  if (state instanceof Playing) {
+    _block$2 = class$("grid-rows-3");
+  } else if (state instanceof Completed) {
+    _block$2 = class$("grid-rows-3");
+  } else if (state instanceof ReadyToPlay) {
+    _block$2 = class$("grid-rows-3");
+  } else if (state instanceof Paused) {
+    _block$2 = class$("grid-rows-5");
+  } else {
+    _block$2 = class$("grid-rows-3");
+  }
+  let rows = _block$2;
   return div(
-    toList([
-      class$("grid grid-cols-5 lg:px-50 md:px-25 sm:px-5 gap-1 justify-center")
-    ]),
+    toList([class$("grid lg:px-50 md:px-25 sm:px-5 gap-1 justify-center"), rows]),
     toList([
       button2(
         new Solid(),
@@ -8228,7 +8264,7 @@ function wiki(page, pending, rsvp_error) {
         i(
           toList([
             class$(
-              "fa-solid fa-solid fa-spinner fa-spin-pulse justify-self-center text-5xl"
+              "fa-solid fa-spinner fa-spin-pulse justify-self-center text-5xl"
             )
           ]),
           toList([none2()])
@@ -8326,7 +8362,7 @@ function view(model) {
   }
   let body = _block;
   let title = div(
-    toList([class$("grid place-content-center border-none")]),
+    toList([class$("grid grid-rows-1 grid-cols-[19fr_1fr] border-none")]),
     toList([
       p(
         toList([
@@ -8335,6 +8371,14 @@ function view(model) {
           )
         ]),
         toList([text3("Wiki Racing")])
+      ),
+      i(
+        toList([
+          class$(
+            "fa-solid fa-gear self-center justify-self-center pr-1 text-3xl tooltip"
+          )
+        ]),
+        toList([tooltip("Settings", new Left())])
       )
     ])
   );

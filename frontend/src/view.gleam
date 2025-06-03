@@ -34,6 +34,7 @@ import msg.{
 }
 import navigation.{type Navigation, navigation_possible}
 import size.{Large}
+import tooltip.{Left, tooltip}
 
 // -----------------------------------------------------------------------------
 //
@@ -61,7 +62,7 @@ pub fn view(model: Model) -> Element(Msg) {
     ReadyToPlay | Playing | Paused | Completed -> playing(model)
   }
   let title =
-    h.div([class("grid place-content-center border-none")], [
+    h.div([class("grid grid-rows-1 grid-cols-[19fr_1fr] border-none")], [
       h.p(
         [
           class(
@@ -69,6 +70,14 @@ pub fn view(model: Model) -> Element(Msg) {
           ),
         ],
         [h.text("Wiki Racing")],
+      ),
+      h.i(
+        [
+          class(
+            "fa-solid fa-gear self-center justify-self-center pr-1 text-3xl tooltip",
+          ),
+        ],
+        [tooltip("Settings", Left)],
       ),
     ])
   let mode = case model.dark {
@@ -267,7 +276,7 @@ fn random(
         h.i(
           [
             class(
-              "fa-solid fa-solid fa-spinner fa-spin-pulse justify-self-center text-5xl",
+              "fa-solid fa-spinner fa-spin-pulse justify-self-center text-5xl",
             ),
           ],
           [element.none()],
@@ -372,74 +381,76 @@ fn playing_controls(state: State, nav: Navigation) -> Element(Msg) {
     Completed, _ | _, False -> disabled(True)
     _, True -> disabled(False)
   }
-  h.div(
-    [class("grid grid-cols-5 lg:px-50 md:px-25 sm:px-5 gap-1 justify-center")],
-    [
-      button(
-        button.Solid,
-        Large,
-        PrimaryContainer,
-        [event.on_click(NavigateBack), back_disablement],
-        [h.text("Back")],
-      ),
-      button(
-        button.Solid,
-        Large,
-        PrimaryContainer,
-        [event.on_click(NavigateForward), fwd_disablement],
-        [h.text("Forward")],
-      ),
-      case state {
-        Playing ->
-          button(
-            button.Solid,
-            Large,
-            PrimaryContainer,
-            [event.on_click(GamePaused)],
-            [h.text("Pause")],
-          )
-        Paused ->
-          button(
-            button.Solid,
-            Large,
-            PrimaryContainer,
-            [event.on_click(GameResumed)],
-            [h.text("Continue")],
-          )
-        ReadyToPlay ->
-          button(
-            button.Solid,
-            Large,
-            PrimaryContainer,
-            [event.on_click(GameStarted)],
-            [h.text("Play")],
-          )
-        _ -> element.none()
-      },
-      case state {
-        Completed | Paused ->
-          button(
-            button.Solid,
-            Large,
-            TertiaryContainer,
-            [event.on_click(NewGame)],
-            [h.text("New Game")],
-          )
-        _ -> element.none()
-      },
-      case state {
-        Paused ->
-          button(
-            button.Solid,
-            Large,
-            TertiaryContainer,
-            [event.on_click(RestartGame)],
-            [h.text("Restart")],
-          )
-        _ -> element.none()
-      },
-    ],
-  )
+  let rows = case state {
+    Playing | Completed | ReadyToPlay -> class("grid-rows-3")
+    Paused -> class("grid-rows-5")
+    _ -> class("grid-rows-3")
+  }
+  h.div([class("grid lg:px-50 md:px-25 sm:px-5 gap-1 justify-center"), rows], [
+    button(
+      button.Solid,
+      Large,
+      PrimaryContainer,
+      [event.on_click(NavigateBack), back_disablement],
+      [h.text("Back")],
+    ),
+    button(
+      button.Solid,
+      Large,
+      PrimaryContainer,
+      [event.on_click(NavigateForward), fwd_disablement],
+      [h.text("Forward")],
+    ),
+    case state {
+      Playing ->
+        button(
+          button.Solid,
+          Large,
+          PrimaryContainer,
+          [event.on_click(GamePaused)],
+          [h.text("Pause")],
+        )
+      Paused ->
+        button(
+          button.Solid,
+          Large,
+          PrimaryContainer,
+          [event.on_click(GameResumed)],
+          [h.text("Continue")],
+        )
+      ReadyToPlay ->
+        button(
+          button.Solid,
+          Large,
+          PrimaryContainer,
+          [event.on_click(GameStarted)],
+          [h.text("Play")],
+        )
+      _ -> element.none()
+    },
+    case state {
+      Completed | Paused ->
+        button(
+          button.Solid,
+          Large,
+          TertiaryContainer,
+          [event.on_click(NewGame)],
+          [h.text("New Game")],
+        )
+      _ -> element.none()
+    },
+    case state {
+      Paused ->
+        button(
+          button.Solid,
+          Large,
+          TertiaryContainer,
+          [event.on_click(RestartGame)],
+          [h.text("Restart")],
+        )
+      _ -> element.none()
+    },
+  ])
 }
 
 /// format_seconds accepts an integer time in seconds and returns a
@@ -535,7 +546,7 @@ fn wiki(
         h.i(
           [
             class(
-              "fa-solid fa-solid fa-spinner fa-spin-pulse justify-self-center text-5xl",
+              "fa-solid fa-spinner fa-spin-pulse justify-self-center text-5xl",
             ),
           ],
           [element.none()],
