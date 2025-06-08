@@ -30,7 +30,6 @@ pub fn init(_args) -> #(Model, Effect(Msg)) {
 pub fn initial() -> Model {
   Model(
     dark: False,
-    displayed: "",
     elapsed: 0,
     endpoints: endpoints.new(),
     goal_error: None,
@@ -52,7 +51,6 @@ pub fn initial() -> Model {
 pub fn reset(model: Model) -> Model {
   Model(
     ..model,
-    displayed: "",
     elapsed: 0,
     goal_error: None,
     navigation: navigation.new(),

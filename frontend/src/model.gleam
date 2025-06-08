@@ -11,7 +11,6 @@ import navigation.{type Navigation}
 pub type Model {
   Model(
     dark: Bool,
-    displayed: String,
     elapsed: Int,
     endpoints: Endpoints,
     goal_error: Option(String),
