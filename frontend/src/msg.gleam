@@ -34,4 +34,7 @@ pub type Msg {
   TimerReturnedID(Int)
   TimerStopped
   TimerTick
+
+  // Settings messafes
+  DarkModeSetting(Bool)
 }

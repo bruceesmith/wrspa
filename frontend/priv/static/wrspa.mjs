@@ -1896,6 +1896,19 @@ function run_dynamic_function(data, name, f) {
     ];
   }
 }
+function decode_bool2(data) {
+  let $ = isEqual(identity(true), data);
+  if ($) {
+    return [true, toList([])];
+  } else {
+    let $1 = isEqual(identity(false), data);
+    if ($1) {
+      return [false, toList([])];
+    } else {
+      return [false, decode_error("Bool", data)];
+    }
+  }
+}
 function decode_int2(data) {
   return run_dynamic_function(data, "Int", int);
 }
@@ -1904,6 +1917,7 @@ function failure(zero, expected) {
     return [zero, decode_error(expected, d)];
   });
 }
+var bool = /* @__PURE__ */ new Decoder(decode_bool2);
 var int2 = /* @__PURE__ */ new Decoder(decode_int2);
 function decode_string2(data) {
   return run_dynamic_function(data, "String", string);
@@ -2177,7 +2191,7 @@ function to_string2(json2) {
 function string3(input3) {
   return identity3(input3);
 }
-function bool(input3) {
+function bool2(input3) {
   return identity3(input3);
 }
 function object2(entries) {
@@ -2383,7 +2397,7 @@ function boolean_attribute(name, value) {
   if (value) {
     return attribute2(name, "");
   } else {
-    return property2(name, bool(false));
+    return property2(name, bool2(false));
   }
 }
 function class$(name) {
@@ -2391,6 +2405,9 @@ function class$(name) {
 }
 function id(value) {
   return attribute2("id", value);
+}
+function checked(is_checked) {
+  return boolean_attribute("checked", is_checked);
 }
 function disabled(is_disabled) {
   return boolean_attribute("disabled", is_disabled);
@@ -2400,6 +2417,9 @@ function for$(id2) {
 }
 function placeholder(text4) {
   return attribute2("placeholder", text4);
+}
+function type_(control_type) {
+  return attribute2("type", control_type);
 }
 
 // build/dev/javascript/lustre/lustre/effect.mjs
@@ -4083,13 +4103,13 @@ var virtualise_node = (node) => {
 var input_elements = ["input", "select", "textarea"];
 var virtualise_input_events = (tag, node) => {
   const value = node.value;
-  const checked = node.checked;
-  if (tag === "input" && node.type === "checkbox" && !checked) return;
-  if (tag === "input" && node.type === "radio" && !checked) return;
+  const checked2 = node.checked;
+  if (tag === "input" && node.type === "checkbox" && !checked2) return;
+  if (tag === "input" && node.type === "radio" && !checked2) return;
   if (node.type !== "checkbox" && node.type !== "radio" && !value) return;
   queueMicrotask(() => {
     node.value = value;
-    node.checked = checked;
+    node.checked = checked2;
     node.dispatchEvent(new Event("input", { bubbles: true }));
     node.dispatchEvent(new Event("change", { bubbles: true }));
     if (document.activeElement !== node) {
@@ -6312,6 +6332,12 @@ var TimerStopped = class extends CustomType {
 };
 var TimerTick = class extends CustomType {
 };
+var DarkModeSetting = class extends CustomType {
+  constructor(x0) {
+    super();
+    this[0] = x0;
+  }
+};
 
 // build/dev/javascript/wrspa/effects.mjs
 function dark_mode_on(dark) {
@@ -6443,10 +6469,9 @@ function navigated_to(new$10, nav) {
 
 // build/dev/javascript/wrspa/model.mjs
 var Model = class extends CustomType {
-  constructor(dark, displayed, elapsed, endpoints, goal_error, navigation, pending, rsvp_error, start_error, state, steps, timer_id, wiki_html) {
+  constructor(dark, elapsed, endpoints, goal_error, navigation, pending, rsvp_error, start_error, state, steps, timer_id, wiki_html) {
     super();
     this.dark = dark;
-    this.displayed = displayed;
     this.elapsed = elapsed;
     this.endpoints = endpoints;
     this.goal_error = goal_error;
@@ -6479,7 +6504,6 @@ var ReadyToPlay = class extends CustomType {
 function initial() {
   return new Model(
     false,
-    "",
     0,
     new$7(),
     new None(),
@@ -6512,7 +6536,6 @@ function reset(model) {
   let _record = model;
   return new Model(
     _record.dark,
-    "",
     0,
     _record.endpoints,
     new None(),
@@ -6590,7 +6613,6 @@ function check_click(model, href) {
             let _record = model;
             return new Model(
               _record.dark,
-              _record.displayed,
               _record.elapsed,
               _record.endpoints,
               _record.goal_error,
@@ -6666,7 +6688,6 @@ function update2(model, msg) {
         let _record = model;
         return new Model(
           set,
-          _record.displayed,
           _record.elapsed,
           _record.endpoints,
           _record.goal_error,
@@ -6688,7 +6709,6 @@ function update2(model, msg) {
         let _record = model;
         return new Model(
           _record.dark,
-          _record.displayed,
           _record.elapsed,
           _record.endpoints,
           _record.goal_error,
@@ -6720,7 +6740,6 @@ function update2(model, msg) {
         let _record = model;
         return new Model(
           _record.dark,
-          _record.displayed,
           _record.elapsed,
           (() => {
             let _pipe = model.endpoints;
@@ -6751,7 +6770,6 @@ function update2(model, msg) {
           let _record = model;
           return new Model(
             _record.dark,
-            _record.displayed,
             _record.elapsed,
             (() => {
               let _pipe = model.endpoints;
@@ -6777,7 +6795,6 @@ function update2(model, msg) {
           let _record = model;
           return new Model(
             _record.dark,
-            _record.displayed,
             _record.elapsed,
             _record.endpoints,
             _record.goal_error,
@@ -6804,7 +6821,6 @@ function update2(model, msg) {
           let _record = model;
           return new Model(
             _record.dark,
-            _record.displayed,
             _record.elapsed,
             (() => {
               let _pipe = model.endpoints;
@@ -6830,7 +6846,6 @@ function update2(model, msg) {
           let _record = model;
           return new Model(
             _record.dark,
-            _record.displayed,
             _record.elapsed,
             _record.endpoints,
             new Some(e),
@@ -6853,7 +6868,6 @@ function update2(model, msg) {
         let _record = model;
         return new Model(
           _record.dark,
-          _record.displayed,
           _record.elapsed,
           _record.endpoints,
           _record.goal_error,
@@ -6881,7 +6895,6 @@ function update2(model, msg) {
         let _record = model;
         return new Model(
           _record.dark,
-          _record.displayed,
           _record.elapsed,
           (() => {
             let _pipe$1 = model.endpoints;
@@ -6909,7 +6922,6 @@ function update2(model, msg) {
         let _record = model;
         return new Model(
           _record.dark,
-          _record.displayed,
           _record.elapsed,
           (() => {
             let _pipe = model.endpoints;
@@ -6935,7 +6947,6 @@ function update2(model, msg) {
         let _record = model;
         return new Model(
           _record.dark,
-          _record.displayed,
           _record.elapsed,
           _record.endpoints,
           _record.goal_error,
@@ -6960,7 +6971,6 @@ function update2(model, msg) {
         let _record = model;
         return new Model(
           _record.dark,
-          _record.displayed,
           _record.elapsed,
           _record.endpoints,
           _record.goal_error,
@@ -6982,7 +6992,6 @@ function update2(model, msg) {
         let _record = model;
         return new Model(
           _record.dark,
-          _record.displayed,
           _record.elapsed,
           _record.endpoints,
           _record.goal_error,
@@ -7010,7 +7019,6 @@ function update2(model, msg) {
         let _record = model;
         return new Model(
           _record.dark,
-          _record.displayed,
           _record.elapsed,
           _record.endpoints,
           _record.goal_error,
@@ -7052,7 +7060,6 @@ function update2(model, msg) {
         let _record = model;
         return new Model(
           _record.dark,
-          _record.displayed,
           _record.elapsed,
           (() => {
             let _pipe = model.endpoints;
@@ -7124,7 +7131,6 @@ function update2(model, msg) {
           let _record = model;
           return new Model(
             _record.dark,
-            model.pending,
             _record.elapsed,
             _record.endpoints,
             _record.goal_error,
@@ -7148,7 +7154,6 @@ function update2(model, msg) {
         let _record = model;
         return new Model(
           _record.dark,
-          _record.displayed,
           _record.elapsed,
           _record.endpoints,
           _record.goal_error,
@@ -7178,7 +7183,6 @@ function update2(model, msg) {
             let _record = model;
             return new Model(
               _record.dark,
-              _record.displayed,
               _record.elapsed,
               _record.endpoints,
               _record.goal_error,
@@ -7217,7 +7221,6 @@ function update2(model, msg) {
             let _record = model;
             return new Model(
               _record.dark,
-              _record.displayed,
               _record.elapsed,
               _record.endpoints,
               _record.goal_error,
@@ -7249,7 +7252,6 @@ function update2(model, msg) {
         let _record = model;
         return new Model(
           _record.dark,
-          _record.displayed,
           _record.elapsed,
           _record.endpoints,
           _record.goal_error,
@@ -7267,15 +7269,36 @@ function update2(model, msg) {
     ];
   } else if (msg instanceof TimerStopped) {
     return [model, none()];
-  } else {
+  } else if (msg instanceof TimerTick) {
     let elapsed = model.elapsed + 1;
     return [
       (() => {
         let _record = model;
         return new Model(
           _record.dark,
-          _record.displayed,
           elapsed,
+          _record.endpoints,
+          _record.goal_error,
+          _record.navigation,
+          _record.pending,
+          _record.rsvp_error,
+          _record.start_error,
+          _record.state,
+          _record.steps,
+          _record.timer_id,
+          _record.wiki_html
+        );
+      })(),
+      none()
+    ];
+  } else {
+    let mode = msg[0];
+    return [
+      (() => {
+        let _record = model;
+        return new Model(
+          mode,
+          _record.elapsed,
           _record.endpoints,
           _record.goal_error,
           _record.navigation,
@@ -7369,6 +7392,18 @@ function on_input(msg) {
       string2,
       (value) => {
         return success(msg(value));
+      }
+    )
+  );
+}
+function on_check(msg) {
+  return on(
+    "change",
+    subfield(
+      toList(["target", "checked"]),
+      bool,
+      (checked2) => {
+        return success(msg(checked2));
       }
     )
   );
@@ -7717,6 +7752,45 @@ function input2(variety, size2, colour, attributes) {
     )
   );
   return input(append(variant_classes3(variety), attr));
+}
+
+// build/dev/javascript/wrspa/switch.mjs
+function switch$(set, label2, on_check2) {
+  return div(
+    toList([class$("grid grid-rows-1 grid-cols-2")]),
+    toList([
+      text3(label2),
+      div(
+        toList([
+          class$(
+            "relative inline-block w-[52px] h-[32px] justify-self-center self-center"
+          )
+        ]),
+        toList([
+          input(
+            toList([
+              checked(set),
+              id("switch-component"),
+              type_("checkbox"),
+              class$(
+                "peer appearance-none w-[52px] h-[32px] bg-surface-container-highest rounded-full checked:bg-primary cursor-pointer transition-colors duration-300"
+              ),
+              on_check(on_check2)
+            ])
+          ),
+          label(
+            toList([
+              for$("switch-component"),
+              class$(
+                "absolute top-[4px] left-[2px] w-[24px] h-[24px] bg-outline peer-checked:bg-on-primary-container rounded-full border border-slate-300 shadow-sm transition-transform duration-300 peer-checked:translate-x-[25px] peer-checked:border-slate-800 cursor-pointer"
+              )
+            ]),
+            toList([])
+          )
+        ])
+      )
+    ])
+  );
 }
 
 // build/dev/javascript/wrspa/tooltip.mjs
@@ -8362,7 +8436,7 @@ function view(model) {
   }
   let body = _block;
   let title = div(
-    toList([class$("grid grid-rows-1 grid-cols-[19fr_1fr] border-none")]),
+    toList([class$("grid grid-rows-1 grid-cols-3 border-none")]),
     toList([
       p(
         toList([
@@ -8371,6 +8445,13 @@ function view(model) {
           )
         ]),
         toList([text3("Wiki Racing")])
+      ),
+      switch$(
+        model.dark,
+        "Dark mode",
+        (var0) => {
+          return new DarkModeSetting(var0);
+        }
       ),
       i(
         toList([

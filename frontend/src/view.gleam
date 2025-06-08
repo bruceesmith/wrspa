@@ -28,12 +28,13 @@ import model.{
 }
 import msg.{
   type Msg, Click, CustomEndPointsSelected, CustomGoalChanged, CustomSelected,
-  CustomStartChanged, GamePaused, GameResumed, GameStarted, NavigateBack,
-  NavigateForward, NewGame, RandomEndPointsDisplayed, RandomSelected,
-  RedrawRandom, RestartGame,
+  CustomStartChanged, DarkModeSetting, GamePaused, GameResumed, GameStarted,
+  NavigateBack, NavigateForward, NewGame, RandomEndPointsDisplayed,
+  RandomSelected, RedrawRandom, RestartGame,
 }
 import navigation.{type Navigation, navigation_possible}
 import size.{Large}
+import switch.{switch}
 import tooltip.{Left, tooltip}
 
 // -----------------------------------------------------------------------------
@@ -62,7 +63,8 @@ pub fn view(model: Model) -> Element(Msg) {
     ReadyToPlay | Playing | Paused | Completed -> playing(model)
   }
   let title =
-    h.div([class("grid grid-rows-1 grid-cols-[19fr_1fr] border-none")], [
+    h.div([class("grid grid-rows-1 grid-cols-3 border-none")], [
+      // grid-cols-[17fr_2fr_1fr
       h.p(
         [
           class(
@@ -71,6 +73,7 @@ pub fn view(model: Model) -> Element(Msg) {
         ],
         [h.text("Wiki Racing")],
       ),
+      switch(model.dark, "Dark mode", DarkModeSetting),
       h.i(
         [
           class(
@@ -86,6 +89,18 @@ pub fn view(model: Model) -> Element(Msg) {
   }
   h.div([mode], [title, ..body])
 }
+
+// -----------------------------------------------------------------------------
+//
+// SETUP PAGE and HELPERS------------------------------------------------------------
+//
+// -----------------------------------------------------------------------------
+
+/// settings_menu builds the popup that appears whem the settings gear icon is clicked
+/// 
+// fn settings_menu()-> Element(Msg) {
+
+// }
 
 // -----------------------------------------------------------------------------
 //

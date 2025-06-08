@@ -59,6 +59,8 @@ base.css is the primary CSS input to the Tailwind CSS generator
     --spacing: 0.4rem;
 }
 
+/* Tooltip */
+
 .tooltip {
     position: relative;
     display: inline-block;
@@ -76,5 +78,5 @@ base.css is the primary CSS input to the Tailwind CSS generator
 }
 
 .tooltip:hover .tooltiptext {
-  visibility: visible;
+    visibility: visible;
 }

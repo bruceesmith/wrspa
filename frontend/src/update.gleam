@@ -29,8 +29,8 @@ import model.{
 }
 import msg.{
   type Msg, Click, CustomEndPointsSelected, CustomGoalChanged, CustomSelected,
-  CustomStartChanged, DarkModeFetched, GamePaused, GameResumed, GameStarted,
-  NavigateBack, NavigateForward, NewGame, RandomEndPointsDisplayed,
+  CustomStartChanged, DarkModeFetched, DarkModeSetting, GamePaused, GameResumed,
+  GameStarted, NavigateBack, NavigateForward, NewGame, RandomEndPointsDisplayed,
   RandomSelected, RedrawRandom, RestartGame, Scrolled, SpecialRandomFetched,
   TimerReturnedID, TimerStopped, TimerTick, WikiPageFetched,
 }
@@ -199,7 +199,6 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
         #(
           Model(
             ..model,
-            displayed: model.pending,
             rsvp_error: None,
             navigation: navigated_to(dest, model.navigation),
             pending: "",
@@ -276,6 +275,9 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
       let elapsed = model.elapsed + 1
       #(Model(..model, elapsed:), effect.none())
     }
+
+    // Settings messages
+    DarkModeSetting(mode) -> #(Model(..model, dark: mode), effect.none())
   }
 }
 
