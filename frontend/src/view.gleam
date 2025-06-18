@@ -9,7 +9,7 @@ import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
 
-import lustre/attribute.{class, disabled, for, id, placeholder}
+import lustre/attribute.{attribute, class, disabled, for, id, placeholder}
 import lustre/element.{type Element}
 import lustre/element/html as h
 import lustre/event
@@ -63,8 +63,7 @@ pub fn view(model: Model) -> Element(Msg) {
     ReadyToPlay | Playing | Paused | Completed -> playing(model)
   }
   let title =
-    h.div([class("grid grid-rows-1 grid-cols-3 border-none")], [
-      // grid-cols-[17fr_2fr_1fr
+    h.div([class("grid grid-rows-1 grid-cols-[19fr_1fr] border-none")], [
       h.p(
         [
           class(
@@ -73,15 +72,7 @@ pub fn view(model: Model) -> Element(Msg) {
         ],
         [h.text("Wiki Racing")],
       ),
-      switch(model.dark, "Dark mode", DarkModeSetting),
-      h.i(
-        [
-          class(
-            "fa-solid fa-gear self-center justify-self-center pr-1 text-3xl tooltip",
-          ),
-        ],
-        [tooltip("Settings", Left)],
-      ),
+      settings_menu(model.dark),
     ])
   let mode = case model.dark {
     True -> class("dark")
@@ -98,9 +89,38 @@ pub fn view(model: Model) -> Element(Msg) {
 
 /// settings_menu builds the popup that appears whem the settings gear icon is clicked
 /// 
-// fn settings_menu()-> Element(Msg) {
-
-// }
+fn settings_menu(dark: Bool) -> Element(Msg) {
+  h.div(
+    [
+      class("menu self-center justify-self-center"),
+      attribute("data-placement", "bottom-end"),
+    ],
+    [
+      h.i(
+        [
+          attribute("data-toggle", "menu"),
+          attribute("aria-expanded", "false"),
+          class(
+            "fa-solid fa-gear self-center justify-self-center pr-1 text-3xl tooltip",
+          ),
+          class(
+            "transition-all duration-300 ease-in disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none",
+          ),
+        ],
+        [tooltip("Settings", Left)],
+      ),
+      h.ul(
+        [
+          attribute("data-role", "menu"),
+          class(
+            "hidden mt-2 bg-white border border-slate-200 rounded-lg shadow-xl shadow-slate-950/[0.025] p-1 z-10",
+          ),
+        ],
+        [h.li([], [switch(dark, "Dark mode", DarkModeSetting)])],
+      ),
+    ],
+  )
+}
 
 // -----------------------------------------------------------------------------
 //
