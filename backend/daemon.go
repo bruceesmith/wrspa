@@ -9,13 +9,20 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
+// The following variables assist with testing
+var (
+	newServer         = NewServer
+	terminateShutDown = terminator.ShutDown
+	terminateWait     = terminator.Wait
+)
+
 func Daemon(ctx context.Context, cmd *cli.Command) error {
 	var (
 		err error
 		svr *Server
 	)
 
-	svr, err = NewServer(cmd.String("port"), cmd.String("static"))
+	svr, err = newServer(cmd.String("port"), cmd.String("static"))
 	if err != nil {
 		logger.Error("initialisation error", "error", err.Error())
 		err = fmt.Errorf("initialisation error: [%w]", err)
@@ -26,10 +33,10 @@ func Daemon(ctx context.Context, cmd *cli.Command) error {
 	go svr.Serve()
 
 	// Wait for SIGTERM
-	<-terminator.ShutDown()
+	<-terminateShutDown()
 
 	// Wait for all goroutines to stop
-	terminator.Wait()
+	terminateWait()
 	logger.Info("wr server exiting")
 	return nil
 }
