@@ -8,6 +8,8 @@ import (
 	"github.com/bruceesmith/logger"
 )
 
+var wikiURL = "https://en.wikipedia.org"
+
 func getRandom() (path string) {
 	client := &http.Client{
 		CheckRedirect: func(req *http.Request, via []*http.Request) error {
@@ -15,7 +17,7 @@ func getRandom() (path string) {
 			return http.ErrUseLastResponse
 		},
 	}
-	r, err := client.Get("https://en.wikipedia.org/wiki/Special:Random")
+	r, err := client.Get(wikiURL + "/wiki/Special:Random")
 	if err != nil {
 		logger.Error("error fetching Special:Random", "error", err.Error())
 		return
@@ -26,8 +28,8 @@ func getRandom() (path string) {
 
 func get(path string) (body []byte, err error) {
 	var resp *http.Response
-	logger.TraceID("server", "get", "URL", "https://en.wikipedia.org"+path)
-	resp, err = http.Get("https://en.wikipedia.org" + path)
+	logger.TraceID("server", "get", "URL", wikiURL+path)
+	resp, err = http.Get(wikiURL + path)
 	if err != nil {
 		logger.Error("error fetching "+path, "error", err.Error())
 		return
