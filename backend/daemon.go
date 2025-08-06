@@ -2,41 +2,31 @@ package wrserver
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/bruceesmith/logger"
 	"github.com/bruceesmith/terminator"
 	"github.com/urfave/cli/v3"
 )
 
-// The following variables assist with testing
-var (
-	newServer         = NewServer
-	terminateShutDown = terminator.ShutDown
-	terminateWait     = terminator.Wait
-)
-
-func Daemon(ctx context.Context, cmd *cli.Command) error {
-	var (
-		err error
-		svr *Server
-	)
-
-	svr, err = newServer(cmd.String("port"), cmd.String("static"))
-	if err != nil {
-		logger.Error("initialisation error", "error", err.Error())
-		err = fmt.Errorf("initialisation error: [%w]", err)
-		return err
-	}
-
+func daemon(svr ServerInterface) error {
 	logger.Info("wr server starting")
-	go svr.Serve()
+	t := terminator.New()
+	go svr.Serve(t)
 
 	// Wait for SIGTERM
-	<-terminateShutDown()
+	<-t.ShutDown()
 
 	// Wait for all goroutines to stop
-	terminateWait()
+	t.Wait()
 	logger.Info("wr server exiting")
 	return nil
+
+}
+
+func Daemon(ctx context.Context, cmd *cli.Command) error {
+	svr, err := newServerAdapter(cmd.String("port"), cmd.String("static"), newClientAdapter())
+	if err != nil {
+		return err
+	}
+	return daemon(svr)
 }
