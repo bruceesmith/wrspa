@@ -161,6 +161,7 @@ func (s *Server) WikiPage(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		logger.Error("wikipage request failure", "error", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(s.MarshalFailure("wikipage", err, body)))
 		return
 	}
@@ -168,6 +169,7 @@ func (s *Server) WikiPage(w http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(body, &request)
 	if err != nil {
 		logger.Error("wikipage request failure", "error", err.Error())
+		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(s.MarshalFailure("wikipage", err, body)))
 		return
 	}
