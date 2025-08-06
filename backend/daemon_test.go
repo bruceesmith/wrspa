@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bruceesmith/terminator"
 	"github.com/bruceesmith/wrspa/backend/wrserver/mocks"
 	"go.uber.org/mock/gomock"
 )
@@ -24,15 +25,12 @@ func Test_daemon(t *testing.T) {
 			mockServer := mocks.NewMockServerInterface(ctrl)
 			serveCalled := make(chan struct{})
 
-			mockServer.EXPECT().Serve(gomock.Any()).Do(func(interface{}) {
+			mockServer.EXPECT().Serve(gomock.Any()).Do(func(term *terminator.Terminator) {
 				close(serveCalled)
 			})
 
-			// daemon() is a blocking function that waits for a signal.
-			// We run it in a goroutine to avoid blocking the test.
-			// This means the goroutine will be leaked, which is a tradeoff
-			// for testing this kind of function without refactoring.
-			go daemon(mockServer)
+			term := terminator.New()
+			go daemon(mockServer, term)
 
 			select {
 			case <-serveCalled:
@@ -40,6 +38,9 @@ func Test_daemon(t *testing.T) {
 			case <-time.After(time.Second):
 				t.Fatal("Serve was not called within a second")
 			}
+
+			// Stop the terminator to avoid leaking the goroutine
+			term.Stop()
 		})
 	}
 }

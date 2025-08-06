@@ -8,9 +8,8 @@ import (
 	"github.com/urfave/cli/v3"
 )
 
-func daemon(svr ServerInterface) error {
+func daemon(svr ServerInterface, t *terminator.Terminator) error {
 	logger.Info("wr server starting")
-	t := terminator.New()
 	go svr.Serve(t)
 
 	// Wait for SIGTERM
@@ -28,5 +27,5 @@ func Daemon(ctx context.Context, cmd *cli.Command) error {
 	if err != nil {
 		return err
 	}
-	return daemon(svr)
+	return daemon(svr, terminator.New())
 }
