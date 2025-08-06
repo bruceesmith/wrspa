@@ -14,7 +14,7 @@ type Client struct {
 
 var wikiURL = "https://en.wikipedia.org"
 
-// get fetches a Wikipedia URL (either a static file or a dynamic page)
+// Get fetches a Wikipedia URL (either a static file or a dynamic page)
 func (c *Client) Get(path string) (body []byte, err error) {
 	var resp *http.Response
 	logger.TraceID("client", "get", "URL", wikiURL+path)
@@ -38,7 +38,7 @@ func (c *Client) Get(path string) (body []byte, err error) {
 	return
 }
 
-// getRandom fetches the URL path but not the page content returned
+// GetRandom fetches the URL path but not the page content returned
 // by fetching the path /wiki/SpecialRandom but not redirecting
 func (c *Client) GetRandom() (path string) {
 	client := &http.Client{
