@@ -85,14 +85,6 @@ func (s *Server) API(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// // MultiHandler allows go-app, REST HTTP(S) and Wikipedia static file calls to co-exist
-// func (s *Server) MultiHandler(mux http.Handler) http.Handler {
-// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		logger.TraceID("server", "multiHandler", "path", r.URL.Path)
-// 		mux.ServeHTTP(w, r)
-// 	})
-// }
-
 // MarshalFailure creates a sensible JSON-format error message
 func (s *Server) MarshalFailure(function string, err error, response any) string {
 	return `{"msg": "unable to marshal API response", ` +
