@@ -1,5 +1,7 @@
 package main
 
+//go:generate go tool mockgen -source=../../interfaces.go -destination=../../mocks/mocks.go -package=mocks
+
 import (
 	"context"
 	"fmt"
