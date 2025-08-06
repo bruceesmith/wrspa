@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/bruceesmith/wrspa/backend/mocks"
+	"github.com/bruceesmith/wrspa/backend/wrserver/mocks"
 	"go.uber.org/mock/gomock"
 )
 
