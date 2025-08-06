@@ -7,6 +7,7 @@ require (
 	github.com/bruceesmith/echidna v1.1.4
 	github.com/bruceesmith/logger v1.3.3
 	github.com/bruceesmith/terminator v1.1.0
+	github.com/stretchr/testify v1.10.0
 	github.com/urfave/cli/v3 v3.3.8
 	go.uber.org/mock v0.5.2
 )
@@ -46,6 +47,7 @@ require (
 	golang.org/x/vuln v1.1.4 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	honnef.co/go/tools v0.6.1 // indirect
 )
 
