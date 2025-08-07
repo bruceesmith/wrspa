@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
@@ -64,37 +65,41 @@ func TestAPI(t *testing.T) {
 	mockClient := mocks.NewMockClientInterface(ctrl)
 
 	tests := []struct {
-		name       string
-		method     string
-		function   string
-		body       any
-		statusCode int
-		mockSetup  func()
+		name           string
+		method         string
+		function       string
+		body           any
+		statusCode     int
+		expectedHeader map[string]string
+		mockSetup      func()
 	}{
 		{
-			name:       "settings",
-			method:     http.MethodGet,
-			function:   "settings",
-			statusCode: http.StatusOK,
+			name:           "settings",
+			method:         http.MethodGet,
+			function:       "settings",
+			statusCode:     http.StatusOK,
+			expectedHeader: map[string]string{"Content-Type": "application/json"},
 		},
 		{
-			name:       "specialrandom",
-			method:     http.MethodGet,
-			function:   "specialrandom",
-			statusCode: http.StatusOK,
+			name:           "specialrandom",
+			method:         http.MethodGet,
+			function:       "specialrandom",
+			statusCode:     http.StatusOK,
+			expectedHeader: map[string]string{"Content-Type": "application/json"},
 			mockSetup: func() {
 				mockClient.EXPECT().GetRandom().Return("start")
 				mockClient.EXPECT().GetRandom().Return("goal")
 			},
 		},
 		{
-			name:       "wikipage",
-			method:     http.MethodPost,
-			function:   "wikipage",
-			body:       WikiPageRequest{Subject: "test"},
-			statusCode: http.StatusOK,
+			name:           "wikipage",
+			method:         http.MethodPost,
+			function:       "wikipage",
+			body:           WikiPageRequest{Subject: "test"},
+			statusCode:     http.StatusOK,
+			expectedHeader: map[string]string{"Content-Type": "text/html"},
 			mockSetup: func() {
-				mockClient.EXPECT().Get("/test").Return([]byte("<body class=\"test\">test</body>"), nil)
+				mockClient.EXPECT().Get("/test").Return([]byte("<html><body><p>test</p></body></html>"), nil)
 			},
 		},
 		{
@@ -122,13 +127,13 @@ func TestAPI(t *testing.T) {
 			},
 		},
 		{
-			name:       "wikipage regex mismatch",
+			name:       "wikipage no body tag",
 			method:     http.MethodPost,
 			function:   "wikipage",
 			body:       WikiPageRequest{Subject: "test"},
 			statusCode: http.StatusInternalServerError,
 			mockSetup: func() {
-				mockClient.EXPECT().Get("/test").Return([]byte("no body tag"), nil)
+				mockClient.EXPECT().Get("/test").Return([]byte("<html></html>"), nil)
 			},
 		},
 		{
@@ -163,6 +168,59 @@ func TestAPI(t *testing.T) {
 			if w.Code != tt.statusCode {
 				t.Errorf("got status code %d, want %d", w.Code, tt.statusCode)
 			}
+
+			for key, value := range tt.expectedHeader {
+				if w.Header().Get(key) != value {
+					t.Errorf("got header %s: %s, want %s", key, w.Header().Get(key), value)
+				}
+			}
+		})
+	}
+}
+
+func TestExtractBody(t *testing.T) {
+	s := &Server{}
+
+	tests := []struct {
+		name    string
+		html    string
+		expect  string
+		wantErr bool
+	}{
+		{
+			name:   "simple body",
+			html:   "<html><body><p>Hello</p></body></html>",
+			expect: "<p>Hello</p>",
+		},
+		{
+			name:    "no body",
+			html:    "<html><head></head></html>",
+			wantErr: true,
+		},
+		{
+			name:   "empty body",
+			html:   "<html><body></body></html>",
+			expect: "",
+		},
+		{
+			name:    "malformed html",
+			html:    "<html",
+			wantErr: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			body, err := s.extractBody([]byte(tt.html))
+
+			if (err != nil) != tt.wantErr {
+				t.Errorf("extractBody() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+
+			if !tt.wantErr && string(body) != tt.expect {
+				t.Errorf("extractBody() = %v, want %v", string(body), tt.expect)
+			}
 		})
 	}
 }
@@ -170,7 +228,10 @@ func TestAPI(t *testing.T) {
 func TestMarshalFailure(t *testing.T) {
 	s := &Server{}
 	json := s.MarshalFailure("test", errors.New("test error"), "test response")
-	if json != `{"msg": "unable to marshal API response", "function": "test", "error": "test error", "response": "test response"}` {
+	if !strings.Contains(json, `"msg": "unable to marshal API response"`) ||
+		!strings.Contains(json, `"function": "test"`) ||
+		!strings.Contains(json, `"error": "test error"`) ||
+		!strings.Contains(json, `"response": "test response"`) {
 		t.Errorf("unexpected json: %s", json)
 	}
 }

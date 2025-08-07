@@ -1,11 +1,13 @@
 package wrserver
 
 import (
+	"context"
 	"testing"
 	"time"
 
 	"github.com/bruceesmith/terminator"
 	"github.com/bruceesmith/wrspa/backend/wrserver/mocks"
+	"github.com/urfave/cli/v3"
 	"go.uber.org/mock/gomock"
 )
 
@@ -42,5 +44,25 @@ func Test_daemon(t *testing.T) {
 			// Stop the terminator to avoid leaking the goroutine
 			term.Stop()
 		})
+	}
+}
+
+func TestDaemon_ErrorHandling(t *testing.T) {
+	cmd := &cli.Command{
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:  "port",
+				Value: "invalid-port",
+			},
+			&cli.StringFlag{
+				Name:  "static",
+				Value: "/tmp",
+			},
+		},
+	}
+
+	err := Daemon(context.Background(), cmd)
+	if err == nil {
+		t.Fatal("expected an error, got nil")
 	}
 }

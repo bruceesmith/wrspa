@@ -40,9 +40,6 @@ func Test_clientAdapter_Get(t *testing.T) {
 	}))
 	defer server.Close()
 
-	// Hijack the wikiURL to point to our mock server
-	wikiURL = server.URL
-
 	type fields struct {
 		client ClientInterface
 	}
@@ -59,7 +56,7 @@ func Test_clientAdapter_Get(t *testing.T) {
 		{
 			name: "Test Get success",
 			fields: fields{
-				client: &Client{},
+				client: NewClient(server.URL),
 			},
 			args: args{
 				path: "/success",
@@ -70,7 +67,7 @@ func Test_clientAdapter_Get(t *testing.T) {
 		{
 			name: "Test Get failure",
 			fields: fields{
-				client: &Client{},
+				client: NewClient(server.URL),
 			},
 			args: args{
 				path: "/failure",

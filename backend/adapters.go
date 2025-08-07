@@ -31,10 +31,6 @@ func newServerAdapter(port, static string, client ClientInterface) (s *serverAda
 	return &serverAdapter{server: svr}, err
 }
 
-// func (sa *serverAdapter) MultiHandler(mux http.Handler) http.Handler {
-// 	return sa.server.MultiHandler(mux)
-// }
-
 func (sa *serverAdapter) API(w http.ResponseWriter, r *http.Request) {
 	sa.server.API(w, r)
 }

@@ -14,6 +14,34 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
+func TestNewClient(t *testing.T) {
+	tests := []struct {
+		name    string
+		wikiURL string
+		want    string
+	}{
+		{
+			name:    "default url",
+			wikiURL: "",
+			want:    defaultWikiURL,
+		},
+		{
+			name:    "custom url",
+			wikiURL: "http://localhost:8080",
+			want:    "http://localhost:8080",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := NewClient(tt.wikiURL)
+			if c.wikiURL != tt.want {
+				t.Errorf("got %s, want %s", c.wikiURL, tt.want)
+			}
+		})
+	}
+}
+
 func TestGet(t *testing.T) {
 	// success and server failure cases
 	t.Run("success and server failure", func(t *testing.T) {
@@ -45,9 +73,7 @@ func TestGet(t *testing.T) {
 				}))
 				defer server.Close()
 
-				wikiURL = server.URL
-
-				c := &Client{}
+				c := NewClient(server.URL)
 				body, err := c.Get("")
 				if tt.shouldFail {
 					if err == nil {
@@ -66,10 +92,9 @@ func TestGet(t *testing.T) {
 	// network error case
 	t.Run("network error", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
-		wikiURL = server.URL
 		server.Close() // Close server immediately
 
-		c := &Client{}
+		c := NewClient(server.URL)
 		_, err := c.Get("")
 		if err == nil {
 			t.Fatal("expected a network error, but got nil")
@@ -95,8 +120,7 @@ func TestGet(t *testing.T) {
 		}))
 		defer server.Close()
 
-		wikiURL = server.URL
-		c := &Client{}
+		c := NewClient(server.URL)
 		_, err := c.Get("")
 		if err == nil {
 			t.Fatal("expected an error reading the body, but got nil")
@@ -132,13 +156,11 @@ func TestGetRandom(t *testing.T) {
 						return
 					}
 					w.Header().Set("Location", tt.path)
-					w.WriteHeader(http.StatusFound)
+					w.WriteHeader(http.StatusOK)
 				}))
 				defer server.Close()
 
-				wikiURL = server.URL
-
-				c := &Client{}
+				c := NewClient(server.URL)
 				path := c.GetRandom()
 
 				if tt.shouldFail {
@@ -158,10 +180,9 @@ func TestGetRandom(t *testing.T) {
 	// network error case
 	t.Run("network error", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
-		wikiURL = server.URL
 		server.Close() // Close server immediately
 
-		c := &Client{}
+		c := NewClient(server.URL)
 		path := c.GetRandom()
 		if path != "" {
 			t.Fatalf("expected empty path on network error, but got '%s'", path)

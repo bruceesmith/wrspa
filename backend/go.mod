@@ -10,6 +10,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/urfave/cli/v3 v3.3.8
 	go.uber.org/mock v0.5.2
+	golang.org/x/net v0.42.0
 )
 
 require (

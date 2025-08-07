@@ -9,16 +9,25 @@ import (
 	"github.com/bruceesmith/logger"
 )
 
+const defaultWikiURL = "https://en.wikipedia.org"
+
 type Client struct {
+	wikiURL string
 }
 
-var wikiURL = "https://en.wikipedia.org"
+func NewClient(wikiURL string) *Client {
+	if wikiURL == "" {
+		wikiURL = defaultWikiURL
+	}
+	return &Client{wikiURL: wikiURL}
+}
 
 // Get fetches a Wikipedia URL (either a static file or a dynamic page)
 func (c *Client) Get(path string) (body []byte, err error) {
 	var resp *http.Response
-	logger.TraceID("client", "get", "URL", wikiURL+path)
-	resp, err = http.Get(wikiURL + path)
+	url := c.wikiURL + path
+	logger.TraceID("client", "get", "URL", url)
+	resp, err = http.Get(url)
 	if err != nil {
 		logger.Error("error fetching "+path, "error", err.Error())
 		return
@@ -41,23 +50,19 @@ func (c *Client) Get(path string) (body []byte, err error) {
 // GetRandom fetches the URL path but not the page content returned
 // by fetching the path /wiki/SpecialRandom but not redirecting
 func (c *Client) GetRandom() (path string) {
-	client := &http.Client{
-		CheckRedirect: func(req *http.Request, via []*http.Request) error {
-			path = strings.TrimPrefix(req.URL.Path, "/wiki/")
-			return http.ErrUseLastResponse
-		},
-	}
-	r, err := client.Get(wikiURL + "/wiki/Special:Random")
+	url := c.wikiURL + "/wiki/Special:Random"
+	resp, err := http.Head(url)
 	if err != nil {
 		logger.Error("error fetching Special:Random", "error", err.Error())
 		return
 	}
-	defer r.Body.Close()
+	defer resp.Body.Close()
 
-	if r.StatusCode != http.StatusFound {
-		logger.Error("unexpected status getting random", "status", r.Status)
+	if resp.StatusCode != http.StatusOK && resp.StatusCode != http.StatusFound {
+		logger.Error("unexpected status getting random", "status", resp.Status)
 		return
 	}
 
+	path = strings.TrimPrefix(resp.Request.URL.Path, "/wiki/")
 	return
 }
