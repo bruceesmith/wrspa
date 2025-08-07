@@ -2,6 +2,7 @@ package wrserver
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/bruceesmith/logger"
 	"github.com/bruceesmith/terminator"
@@ -22,10 +23,15 @@ func daemon(svr ServerInterface, t *terminator.Terminator) error {
 
 }
 
+const (
+	portFlag   = "port"
+	staticFlag = "static"
+)
+
 func Daemon(ctx context.Context, cmd *cli.Command) error {
-	svr, err := newServerAdapter(cmd.String("port"), cmd.String("static"), newClientAdapter())
+	svr, err := newServerAdapter(cmd.String(portFlag), cmd.String(staticFlag), newClientAdapter())
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create server adapter: %w", err)
 	}
 	return daemon(svr, terminator.New())
 }
