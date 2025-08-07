@@ -27,17 +27,31 @@ func TestNewServer(t *testing.T) {
 		{
 			name:   "success",
 			port:   "8080",
-			static: "/tmp",
+			static: "testdata",
 			client: &Client{},
 		},
 		{
 			name:       "bad port",
 			port:       "-1",
+			static:     "testdata",
 			shouldFail: true,
 		},
 		{
 			name:       "non-numeric port",
 			port:       "a",
+			static:     "testdata",
+			shouldFail: true,
+		},
+		{
+			name:       "static folder does not exist",
+			port:       "8080",
+			static:     "non-existent-folder",
+			shouldFail: true,
+		},
+		{
+			name:       "static is a file",
+			port:       "8080",
+			static:     "testdata/test.txt",
 			shouldFail: true,
 		},
 	}
@@ -150,7 +164,7 @@ func TestAPI(t *testing.T) {
 				tt.mockSetup()
 			}
 
-			s, _ := NewServer("8080", "/tmp", mockClient)
+			s, _ := NewServer("8080", "testdata", mockClient)
 
 			var body io.Reader
 			if br, ok := tt.body.(io.Reader); ok {
@@ -237,7 +251,7 @@ func TestMarshalFailure(t *testing.T) {
 }
 
 func TestServe(t *testing.T) {
-	s, err := NewServer("8081", "/tmp", &Client{})
+	s, err := NewServer("8081", "testdata", &Client{})
 	if err != nil {
 		t.Fatalf("failed to create server: %v", err)
 	}
@@ -327,7 +341,7 @@ func TestWikipediaFile(t *testing.T) {
 				tt.mockSetup()
 			}
 
-			s, _ := NewServer("8080", "/tmp", mockClient)
+			s, _ := NewServer("8080", "testdata", mockClient)
 
 			req := httptest.NewRequest(http.MethodGet, tt.path, nil)
 			w := httptest.NewRecorder()

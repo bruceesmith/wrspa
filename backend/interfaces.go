@@ -22,5 +22,4 @@ type ServerInterface interface {
 	SpecialRandom(w http.ResponseWriter, r *http.Request)
 	WikiPage(w http.ResponseWriter, r *http.Request)
 	WikipediaFile(w http.ResponseWriter, r *http.Request)
-	// MultiHandler(mux http.Handler) http.Handler
 }

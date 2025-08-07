@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 
@@ -37,6 +38,18 @@ func NewServer(port, static string, client ClientInterface) (svr ServerInterface
 	if p <= 1024 || p > 65535 {
 		return nil, fmt.Errorf("invalid port %s", port)
 	}
+
+	info, err := os.Stat(static)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, fmt.Errorf("static folder '%s' not found", static)
+		}
+		return nil, fmt.Errorf("error accessing static folder '%s': %w", static, err)
+	}
+	if !info.IsDir() {
+		return nil, fmt.Errorf("static path '%s' is not a directory", static)
+	}
+
 	s := &Server{
 		client: client,
 		port:   port,
