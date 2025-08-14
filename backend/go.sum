@@ -35,8 +35,8 @@ github.com/bruceesmith/echidna v1.1.5 h1:uL01Pup8dz/5QsYh+VE9xfyympzyRvt1uqQqPd8
 github.com/bruceesmith/echidna v1.1.5/go.mod h1:PuX85xUzvOiI0C1uaGMVN+whHtkh9oJbzLInEunptSw=
 github.com/bruceesmith/logger v1.3.4 h1:R97A7DzsSs59gacKEkzT2HHAyyP871c/gg0WPTZrrI8=
 github.com/bruceesmith/logger v1.3.4/go.mod h1:qJUYfjujjv3IobJrH2tOlitby0v+tM+r6lunG/Y+Jb0=
-github.com/bruceesmith/terminator v1.1.1 h1:j8rZ2WWHWVaKVfLtTk63MFHITIh2ozVBIf2IXju+Djk=
-github.com/bruceesmith/terminator v1.1.1/go.mod h1:qCSk+qU0X0n8+dxGrKbNUlxNEDQ9kOjnTAvZcCweDNg=
+github.com/bruceesmith/terminator v1.1.2 h1:uiDpxGfE2yBG6zpGCfD5z58hIc+hy29J+vXnKvydvrU=
+github.com/bruceesmith/terminator v1.1.2/go.mod h1:qCSk+qU0X0n8+dxGrKbNUlxNEDQ9kOjnTAvZcCweDNg=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/cespare/xxhash/v2 v2.1.1/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=

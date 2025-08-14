@@ -6,7 +6,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
 	github.com/bruceesmith/echidna v1.1.5
 	github.com/bruceesmith/logger v1.3.4
-	github.com/bruceesmith/terminator v1.1.1
+	github.com/bruceesmith/terminator v1.1.2
 	github.com/stretchr/testify v1.10.0
 	github.com/urfave/cli/v3 v3.4.1
 	go.uber.org/mock v0.5.2
