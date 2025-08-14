@@ -1,16 +1,16 @@
 module github.com/bruceesmith/wrspa/backend/wrserver
 
-go 1.24.5
+go 1.25
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
-	github.com/bruceesmith/echidna v1.1.4
-	github.com/bruceesmith/logger v1.3.3
-	github.com/bruceesmith/terminator v1.1.0
+	github.com/bruceesmith/echidna v1.1.5
+	github.com/bruceesmith/logger v1.3.4
+	github.com/bruceesmith/terminator v1.1.1
 	github.com/stretchr/testify v1.10.0
-	github.com/urfave/cli/v3 v3.3.8
+	github.com/urfave/cli/v3 v3.4.1
 	go.uber.org/mock v0.5.2
-	golang.org/x/net v0.42.0
+	golang.org/x/net v0.43.0
 )
 
 require (
@@ -38,13 +38,13 @@ require (
 	github.com/urfave/cli/v2 v2.27.7 // indirect
 	github.com/urfave/sflags v0.4.1 // indirect
 	github.com/xrash/smetrics v0.0.0-20250705151800-55b8f293f342 // indirect
-	golang.org/x/exp/typeparams v0.0.0-20250718183923-645b1fa84792 // indirect
-	golang.org/x/mod v0.26.0 // indirect
+	golang.org/x/exp/typeparams v0.0.0-20250813145105-42675adae3e6 // indirect
+	golang.org/x/mod v0.27.0 // indirect
 	golang.org/x/sync v0.16.0 // indirect
-	golang.org/x/sys v0.34.0 // indirect
-	golang.org/x/telemetry v0.0.0-20250805150428-9469f96afdf5 // indirect
-	golang.org/x/text v0.27.0 // indirect
-	golang.org/x/tools v0.35.0 // indirect
+	golang.org/x/sys v0.35.0 // indirect
+	golang.org/x/telemetry v0.0.0-20250813145757-41cd51e6ab6a // indirect
+	golang.org/x/text v0.28.0 // indirect
+	golang.org/x/tools v0.36.0 // indirect
 	golang.org/x/vuln v1.1.4 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
