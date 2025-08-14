@@ -179,7 +179,7 @@ func (s *Server) WikiPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Fetch the wiki page for the requested aubject
-	pg, err := s.client.Get("/" + request.Subject)
+	pg, err := s.client.Get(request.Subject)
 	if err != nil {
 		s.handleError(w, "wikipage", err, http.StatusNotFound, request.Subject)
 		return

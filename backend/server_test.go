@@ -113,7 +113,7 @@ func TestAPI(t *testing.T) {
 			statusCode:     http.StatusOK,
 			expectedHeader: map[string]string{"Content-Type": "text/html"},
 			mockSetup: func() {
-				mockClient.EXPECT().Get("/test").Return([]byte("<html><body><p>test</p></body></html>"), nil)
+				mockClient.EXPECT().Get("test").Return([]byte("<html><body><p>test</p></body></html>"), nil)
 			},
 		},
 		{
@@ -137,7 +137,7 @@ func TestAPI(t *testing.T) {
 			body:       WikiPageRequest{Subject: "test"},
 			statusCode: http.StatusNotFound,
 			mockSetup: func() {
-				mockClient.EXPECT().Get("/test").Return(nil, errors.New("not found"))
+				mockClient.EXPECT().Get("test").Return(nil, errors.New("not found"))
 			},
 		},
 		{
@@ -147,7 +147,7 @@ func TestAPI(t *testing.T) {
 			body:       WikiPageRequest{Subject: "test"},
 			statusCode: http.StatusInternalServerError,
 			mockSetup: func() {
-				mockClient.EXPECT().Get("/test").Return([]byte("<html></html>"), nil)
+				mockClient.EXPECT().Get("test").Return([]byte("<html></html>"), nil)
 			},
 		},
 		{
