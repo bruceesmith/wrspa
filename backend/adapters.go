@@ -11,7 +11,7 @@ type clientAdapter struct {
 }
 
 func newClientAdapter() (c *clientAdapter) {
-	return &clientAdapter{client: &Client{}}
+	return &clientAdapter{client: NewClient("")}
 }
 
 func (ca *clientAdapter) Get(path string) (body []byte, err error) {
