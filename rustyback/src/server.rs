@@ -1,7 +1,7 @@
 use axum::{ 
     Router,
-    extract::State,
-    http::StatusCode,
+    extract::{State},
+    http::{StatusCode, Uri},
     response::{Html, Json},
     routing::{get, post},
 };
@@ -52,6 +52,8 @@ impl Server {
             .route("/api/settings", get(settings_handler))
             .route("/api/specialrandom", get(special_random_handler))
             .route("/api/wikipage", post(wiki_page_handler))
+            .route("/w/*path", get(wikipedia_file_handler))
+            .route("/static/*path", get(wikipedia_file_handler))
             .nest_service("/", ServeDir::new(&self.static_path))
             .with_state(self.client.clone());
 
@@ -77,11 +79,13 @@ async fn special_random_handler(
         ClientError::Reqwest(_) => StatusCode::INTERNAL_SERVER_ERROR,
         ClientError::StatusError(s) => s,
         ClientError::MissingLocationHeader => StatusCode::INTERNAL_SERVER_ERROR,
+        ClientError::InvalidLocationHeader(_) => StatusCode::INTERNAL_SERVER_ERROR,
     })?;
     let goal = client.get_random().await.map_err(|e| match e {
         ClientError::Reqwest(_) => StatusCode::INTERNAL_SERVER_ERROR,
         ClientError::StatusError(s) => s,
         ClientError::MissingLocationHeader => StatusCode::INTERNAL_SERVER_ERROR,
+        ClientError::InvalidLocationHeader(_) => StatusCode::INTERNAL_SERVER_ERROR,
     })?;
     let response = SpecialRandomResponse { start, goal };
     Ok(Json(response))
@@ -91,14 +95,28 @@ async fn wiki_page_handler(
     State(client): State<Arc<Client>>,
     Json(request): Json<WikiPageRequest>,
 ) -> Result<Html<String>, StatusCode> {
-    let page = client.get(&request.subject).await.map_err(|e| match e {
+    let path = format!("/wiki/{}", &request.subject);
+    let page = client.get(&path).await.map_err(|e| match e {
         ClientError::Reqwest(_) => StatusCode::INTERNAL_SERVER_ERROR,
         ClientError::StatusError(s) => s,
         ClientError::MissingLocationHeader => StatusCode::INTERNAL_SERVER_ERROR,
+        ClientError::InvalidLocationHeader(_) => StatusCode::INTERNAL_SERVER_ERROR,
     })?;
 
     let body = extract_body(&page).map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?;
     Ok(Html(body))
+}
+
+async fn wikipedia_file_handler(
+    State(client): State<Arc<Client>>,
+    uri: Uri,
+) -> Result<bytes::Bytes, StatusCode> {
+    client.get(uri.path()).await.map_err(|e| match e {
+        ClientError::Reqwest(_) => StatusCode::INTERNAL_SERVER_ERROR,
+        ClientError::StatusError(s) => s,
+        ClientError::MissingLocationHeader => StatusCode::INTERNAL_SERVER_ERROR,
+        ClientError::InvalidLocationHeader(_) => StatusCode::INTERNAL_SERVER_ERROR,
+    })
 }
 
 fn extract_body(page: &[u8]) -> Result<String, ()> {
@@ -153,11 +171,11 @@ mod tests {
     async fn test_special_random_handler() {
         let m1 = mock("HEAD", "/wiki/Special:Random")
             .with_status(302)
-            .with_header("location", "/wiki/Start")
+            .with_header("location", &format!("{}/wiki/Start", mockito::server_url()))
             .create();
         let m2 = mock("HEAD", "/wiki/Special:Random")
             .with_status(302)
-            .with_header("location", "/wiki/Goal")
+            .with_header("location", &format!("{}/wiki/Goal", mockito::server_url()))
             .create();
 
         let client = Arc::new(Client::new(Some(&mockito::server_url())));
@@ -187,7 +205,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_wiki_page_handler() {
-        let m = mock("GET", "/Test")
+        let m = mock("GET", "/wiki/Test")
             .with_status(200)
             .with_body("<html><body><p>Test</p></body></html>")
             .create();
@@ -197,7 +215,7 @@ mod tests {
             .route("/api/wikipage", post(wiki_page_handler))
             .with_state(client.clone());
 
-        let request = WikiPageRequest { subject: "/Test".to_string() };
+        let request = WikiPageRequest { subject: "Test".to_string() };
         let response = app
             .oneshot(
                 Request::builder()
@@ -236,5 +254,34 @@ mod tests {
         assert_eq!(response.status(), StatusCode::OK);
         let body = to_bytes(response.into_body(), 1_000_000).await.unwrap();
         assert_eq!(body, "<html><body>Test</body></html>");
+    }
+
+    #[tokio::test]
+    async fn test_wikipedia_file_handler() {
+        let m = mock("GET", "/w/Test")
+            .with_status(200)
+            .with_body("hello")
+            .create();
+
+        let client = Arc::new(Client::new(Some(&mockito::server_url())));
+        let app = Router::new()
+            .route("/w/*path", get(wikipedia_file_handler))
+            .with_state(client.clone());
+
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .uri("/w/Test")
+                    .body(Body::empty())
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+
+        assert_eq!(response.status(), StatusCode::OK);
+
+        let body = to_bytes(response.into_body(), 1_000_000).await.unwrap();
+        assert_eq!(body, "hello");
+        m.assert();
     }
 }

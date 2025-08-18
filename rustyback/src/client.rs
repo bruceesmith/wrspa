@@ -1,5 +1,6 @@
 use reqwest::{Client as ReqwestClient, StatusCode, redirect::Policy};
 use tracing::error;
+use url::Url;
 
 const DEFAULT_WIKI_URL: &str = "https://en.wikipedia.org";
 
@@ -8,11 +9,18 @@ pub enum ClientError {
     Reqwest(reqwest::Error),
     StatusError(StatusCode),
     MissingLocationHeader,
+    InvalidLocationHeader(url::ParseError),
 }
 
 impl From<reqwest::Error> for ClientError {
     fn from(err: reqwest::Error) -> Self {
         ClientError::Reqwest(err)
+    }
+}
+
+impl From<url::ParseError> for ClientError {
+    fn from(err: url::ParseError) -> Self {
+        ClientError::InvalidLocationHeader(err)
     }
 }
 
@@ -58,7 +66,8 @@ impl Client {
             .headers()
             .get("location")
             .ok_or(ClientError::MissingLocationHeader)?;
-        let path = location.to_str().unwrap().trim_start_matches("/wiki/").to_string();
+        let url = Url::parse(location.to_str().unwrap())?;
+        let path = url.path().trim_start_matches("/wiki/").to_string();
         Ok(path)
     }
 }
@@ -102,7 +111,7 @@ mod tests {
     async fn test_get_random() {
         let m = mock("HEAD", "/wiki/Special:Random")
             .with_status(302)
-            .with_header("location", "/wiki/Test")
+            .with_header("location", &format!("{}/wiki/Test", mockito::server_url()))
             .create();
 
         let client = Client::new(Some(&mockito::server_url()));
