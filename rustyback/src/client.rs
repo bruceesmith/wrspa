@@ -27,6 +27,7 @@ impl From<url::ParseError> for ClientError {
 pub struct Client {
     wiki_url: String,
     client: ReqwestClient,
+    redirect_client: ReqwestClient,
 }
 
 impl Client {
@@ -36,19 +37,25 @@ impl Client {
         headers.insert(USER_AGENT, "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36".parse().unwrap());
         let client = ReqwestClient::builder()
             .redirect(Policy::none())
+            .default_headers(headers.clone())
+            .build()
+            .unwrap();
+        let redirect_client = ReqwestClient::builder()
+            .redirect(Policy::default())
             .default_headers(headers)
             .build()
             .unwrap();
         Self {
             wiki_url,
             client,
+            redirect_client,
         }
     }
 
     pub async fn get(&self, path: &str) -> Result<bytes::Bytes, ClientError> {
         let url = format!("{}{}", self.wiki_url, path);
         tracing::trace!(url);
-        let response = self.client.get(&url).send().await?;
+        let response = self.redirect_client.get(&url).send().await?;
         if !response.status().is_success() {
             let status = response.status();
             error!("unexpected status: {}", status);
