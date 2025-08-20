@@ -59,7 +59,6 @@ impl Client {
 
     pub async fn get_random(&self) -> Result<String, ClientError> {
         let url = format!("{}/wiki/Special:Random", self.wiki_url);
-        // tracing::trace!(url);
         let response = self.client.get(&url).send().await?;
         if !response.status().is_success() && !response.status().is_redirection() {
             let status = response.status();
