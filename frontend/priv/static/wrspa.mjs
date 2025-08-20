@@ -6526,7 +6526,7 @@ function active_from_random(ep) {
 function custom(ep) {
   return ep.custom;
 }
-function ep_from_string(str) {
+function create_endpoint(str) {
   return new EP(str);
 }
 function goal(epp) {
@@ -6766,10 +6766,11 @@ function navigate_back(nav) {
     if ($1 instanceof Empty) {
       return [nav, ""];
     } else {
-      let first = $.head;
-      let second = $1.head;
-      let remainder = $1.tail;
-      return [new Navigation(prepend(first, nav.left), remainder), second];
+      let current = $.head;
+      let previous = $1.head;
+      let rest = $1.tail;
+      let new_nav = new Navigation(prepend(current, nav.left), rest);
+      return [new_nav, previous];
     }
   }
 }
@@ -7028,19 +7029,96 @@ function check_subject(subject) {
 }
 function rsvp_error_to_string(err) {
   if (err instanceof BadBody) {
-    return "bad body";
+    return "The server sent a response with a bad body.";
   } else if (err instanceof BadUrl) {
     let u = err[0];
-    return "bad URL " + u;
+    return "The URL " + u + " is invalid.";
   } else if (err instanceof HttpError) {
     let resp = err[0];
-    return "HTTP error " + to_string(resp.status);
+    return "There was an HTTP error: " + to_string(resp.status);
   } else if (err instanceof JsonError) {
-    return "JSON decode error";
+    return "There was an error decoding the JSON response from the server.";
   } else if (err instanceof NetworkError2) {
-    return "network error";
+    return "There was a network error. Please check your internet connection.";
   } else {
-    return "unhandled response";
+    return "The server sent a response that could not be handled.";
+  }
+}
+function update_custom_endpoint(model, val, is_start) {
+  let $ = check_subject(val);
+  if ($ instanceof Ok) {
+    let _block;
+    if (is_start) {
+      let _pipe = model.endpoints;
+      _block = update_custom_start(_pipe, create_endpoint(val));
+    } else {
+      let _pipe = model.endpoints;
+      _block = update_custom_goal(_pipe, create_endpoint(val));
+    }
+    let new_endpoints = _block;
+    let new_model = new Model(
+      model.dark,
+      model.elapsed,
+      new_endpoints,
+      (() => {
+        if (is_start) {
+          return model.goal_error;
+        } else {
+          return new None();
+        }
+      })(),
+      model.navigation,
+      model.pending,
+      model.rsvp_error,
+      (() => {
+        if (is_start) {
+          return new None();
+        } else {
+          return model.start_error;
+        }
+      })(),
+      model.state,
+      model.steps,
+      model.timer_id,
+      model.wiki_html
+    );
+    return [new_model, none()];
+  } else {
+    let e = $[0];
+    let _block;
+    if (is_start) {
+      _block = new Model(
+        model.dark,
+        model.elapsed,
+        model.endpoints,
+        model.goal_error,
+        model.navigation,
+        model.pending,
+        model.rsvp_error,
+        new Some(e),
+        model.state,
+        model.steps,
+        model.timer_id,
+        model.wiki_html
+      );
+    } else {
+      _block = new Model(
+        model.dark,
+        model.elapsed,
+        model.endpoints,
+        new Some(e),
+        model.navigation,
+        model.pending,
+        model.rsvp_error,
+        model.start_error,
+        model.state,
+        model.steps,
+        model.timer_id,
+        model.wiki_html
+      );
+    }
+    let new_model = _block;
+    return [new_model, none()];
   }
 }
 function update2(model, msg) {
@@ -7080,29 +7158,9 @@ function update2(model, msg) {
     ];
   } else if (msg instanceof CustomGoalChanged) {
     let val = msg[0];
-    let ep = ep_from_string(val);
     let $ = check_subject(val);
     if ($ instanceof Ok) {
-      return [
-        new Model(
-          model.dark,
-          model.elapsed,
-          (() => {
-            let _pipe = model.endpoints;
-            return update_custom_goal(_pipe, ep);
-          })(),
-          new None(),
-          model.navigation,
-          model.pending,
-          model.rsvp_error,
-          model.start_error,
-          model.state,
-          model.steps,
-          model.timer_id,
-          model.wiki_html
-        ),
-        none()
-      ];
+      return update_custom_endpoint(model, val, false);
     } else {
       let e = $[0];
       return [
@@ -7143,29 +7201,9 @@ function update2(model, msg) {
     ];
   } else if (msg instanceof CustomStartChanged) {
     let val = msg[0];
-    let ep = ep_from_string(val);
     let $ = check_subject(val);
     if ($ instanceof Ok) {
-      return [
-        new Model(
-          model.dark,
-          model.elapsed,
-          (() => {
-            let _pipe = model.endpoints;
-            return update_custom_start(_pipe, ep);
-          })(),
-          model.goal_error,
-          model.navigation,
-          model.pending,
-          model.rsvp_error,
-          new None(),
-          model.state,
-          model.steps,
-          model.timer_id,
-          model.wiki_html
-        ),
-        none()
-      ];
+      return update_custom_endpoint(model, val, true);
     } else {
       let e = $[0];
       return [
@@ -7837,6 +7875,20 @@ function colour_classes2(group, variety) {
     } else {
       return class$("bg-tertiary-container/20 text-on-tertiary-container");
     }
+  } else if (variety instanceof Ghost2) {
+    if (group instanceof Primary) {
+      return class$("border-primary text-primary");
+    } else if (group instanceof PrimaryContainer) {
+      return class$("border-on-primary-container text-on-primary-container");
+    } else if (group instanceof Secondary) {
+      return class$("border-secondary text-secondary");
+    } else if (group instanceof SecondaryContainer) {
+      return class$("border-on-secondary-container text-on-secondary-container");
+    } else if (group instanceof Tertiary) {
+      return class$("border-tertiary text-tertiary");
+    } else {
+      return class$("border-on-tertiary-container text-on-tertiary-container");
+    }
   } else if (variety instanceof Light2) {
     if (group instanceof Primary) {
       return class$("text-primary");
@@ -7865,24 +7917,18 @@ function colour_classes2(group, variety) {
     } else {
       return class$("bg-tertiary-container text-on-tertiary-container");
     }
-  } else if (variety instanceof Outlined2) {
-    if (group instanceof Primary) {
-      return class$("outline-primary text-primary");
-    } else if (group instanceof PrimaryContainer) {
-      return class$("outline-on-primary-container text-on-primary");
-    } else if (group instanceof Secondary) {
-      return class$("outline-secondary text-secondary");
-    } else if (group instanceof SecondaryContainer) {
-      return class$(
-        "outline-secondaryy-on-container text-secondaryy-on-container"
-      );
-    } else if (group instanceof Tertiary) {
-      return class$("outline-tertiary text-tertiary");
-    } else {
-      return class$("outline-on-tertiary-container text-on-tertiary-container");
-    }
+  } else if (group instanceof Primary) {
+    return class$("outline-primary text-primary");
+  } else if (group instanceof PrimaryContainer) {
+    return class$("outline-on-primary-container text-on-primary");
+  } else if (group instanceof Secondary) {
+    return class$("outline-secondary text-secondary");
+  } else if (group instanceof SecondaryContainer) {
+    return class$("outline-on-secondary-container text-on-secondary-container");
+  } else if (group instanceof Tertiary) {
+    return class$("outline-tertiary text-tertiary");
   } else {
-    return class$("bg-primary text-primary");
+    return class$("outline-on-tertiary-container text-on-tertiary-container");
   }
 }
 function size_classes2(size2) {
@@ -8191,13 +8237,12 @@ function settings_menu(dark) {
     ])
   );
 }
-function custom2(start5, goal3, goal_error, start_error) {
-  let _block;
+function custom_error_line(start_error, goal_error) {
   if (goal_error instanceof Some) {
     if (start_error instanceof Some) {
       let ge = goal_error[0];
       let se = start_error[0];
-      _block = [
+      return [
         toList([
           div(
             toList([class$("bg-error self-center justify-self-start")]),
@@ -8212,7 +8257,7 @@ function custom2(start5, goal3, goal_error, start_error) {
       ];
     } else {
       let ge = goal_error[0];
-      _block = [
+      return [
         toList([
           div(
             toList([class$("bg-error self-center justify-self-start col-2")]),
@@ -8224,7 +8269,7 @@ function custom2(start5, goal3, goal_error, start_error) {
     }
   } else if (start_error instanceof Some) {
     let se = start_error[0];
-    _block = [
+    return [
       toList([
         div(
           toList([class$("bg-error self-center justify-self-start")]),
@@ -8234,9 +8279,11 @@ function custom2(start5, goal3, goal_error, start_error) {
       "grid-rows-4"
     ];
   } else {
-    _block = [toList([none2()]), "grid-rows-3"];
+    return [toList([none2()]), "grid-rows-3"];
   }
-  let $ = _block;
+}
+function custom2(start5, goal3, goal_error, start_error) {
+  let $ = custom_error_line(start_error, goal_error);
   let error_line;
   let rows;
   error_line = $[0];

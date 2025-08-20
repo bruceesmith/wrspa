@@ -24,12 +24,11 @@ pub fn new() -> Navigation {
 ///
 pub fn navigate_back(nav: Navigation) -> #(Navigation, String) {
   case nav.right {
-    [] | [_] -> {
-      #(nav, "")
+    [current, previous, ..rest] -> {
+      let new_nav = Navigation(left: [current, ..nav.left], right: rest)
+      #(new_nav, previous)
     }
-    [first, second, ..remainder] -> {
-      #(Navigation(left: [first, ..nav.left], right: remainder), second)
-    }
+    _ -> #(nav, "")
   }
 }
 

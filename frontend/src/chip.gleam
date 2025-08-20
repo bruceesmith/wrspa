@@ -57,6 +57,7 @@ fn colour_classes(group: Colour, variety: Variant) -> Attribute(a) {
     Primary, Outlined -> class("outline-primary text-primary")
     Primary, Light -> class("text-primary")
     Primary, Flat -> class("bg-primary/20 text-primary")
+    Primary, Ghost -> class("border-primary text-primary")
     PrimaryContainer, Solid ->
       class("bg-primary-container text-on-primary-container")
     PrimaryContainer, Outlined ->
@@ -64,21 +65,27 @@ fn colour_classes(group: Colour, variety: Variant) -> Attribute(a) {
     PrimaryContainer, Light -> class("text-on-primary-container")
     PrimaryContainer, Flat ->
       class("bg-primary-container/20 text-on-primary-container")
+    PrimaryContainer, Ghost ->
+      class("border-on-primary-container text-on-primary-container")
     Secondary, Solid -> class("bg-secondary text-secondary")
     Secondary, Outlined -> class("outline-secondary text-secondary")
     Secondary, Light -> class("text-secondary")
     Secondary, Flat -> class("bg-secondary/20 text-secondary")
+    Secondary, Ghost -> class("border-secondary text-secondary")
     SecondaryContainer, Solid ->
       class("bg-secondary-container text-on-secondary-container")
     SecondaryContainer, Outlined ->
-      class("outline-secondaryy-on-container text-secondaryy-on-container")
+      class("outline-on-secondary-container text-on-secondary-container")
     SecondaryContainer, Light -> class("text-on-secondary-container")
     SecondaryContainer, Flat ->
       class("bg-secondary-container/20 text-on-secondary-container")
+    SecondaryContainer, Ghost ->
+      class("border-on-secondary-container text-on-secondary-container")
     Tertiary, Solid -> class("bg-tertiary text-tertiary")
     Tertiary, Outlined -> class("outline-tertiary text-tertiary")
     Tertiary, Light -> class("text-tertiary")
     Tertiary, Flat -> class("bg-tertiary/20 text-tertiary")
+    Tertiary, Ghost -> class("border-tertiary text-tertiary")
     TertiaryContainer, Solid ->
       class("bg-tertiary-container text-on-tertiary-container")
     TertiaryContainer, Outlined ->
@@ -86,7 +93,8 @@ fn colour_classes(group: Colour, variety: Variant) -> Attribute(a) {
     TertiaryContainer, Light -> class("text-on-tertiary-container")
     TertiaryContainer, Flat ->
       class("bg-tertiary-container/20 text-on-tertiary-container")
-    _, _ -> class("bg-primary text-primary")
+    TertiaryContainer, Ghost ->
+      class("border-on-tertiary-container text-on-tertiary-container")
   }
 }
 

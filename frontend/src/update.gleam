@@ -19,7 +19,7 @@ import effects.{
 }
 import endpoints.{
   type EP, type Goal, type Start, EP, active_from_custom, active_from_random,
-  active_goal, active_start, custom_start, ep_from_string, new_random,
+  active_goal, active_start, create_endpoint, custom_start, new_random,
   random_start, update_custom_goal, update_custom_start, update_random,
 }
 import init.{initial, reset}
@@ -74,18 +74,8 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     }
 
     CustomStartChanged(val) -> {
-      let ep: EP(Start) = ep_from_string(val)
       case check_subject(val) {
-        Ok(Nil) -> #(
-          Model(
-            ..model,
-            endpoints: model.endpoints
-              |> update_custom_start(ep),
-            start_error: None,
-          ),
-          effect.none(),
-        )
-
+        Ok(Nil) -> update_custom_endpoint(model, val, True)
         Error(e) -> {
           #(Model(..model, start_error: Some(e)), effect.none())
         }
@@ -93,17 +83,8 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     }
 
     CustomGoalChanged(val) -> {
-      let ep: EP(Goal) = ep_from_string(val)
       case check_subject(val) {
-        Ok(Nil) -> #(
-          Model(
-            ..model,
-            endpoints: model.endpoints
-              |> update_custom_goal(ep),
-            goal_error: None,
-          ),
-          effect.none(),
-        )
+        Ok(Nil) -> update_custom_endpoint(model, val, False)
         Error(e) -> {
           #(Model(..model, goal_error: Some(e)), effect.none())
         }
@@ -342,16 +323,59 @@ fn check_subject(subject: String) -> Result(Nil, String) {
 ///
 fn rsvp_error_to_string(err: rsvp.Error) -> String {
   case err {
-    rsvp.BadBody -> "bad body"
+    rsvp.BadBody -> "The server sent a response with a bad body."
 
-    rsvp.BadUrl(u) -> "bad URL " <> u
+    rsvp.BadUrl(u) -> "The URL " <> u <> " is invalid."
 
-    rsvp.HttpError(resp) -> "HTTP error " <> int.to_string(resp.status)
+    rsvp.HttpError(resp) ->
+      "There was an HTTP error: " <> int.to_string(resp.status)
 
-    rsvp.JsonError(_) -> "JSON decode error"
+    rsvp.JsonError(_) ->
+      "There was an error decoding the JSON response from the server."
 
-    rsvp.NetworkError -> "network error"
+    rsvp.NetworkError ->
+      "There was a network error. Please check your internet connection."
 
-    rsvp.UnhandledResponse(_) -> "unhandled response"
+    rsvp.UnhandledResponse(_) ->
+      "The server sent a response that could not be handled."
+  }
+}
+
+/// update_custom_endpoint is a helper function that updates either the custom
+/// start or goal endpoint.
+///
+fn update_custom_endpoint(
+  model: Model,
+  val: String,
+  is_start: Bool,
+) -> #(Model, Effect(Msg)) {
+  case check_subject(val) {
+    Ok(Nil) -> {
+      let new_endpoints = case is_start {
+        True -> model.endpoints |> update_custom_start(create_endpoint(val))
+        False -> model.endpoints |> update_custom_goal(create_endpoint(val))
+      }
+      let new_model =
+        Model(
+          ..model,
+          endpoints: new_endpoints,
+          start_error: case is_start {
+            True -> None
+            False -> model.start_error
+          },
+          goal_error: case is_start {
+            True -> model.goal_error
+            False -> None
+          },
+        )
+      #(new_model, effect.none())
+    }
+    Error(e) -> {
+      let new_model = case is_start {
+        True -> Model(..model, start_error: Some(e))
+        False -> Model(..model, goal_error: Some(e))
+      }
+      #(new_model, effect.none())
+    }
   }
 }

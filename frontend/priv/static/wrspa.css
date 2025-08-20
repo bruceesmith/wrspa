@@ -620,6 +620,9 @@
   .outline-on-primary-container {
     outline-color: var(--md-sys-color-on-primary-container);
   }
+  .outline-on-secondary-container {
+    outline-color: var(--md-sys-color-on-secondary-container);
+  }
   .outline-on-tertiary-container {
     outline-color: var(--md-sys-color-on-tertiary-container);
   }

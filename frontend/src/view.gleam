@@ -193,28 +193,7 @@ fn custom(
   goal_error: Option(String),
   start_error: Option(String),
 ) -> Element(Msg) {
-  let #(error_line, rows) = case start_error, goal_error {
-    Some(se), Some(ge) -> #(
-      [
-        h.div([class("bg-error self-center justify-self-start")], [h.text(se)]),
-        h.div([class("bg-error self-center justify-self-start")], [h.text(ge)]),
-      ],
-      "grid-rows-4",
-    )
-    Some(se), None -> #(
-      [h.div([class("bg-error self-center justify-self-start")], [h.text(se)])],
-      "grid-rows-4",
-    )
-    None, Some(ge) -> #(
-      [
-        h.div([class("bg-error self-center justify-self-start col-2")], [
-          h.text(ge),
-        ]),
-      ],
-      "grid-rows-4",
-    )
-    None, None -> #([element.none()], "grid-rows-3")
-  }
+  let #(error_line, rows) = custom_error_line(start_error, goal_error)
   let EP(gl): EP(Goal) = goal
   let EP(st): EP(Start) = start
 
@@ -259,6 +238,36 @@ fn custom(
       ),
     ]),
   ])
+}
+
+/// custom_error_line is a helper function that generates the error messages
+/// for the custom game setup screen.
+fn custom_error_line(
+  start_error: Option(String),
+  goal_error: Option(String),
+) -> #(List(Element(Msg)), String) {
+  case start_error, goal_error {
+    Some(se), Some(ge) -> #(
+      [
+        h.div([class("bg-error self-center justify-self-start")], [h.text(se)]),
+        h.div([class("bg-error self-center justify-self-start")], [h.text(ge)]),
+      ],
+      "grid-rows-4",
+    )
+    Some(se), None -> #(
+      [h.div([class("bg-error self-center justify-self-start")], [h.text(se)])],
+      "grid-rows-4",
+    )
+    None, Some(ge) -> #(
+      [
+        h.div([class("bg-error self-center justify-self-start col-2")], [
+          h.text(ge),
+        ]),
+      ],
+      "grid-rows-4",
+    )
+    None, None -> #([element.none()], "grid-rows-3")
+  }
 }
 
 /// error_message formats an rsvp error
@@ -590,6 +599,10 @@ fn wiki(
   }
   h.div([class("grid grid-rows-2")], [
     loading,
+    // Using `unsafe_raw_html` is necessary here to render the HTML content
+    // from the Wikipedia API. This is safe because the content is from a
+    // trusted source. If the content were from an untrusted source, it would
+    // need to be sanitized to prevent XSS attacks.
     element.unsafe_raw_html(
       "",
       "div",
