@@ -95,8 +95,7 @@ async fn wiki_page_handler(
     State(client): State<Arc<Client>>,
     Json(request): Json<WikiPageRequest>,
 ) -> Result<Html<String>, StatusCode> {
-    let path = format!("/wiki/{}", &request.subject);
-    let page = client.get(&path).await.map_err(|e| match e {
+    let page = client.get(&request.subject).await.map_err(|e| match e {
         ClientError::Reqwest(_) => StatusCode::INTERNAL_SERVER_ERROR,
         ClientError::StatusError(s) => s,
         ClientError::MissingLocationHeader => StatusCode::INTERNAL_SERVER_ERROR,
@@ -205,7 +204,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_wiki_page_handler() {
-        let m = mock("GET", "/wiki/Test")
+        let m = mock("GET", "/Test")
             .with_status(200)
             .with_body("<html><body><p>Test</p></body></html>")
             .create();
@@ -215,7 +214,7 @@ mod tests {
             .route("/api/wikipage", post(wiki_page_handler))
             .with_state(client.clone());
 
-        let request = WikiPageRequest { subject: "Test".to_string() };
+        let request = WikiPageRequest { subject: "/Test".to_string() };
         let response = app
             .oneshot(
                 Request::builder()
