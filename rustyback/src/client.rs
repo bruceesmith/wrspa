@@ -1,4 +1,4 @@
-use reqwest::{Client as ReqwestClient, StatusCode, redirect::Policy};
+use reqwest::{header::{HeaderMap, USER_AGENT}, Client as ReqwestClient, StatusCode, redirect::Policy};
 use tracing::error;
 use url::Url;
 
@@ -32,8 +32,11 @@ pub struct Client {
 impl Client {
     pub fn new(wiki_url: Option<&str>) -> Self {
         let wiki_url = wiki_url.unwrap_or(DEFAULT_WIKI_URL).to_string();
+        let mut headers = HeaderMap::new();
+        headers.insert(USER_AGENT, "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36".parse().unwrap());
         let client = ReqwestClient::builder()
             .redirect(Policy::none())
+            .default_headers(headers)
             .build()
             .unwrap();
         Self {
@@ -56,7 +59,8 @@ impl Client {
 
     pub async fn get_random(&self) -> Result<String, ClientError> {
         let url = format!("{}/wiki/Special:Random", self.wiki_url);
-        let response = self.client.head(&url).send().await?;
+        // tracing::trace!(url);
+        let response = self.client.get(&url).send().await?;
         if !response.status().is_success() && !response.status().is_redirection() {
             let status = response.status();
             error!("unexpected status getting random: {}", status);
@@ -109,7 +113,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_random() {
-        let m = mock("HEAD", "/wiki/Special:Random")
+        let m = mock("GET", "/wiki/Special:Random")
             .with_status(302)
             .with_header("location", &format!("{}/wiki/Test", mockito::server_url()))
             .create();
@@ -123,7 +127,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_random_error() {
-        let m = mock("HEAD", "/wiki/Special:Random").with_status(500).create();
+        let m = mock("GET", "/wiki/Special:Random").with_status(500).create();
 
         let client = Client::new(Some(&mockito::server_url()));
         let result = client.get_random().await;

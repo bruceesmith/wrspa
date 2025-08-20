@@ -169,11 +169,11 @@ mod tests {
 
     #[tokio::test]
     async fn test_special_random_handler() {
-        let m1 = mock("HEAD", "/wiki/Special:Random")
+        let m1 = mock("GET", "/wiki/Special:Random")
             .with_status(302)
             .with_header("location", &format!("{}/wiki/Start", mockito::server_url()))
             .create();
-        let m2 = mock("HEAD", "/wiki/Special:Random")
+        let m2 = mock("GET", "/wiki/Special:Random")
             .with_status(302)
             .with_header("location", &format!("{}/wiki/Goal", mockito::server_url()))
             .create();
