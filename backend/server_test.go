@@ -109,12 +109,19 @@ func TestAPI(t *testing.T) {
 			name:           "wikipage",
 			method:         http.MethodPost,
 			function:       "wikipage",
-			body:           WikiPageRequest{Subject: "test"},
+			body:           WikiPageRequest{Subject: "/wiki/test"},
 			statusCode:     http.StatusOK,
 			expectedHeader: map[string]string{"Content-Type": "text/html"},
 			mockSetup: func() {
-				mockClient.EXPECT().Get("test").Return([]byte("<html><body><p>test</p></body></html>"), nil)
+				mockClient.EXPECT().Get("/wiki/test").Return([]byte("<html><body><p>test</p></body></html>"), nil)
 			},
+		},
+		{
+			name:       "wikipage invalid subject",
+			method:     http.MethodPost,
+			function:   "wikipage",
+			body:       WikiPageRequest{Subject: "test"},
+			statusCode: http.StatusBadRequest,
 		},
 		{
 			name:       "wikipage read body error",
@@ -134,20 +141,20 @@ func TestAPI(t *testing.T) {
 			name:       "wikipage client get error",
 			method:     http.MethodPost,
 			function:   "wikipage",
-			body:       WikiPageRequest{Subject: "test"},
+			body:       WikiPageRequest{Subject: "/wiki/test"},
 			statusCode: http.StatusNotFound,
 			mockSetup: func() {
-				mockClient.EXPECT().Get("test").Return(nil, errors.New("not found"))
+				mockClient.EXPECT().Get("/wiki/test").Return(nil, errors.New("not found"))
 			},
 		},
 		{
 			name:       "wikipage no body tag",
 			method:     http.MethodPost,
 			function:   "wikipage",
-			body:       WikiPageRequest{Subject: "test"},
+			body:       WikiPageRequest{Subject: "/wiki/test"},
 			statusCode: http.StatusInternalServerError,
 			mockSetup: func() {
-				mockClient.EXPECT().Get("test").Return([]byte("<html></html>"), nil)
+				mockClient.EXPECT().Get("/wiki/test").Return([]byte("<html></html>"), nil)
 			},
 		},
 		{
