@@ -95,6 +95,9 @@ async fn wiki_page_handler(
     State(client): State<Arc<Client>>,
     Json(request): Json<WikiPageRequest>,
 ) -> Result<Html<String>, StatusCode> {
+    if !request.subject.starts_with("/wiki/") {
+        return Err(StatusCode::BAD_REQUEST);
+    }
     let page = client.get(&request.subject).await.map_err(|e| match e {
         ClientError::Reqwest(_) => StatusCode::INTERNAL_SERVER_ERROR,
         ClientError::StatusError(s) => s,
@@ -204,7 +207,7 @@ mod tests {
 
     #[tokio::test]
     async fn test_wiki_page_handler() {
-        let m = mock("GET", "/Test")
+        let m = mock("GET", "/wiki/Test")
             .with_status(200)
             .with_body("<html><body><p>Test</p></body></html>")
             .create();
@@ -214,8 +217,9 @@ mod tests {
             .route("/api/wikipage", post(wiki_page_handler))
             .with_state(client.clone());
 
-        let request = WikiPageRequest { subject: "/Test".to_string() };
+        let request = WikiPageRequest { subject: "/wiki/Test".to_string() };
         let response = app
+            .clone()
             .oneshot(
                 Request::builder()
                     .method("POST")
@@ -232,6 +236,20 @@ mod tests {
         let body = to_bytes(response.into_body(), 1_000_000).await.unwrap();
         assert_eq!(body, "<p>Test</p>");
         m.assert();
+
+        let request = WikiPageRequest { subject: "/Test".to_string() };
+        let response = app
+            .oneshot(
+                Request::builder()
+                    .method("POST")
+                    .uri("/api/wikipage")
+                    .header("content-type", "application/json")
+                    .body(Body::from(serde_json::to_vec(&request).unwrap()))
+                    .unwrap(),
+            )
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::BAD_REQUEST);
     }
 
     #[tokio::test]
