@@ -311,7 +311,10 @@ function isEqual(x, y) {
       }
     }
     let [keys2, get3] = getters(a);
-    for (let k of keys2(a)) {
+    const ka = keys2(a);
+    const kb = keys2(b);
+    if (ka.length !== kb.length) return false;
+    for (let k of ka) {
       values3.push(get3(a, k), get3(b, k));
     }
   }
@@ -352,23 +355,6 @@ function structurallyCompatibleObjects(a, b) {
   let nonstructural = [Promise, WeakSet, WeakMap, Function];
   if (nonstructural.some((c) => a instanceof c)) return false;
   return a.constructor === b.constructor;
-}
-function remainderInt(a, b) {
-  if (b === 0) {
-    return 0;
-  } else {
-    return a % b;
-  }
-}
-function divideInt(a, b) {
-  return Math.trunc(divideFloat(a, b));
-}
-function divideFloat(a, b) {
-  if (b === 0) {
-    return 0;
-  } else {
-    return a / b;
-  }
 }
 function makeError(variant, file, module, line, fn, message, extra) {
   let error = new globalThis.Error(message);
@@ -1300,8 +1286,7 @@ function find_map(loop$list, loop$fun) {
       let rest$1 = list4.tail;
       let $ = fun(first$1);
       if ($ instanceof Ok) {
-        let first$2 = $[0];
-        return new Ok(first$2);
+        return $;
       } else {
         loop$list = rest$1;
         loop$fun = fun;
@@ -1583,7 +1568,7 @@ function merge_all(loop$sequences, loop$direction, loop$compare) {
     let direction = loop$direction;
     let compare4 = loop$compare;
     if (sequences2 instanceof Empty) {
-      return toList([]);
+      return sequences2;
     } else if (direction instanceof Ascending) {
       let $ = sequences2.tail;
       if ($ instanceof Empty) {
@@ -1611,12 +1596,11 @@ function merge_all(loop$sequences, loop$direction, loop$compare) {
 }
 function sort(list4, compare4) {
   if (list4 instanceof Empty) {
-    return toList([]);
+    return list4;
   } else {
     let $ = list4.tail;
     if ($ instanceof Empty) {
-      let x = list4.head;
-      return toList([x]);
+      return list4;
     } else {
       let x = list4.head;
       let y = $.head;
@@ -1647,8 +1631,10 @@ function key_find(keyword_list, desired_key) {
   return find_map(
     keyword_list,
     (keyword) => {
-      let key = keyword[0];
-      let value = keyword[1];
+      let key;
+      let value;
+      key = keyword[0];
+      value = keyword[1];
       let $ = isEqual(key, desired_key);
       if ($) {
         return new Ok(value);
@@ -1746,14 +1732,12 @@ function map2(result, fun) {
     let x = result[0];
     return new Ok(fun(x));
   } else {
-    let e = result[0];
-    return new Error(e);
+    return result;
   }
 }
 function map_error(result, fun) {
   if (result instanceof Ok) {
-    let x = result[0];
-    return new Ok(x);
+    return result;
   } else {
     let error = result[0];
     return new Error(fun(error));
@@ -1764,8 +1748,7 @@ function try$(result, fun) {
     let x = result[0];
     return fun(x);
   } else {
-    let e = result[0];
-    return new Error(e);
+    return result;
   }
 }
 function then$(result, fun) {
@@ -1782,8 +1765,7 @@ function unwrap_both(result) {
 }
 function replace_error(result, error) {
   if (result instanceof Ok) {
-    let x = result[0];
-    return new Ok(x);
+    return result;
   } else {
     return new Error(error);
   }
@@ -1838,8 +1820,10 @@ var Decoder = class extends CustomType {
 };
 function run(data, decoder) {
   let $ = decoder.function(data);
-  let maybe_invalid_data = $[0];
-  let errors = $[1];
+  let maybe_invalid_data;
+  let errors;
+  maybe_invalid_data = $[0];
+  errors = $[1];
   if (errors instanceof Empty) {
     return new Ok(maybe_invalid_data);
   } else {
@@ -1855,8 +1839,10 @@ function map3(decoder, transformer) {
   return new Decoder(
     (d) => {
       let $ = decoder.function(d);
-      let data = $[0];
-      let errors = $[1];
+      let data;
+      let errors;
+      data = $[0];
+      errors = $[1];
       return [transformer(data), errors];
     }
   );
@@ -1872,8 +1858,10 @@ function run_decoders(loop$data, loop$failure, loop$decoders) {
       let decoder = decoders.head;
       let decoders$1 = decoders.tail;
       let $ = decoder.function(data);
-      let layer = $;
-      let errors = $[1];
+      let layer;
+      let errors;
+      layer = $;
+      errors = $[1];
       if (errors instanceof Empty) {
         return layer;
       } else {
@@ -1888,8 +1876,10 @@ function one_of(first, alternatives) {
   return new Decoder(
     (dynamic_data) => {
       let $ = first.function(dynamic_data);
-      let layer = $;
-      let errors = $[1];
+      let layer;
+      let errors;
+      layer = $;
+      errors = $[1];
       if (errors instanceof Empty) {
         return layer;
       } else {
@@ -1969,10 +1959,9 @@ function push_path(layer, path) {
   let errors = map(
     layer[1],
     (error) => {
-      let _record = error;
       return new DecodeError2(
-        _record.expected,
-        _record.found,
+        error.expected,
+        error.found,
         append(path$1, error.path)
       );
     }
@@ -2008,7 +1997,8 @@ function index3(loop$path, loop$position, loop$inner, loop$data, loop$handle_mis
       } else {
         let kind = $[0];
         let $1 = inner(data);
-        let default$ = $1[0];
+        let default$;
+        default$ = $1[0];
         let _pipe = [
           default$,
           toList([new DecodeError2(kind, classify_dynamic(data), toList([]))])
@@ -2028,7 +2018,8 @@ function subfield(field_path, field_decoder, next) {
         data,
         (data2, position) => {
           let $12 = field_decoder.function(data2);
-          let default$ = $12[0];
+          let default$;
+          default$ = $12[0];
           let _pipe = [
             default$,
             toList([new DecodeError2("Field", "Nothing", toList([]))])
@@ -2036,11 +2027,15 @@ function subfield(field_path, field_decoder, next) {
           return push_path(_pipe, reverse(position));
         }
       );
-      let out = $[0];
-      let errors1 = $[1];
+      let out;
+      let errors1;
+      out = $[0];
+      errors1 = $[1];
       let $1 = next(out).function(data);
-      let out$1 = $1[0];
-      let errors2 = $1[1];
+      let out$1;
+      let errors2;
+      out$1 = $1[0];
+      errors2 = $1[1];
       return [out$1, append(errors1, errors2)];
     }
   );
@@ -2055,7 +2050,8 @@ function at(path, inner) {
         data,
         (data2, position) => {
           let $ = inner.function(data2);
-          let default$ = $[0];
+          let default$;
+          default$ = $[0];
           let _pipe = [
             default$,
             toList([new DecodeError2("Field", "Nothing", toList([]))])
@@ -2537,8 +2533,7 @@ function from(effect) {
     let dispatch = actions.dispatch;
     return effect(dispatch);
   };
-  let _record = empty;
-  return new Effect(toList([task]), _record.before_paint, _record.after_paint);
+  return new Effect(toList([task]), empty.before_paint, empty.after_paint);
 }
 function batch(effects) {
   return fold(
@@ -2604,7 +2599,7 @@ function do_matches(loop$path, loop$candidates) {
       let rest = candidates.tail;
       let $ = starts_with(path, candidate);
       if ($) {
-        return true;
+        return $;
       } else {
         loop$path = path;
         loop$candidates = rest;
@@ -2822,19 +2817,18 @@ function set_fragment_key(loop$key, loop$children, loop$index, loop$new_children
             empty_list,
             empty2()
           );
-          let node_children = $1[0];
-          let node_keyed_children = $1[1];
-          let _block;
-          let _record = node;
-          _block = new Fragment(
-            _record.kind,
-            _record.key,
-            _record.mapper,
+          let node_children;
+          let node_keyed_children;
+          node_children = $1[0];
+          node_keyed_children = $1[1];
+          let new_node = new Fragment(
+            node.kind,
+            node.key,
+            node.mapper,
             node_children,
             node_keyed_children,
-            _record.children_count
+            node.children_count
           );
-          let new_node = _block;
           let new_children$1 = prepend(new_node, new_children);
           let index$1 = index5 + 1;
           loop$key = key;
@@ -2915,44 +2909,42 @@ function to_keyed(key, node) {
       empty_list,
       empty2()
     );
-    let children$1 = $[0];
-    let keyed_children = $[1];
-    let _record = node;
+    let children$1;
+    let keyed_children;
+    children$1 = $[0];
+    keyed_children = $[1];
     return new Fragment(
-      _record.kind,
+      node.kind,
       key,
-      _record.mapper,
+      node.mapper,
       children$1,
       keyed_children,
-      _record.children_count
+      node.children_count
     );
   } else if (node instanceof Element) {
-    let _record = node;
     return new Element(
-      _record.kind,
+      node.kind,
       key,
-      _record.mapper,
-      _record.namespace,
-      _record.tag,
-      _record.attributes,
-      _record.children,
-      _record.keyed_children,
-      _record.self_closing,
-      _record.void
+      node.mapper,
+      node.namespace,
+      node.tag,
+      node.attributes,
+      node.children,
+      node.keyed_children,
+      node.self_closing,
+      node.void
     );
   } else if (node instanceof Text) {
-    let _record = node;
-    return new Text(_record.kind, key, _record.mapper, _record.content);
+    return new Text(node.kind, key, node.mapper, node.content);
   } else {
-    let _record = node;
     return new UnsafeInnerHtml(
-      _record.kind,
+      node.kind,
       key,
-      _record.mapper,
-      _record.namespace,
-      _record.tag,
-      _record.attributes,
-      _record.inner_html
+      node.mapper,
+      node.namespace,
+      node.tag,
+      node.attributes,
+      node.inner_html
     );
   }
 }
@@ -3084,24 +3076,12 @@ var AttributeChange = class extends CustomType {
   }
 };
 function is_controlled(events, namespace, tag, path) {
-  if (tag === "input") {
-    if (namespace === "") {
-      return has_dispatched_events(events, path);
-    } else {
-      return false;
-    }
-  } else if (tag === "select") {
-    if (namespace === "") {
-      return has_dispatched_events(events, path);
-    } else {
-      return false;
-    }
-  } else if (tag === "textarea") {
-    if (namespace === "") {
-      return has_dispatched_events(events, path);
-    } else {
-      return false;
-    }
+  if (tag === "input" && namespace === "") {
+    return has_dispatched_events(events, path);
+  } else if (tag === "select" && namespace === "") {
+    return has_dispatched_events(events, path);
+  } else if (tag === "textarea" && namespace === "") {
+    return has_dispatched_events(events, path);
   } else {
     return false;
   }
@@ -3697,16 +3677,15 @@ function do_diff(loop$old, loop$old_keyed, loop$new, loop$new_keyed, loop$moved,
                 empty_list,
                 empty_list
               );
-              let added_attrs = $2.added;
-              let removed_attrs = $2.removed;
-              let events$1 = $2.events;
+              let added_attrs;
+              let removed_attrs;
+              let events$1;
+              added_attrs = $2.added;
+              removed_attrs = $2.removed;
+              events$1 = $2.events;
               let _block;
-              if (removed_attrs instanceof Empty) {
-                if (added_attrs instanceof Empty) {
-                  _block = empty_list;
-                } else {
-                  _block = toList([update(added_attrs, removed_attrs)]);
-                }
+              if (removed_attrs instanceof Empty && added_attrs instanceof Empty) {
+                _block = empty_list;
               } else {
                 _block = toList([update(added_attrs, removed_attrs)]);
               }
@@ -3945,16 +3924,15 @@ function do_diff(loop$old, loop$old_keyed, loop$new, loop$new_keyed, loop$moved,
               empty_list,
               empty_list
             );
-            let added_attrs = $2.added;
-            let removed_attrs = $2.removed;
-            let events$1 = $2.events;
+            let added_attrs;
+            let removed_attrs;
+            let events$1;
+            added_attrs = $2.added;
+            removed_attrs = $2.removed;
+            events$1 = $2.events;
             let _block;
-            if (removed_attrs instanceof Empty) {
-              if (added_attrs instanceof Empty) {
-                _block = empty_list;
-              } else {
-                _block = toList([update(added_attrs, removed_attrs)]);
-              }
+            if (removed_attrs instanceof Empty && added_attrs instanceof Empty) {
+              _block = empty_list;
             } else {
               _block = toList([update(added_attrs, removed_attrs)]);
             }
@@ -4716,11 +4694,10 @@ function do_remove_event(handlers, path, name) {
 }
 function remove_event(events, path, name) {
   let handlers = do_remove_event(events.handlers, path, name);
-  let _record = events;
   return new Events(
     handlers,
-    _record.dispatched_paths,
-    _record.next_dispatched_paths
+    events.dispatched_paths,
+    events.next_dispatched_paths
   );
 }
 function remove_attributes(handlers, path, attributes) {
@@ -4739,14 +4716,11 @@ function remove_attributes(handlers, path, attributes) {
 }
 function handle(events, path, name, event4) {
   let next_dispatched_paths = prepend(path, events.next_dispatched_paths);
-  let _block;
-  let _record = events;
-  _block = new Events(
-    _record.handlers,
-    _record.dispatched_paths,
+  let events$1 = new Events(
+    events.handlers,
+    events.dispatched_paths,
     next_dispatched_paths
   );
-  let events$1 = _block;
   let $ = get(
     events$1.handlers,
     path + separator_event + name
@@ -4770,11 +4744,10 @@ function do_add_event(handlers, mapper, path, name, handler) {
 }
 function add_event(events, mapper, path, name, handler) {
   let handlers = do_add_event(events.handlers, mapper, path, name, handler);
-  let _record = events;
   return new Events(
     handlers,
-    _record.dispatched_paths,
-    _record.next_dispatched_paths
+    events.dispatched_paths,
+    events.next_dispatched_paths
   );
 }
 function add_attributes(handlers, mapper, path, attributes) {
@@ -4846,11 +4819,10 @@ function do_remove_child(handlers, parent, child_index, child) {
 }
 function remove_child(events, parent, child_index, child) {
   let handlers = do_remove_child(events.handlers, parent, child_index, child);
-  let _record = events;
   return new Events(
     handlers,
-    _record.dispatched_paths,
-    _record.next_dispatched_paths
+    events.dispatched_paths,
+    events.next_dispatched_paths
   );
 }
 function do_add_children(loop$handlers, loop$mapper, loop$path, loop$child_index, loop$children) {
@@ -4906,11 +4878,10 @@ function do_add_child(handlers, mapper, parent, child_index, child) {
 }
 function add_child(events, mapper, parent, index5, child) {
   let handlers = do_add_child(events.handlers, mapper, parent, index5, child);
-  let _record = events;
   return new Events(
     handlers,
-    _record.dispatched_paths,
-    _record.next_dispatched_paths
+    events.dispatched_paths,
+    events.next_dispatched_paths
   );
 }
 function add_children(events, mapper, path, child_index, children) {
@@ -4921,11 +4892,10 @@ function add_children(events, mapper, path, child_index, children) {
     child_index,
     children
   );
-  let _record = events;
   return new Events(
     handlers,
-    _record.dispatched_paths,
-    _record.next_dispatched_paths
+    events.dispatched_paths,
+    events.next_dispatched_paths
   );
 }
 
@@ -5170,18 +5140,15 @@ function is_valid_host_within_brackets_char(char) {
 }
 function parse_fragment(rest, pieces) {
   return new Ok(
-    (() => {
-      let _record = pieces;
-      return new Uri(
-        _record.scheme,
-        _record.userinfo,
-        _record.host,
-        _record.port,
-        _record.path,
-        _record.query,
-        new Some(rest)
-      );
-    })()
+    new Uri(
+      pieces.scheme,
+      pieces.userinfo,
+      pieces.host,
+      pieces.port,
+      pieces.path,
+      pieces.query,
+      new Some(rest)
+    )
   );
 }
 function parse_query_with_question_mark_loop(loop$original, loop$uri_string, loop$pieces, loop$size) {
@@ -5197,38 +5164,33 @@ function parse_query_with_question_mark_loop(loop$original, loop$uri_string, loo
       } else {
         let rest = uri_string.slice(1);
         let query = string_codeunit_slice(original, 0, size2);
-        let _block;
-        let _record = pieces;
-        _block = new Uri(
-          _record.scheme,
-          _record.userinfo,
-          _record.host,
-          _record.port,
-          _record.path,
+        let pieces$1 = new Uri(
+          pieces.scheme,
+          pieces.userinfo,
+          pieces.host,
+          pieces.port,
+          pieces.path,
           new Some(query),
-          _record.fragment
+          pieces.fragment
         );
-        let pieces$1 = _block;
         return parse_fragment(rest, pieces$1);
       }
     } else if (uri_string === "") {
       return new Ok(
-        (() => {
-          let _record = pieces;
-          return new Uri(
-            _record.scheme,
-            _record.userinfo,
-            _record.host,
-            _record.port,
-            _record.path,
-            new Some(original),
-            _record.fragment
-          );
-        })()
+        new Uri(
+          pieces.scheme,
+          pieces.userinfo,
+          pieces.host,
+          pieces.port,
+          pieces.path,
+          new Some(original),
+          pieces.fragment
+        )
       );
     } else {
       let $ = pop_codeunit(uri_string);
-      let rest = $[1];
+      let rest;
+      rest = $[1];
       loop$original = original;
       loop$uri_string = rest;
       loop$pieces = pieces;
@@ -5248,53 +5210,45 @@ function parse_path_loop(loop$original, loop$uri_string, loop$pieces, loop$size)
     if (uri_string.startsWith("?")) {
       let rest = uri_string.slice(1);
       let path = string_codeunit_slice(original, 0, size2);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
-        _record.host,
-        _record.port,
+      let pieces$1 = new Uri(
+        pieces.scheme,
+        pieces.userinfo,
+        pieces.host,
+        pieces.port,
         path,
-        _record.query,
-        _record.fragment
+        pieces.query,
+        pieces.fragment
       );
-      let pieces$1 = _block;
       return parse_query_with_question_mark(rest, pieces$1);
     } else if (uri_string.startsWith("#")) {
       let rest = uri_string.slice(1);
       let path = string_codeunit_slice(original, 0, size2);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
-        _record.host,
-        _record.port,
+      let pieces$1 = new Uri(
+        pieces.scheme,
+        pieces.userinfo,
+        pieces.host,
+        pieces.port,
         path,
-        _record.query,
-        _record.fragment
+        pieces.query,
+        pieces.fragment
       );
-      let pieces$1 = _block;
       return parse_fragment(rest, pieces$1);
     } else if (uri_string === "") {
       return new Ok(
-        (() => {
-          let _record = pieces;
-          return new Uri(
-            _record.scheme,
-            _record.userinfo,
-            _record.host,
-            _record.port,
-            original,
-            _record.query,
-            _record.fragment
-          );
-        })()
+        new Uri(
+          pieces.scheme,
+          pieces.userinfo,
+          pieces.host,
+          pieces.port,
+          original,
+          pieces.query,
+          pieces.fragment
+        )
       );
     } else {
       let $ = pop_codeunit(uri_string);
-      let rest = $[1];
+      let rest;
+      rest = $[1];
       loop$original = original;
       loop$uri_string = rest;
       loop$pieces = pieces;
@@ -5362,62 +5316,50 @@ function parse_port_loop(loop$uri_string, loop$pieces, loop$port) {
       loop$port = port * 10 + 9;
     } else if (uri_string.startsWith("?")) {
       let rest = uri_string.slice(1);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
-        _record.host,
+      let pieces$1 = new Uri(
+        pieces.scheme,
+        pieces.userinfo,
+        pieces.host,
         new Some(port),
-        _record.path,
-        _record.query,
-        _record.fragment
+        pieces.path,
+        pieces.query,
+        pieces.fragment
       );
-      let pieces$1 = _block;
       return parse_query_with_question_mark(rest, pieces$1);
     } else if (uri_string.startsWith("#")) {
       let rest = uri_string.slice(1);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
-        _record.host,
+      let pieces$1 = new Uri(
+        pieces.scheme,
+        pieces.userinfo,
+        pieces.host,
         new Some(port),
-        _record.path,
-        _record.query,
-        _record.fragment
+        pieces.path,
+        pieces.query,
+        pieces.fragment
       );
-      let pieces$1 = _block;
       return parse_fragment(rest, pieces$1);
     } else if (uri_string.startsWith("/")) {
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
-        _record.host,
+      let pieces$1 = new Uri(
+        pieces.scheme,
+        pieces.userinfo,
+        pieces.host,
         new Some(port),
-        _record.path,
-        _record.query,
-        _record.fragment
+        pieces.path,
+        pieces.query,
+        pieces.fragment
       );
-      let pieces$1 = _block;
       return parse_path(uri_string, pieces$1);
     } else if (uri_string === "") {
       return new Ok(
-        (() => {
-          let _record = pieces;
-          return new Uri(
-            _record.scheme,
-            _record.userinfo,
-            _record.host,
-            new Some(port),
-            _record.path,
-            _record.query,
-            _record.fragment
-          );
-        })()
+        new Uri(
+          pieces.scheme,
+          pieces.userinfo,
+          pieces.host,
+          new Some(port),
+          pieces.path,
+          pieces.query,
+          pieces.fragment
+        )
       );
     } else {
       return new Error(void 0);
@@ -5479,84 +5421,70 @@ function parse_host_outside_of_brackets_loop(loop$original, loop$uri_string, loo
     let size2 = loop$size;
     if (uri_string === "") {
       return new Ok(
-        (() => {
-          let _record = pieces;
-          return new Uri(
-            _record.scheme,
-            _record.userinfo,
-            new Some(original),
-            _record.port,
-            _record.path,
-            _record.query,
-            _record.fragment
-          );
-        })()
+        new Uri(
+          pieces.scheme,
+          pieces.userinfo,
+          new Some(original),
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
+        )
       );
     } else if (uri_string.startsWith(":")) {
       let host = string_codeunit_slice(original, 0, size2);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
+      let pieces$1 = new Uri(
+        pieces.scheme,
+        pieces.userinfo,
         new Some(host),
-        _record.port,
-        _record.path,
-        _record.query,
-        _record.fragment
+        pieces.port,
+        pieces.path,
+        pieces.query,
+        pieces.fragment
       );
-      let pieces$1 = _block;
       return parse_port(uri_string, pieces$1);
     } else if (uri_string.startsWith("/")) {
       let host = string_codeunit_slice(original, 0, size2);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
+      let pieces$1 = new Uri(
+        pieces.scheme,
+        pieces.userinfo,
         new Some(host),
-        _record.port,
-        _record.path,
-        _record.query,
-        _record.fragment
+        pieces.port,
+        pieces.path,
+        pieces.query,
+        pieces.fragment
       );
-      let pieces$1 = _block;
       return parse_path(uri_string, pieces$1);
     } else if (uri_string.startsWith("?")) {
       let rest = uri_string.slice(1);
       let host = string_codeunit_slice(original, 0, size2);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
+      let pieces$1 = new Uri(
+        pieces.scheme,
+        pieces.userinfo,
         new Some(host),
-        _record.port,
-        _record.path,
-        _record.query,
-        _record.fragment
+        pieces.port,
+        pieces.path,
+        pieces.query,
+        pieces.fragment
       );
-      let pieces$1 = _block;
       return parse_query_with_question_mark(rest, pieces$1);
     } else if (uri_string.startsWith("#")) {
       let rest = uri_string.slice(1);
       let host = string_codeunit_slice(original, 0, size2);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
+      let pieces$1 = new Uri(
+        pieces.scheme,
+        pieces.userinfo,
         new Some(host),
-        _record.port,
-        _record.path,
-        _record.query,
-        _record.fragment
+        pieces.port,
+        pieces.path,
+        pieces.query,
+        pieces.fragment
       );
-      let pieces$1 = _block;
       return parse_fragment(rest, pieces$1);
     } else {
       let $ = pop_codeunit(uri_string);
-      let rest = $[1];
+      let rest;
+      rest = $[1];
       loop$original = original;
       loop$uri_string = rest;
       loop$pieces = pieces;
@@ -5572,18 +5500,15 @@ function parse_host_within_brackets_loop(loop$original, loop$uri_string, loop$pi
     let size2 = loop$size;
     if (uri_string === "") {
       return new Ok(
-        (() => {
-          let _record = pieces;
-          return new Uri(
-            _record.scheme,
-            _record.userinfo,
-            new Some(uri_string),
-            _record.port,
-            _record.path,
-            _record.query,
-            _record.fragment
-          );
-        })()
+        new Uri(
+          pieces.scheme,
+          pieces.userinfo,
+          new Some(uri_string),
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
+        )
       );
     } else if (uri_string.startsWith("]")) {
       if (size2 === 0) {
@@ -5592,18 +5517,15 @@ function parse_host_within_brackets_loop(loop$original, loop$uri_string, loop$pi
       } else {
         let rest = uri_string.slice(1);
         let host = string_codeunit_slice(original, 0, size2 + 1);
-        let _block;
-        let _record = pieces;
-        _block = new Uri(
-          _record.scheme,
-          _record.userinfo,
+        let pieces$1 = new Uri(
+          pieces.scheme,
+          pieces.userinfo,
           new Some(host),
-          _record.port,
-          _record.path,
-          _record.query,
-          _record.fragment
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
         );
-        let pieces$1 = _block;
         return parse_port(rest, pieces$1);
       }
     } else if (uri_string.startsWith("/")) {
@@ -5611,18 +5533,15 @@ function parse_host_within_brackets_loop(loop$original, loop$uri_string, loop$pi
         return parse_path(uri_string, pieces);
       } else {
         let host = string_codeunit_slice(original, 0, size2);
-        let _block;
-        let _record = pieces;
-        _block = new Uri(
-          _record.scheme,
-          _record.userinfo,
+        let pieces$1 = new Uri(
+          pieces.scheme,
+          pieces.userinfo,
           new Some(host),
-          _record.port,
-          _record.path,
-          _record.query,
-          _record.fragment
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
         );
-        let pieces$1 = _block;
         return parse_path(uri_string, pieces$1);
       }
     } else if (uri_string.startsWith("?")) {
@@ -5632,18 +5551,15 @@ function parse_host_within_brackets_loop(loop$original, loop$uri_string, loop$pi
       } else {
         let rest = uri_string.slice(1);
         let host = string_codeunit_slice(original, 0, size2);
-        let _block;
-        let _record = pieces;
-        _block = new Uri(
-          _record.scheme,
-          _record.userinfo,
+        let pieces$1 = new Uri(
+          pieces.scheme,
+          pieces.userinfo,
           new Some(host),
-          _record.port,
-          _record.path,
-          _record.query,
-          _record.fragment
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
         );
-        let pieces$1 = _block;
         return parse_query_with_question_mark(rest, pieces$1);
       }
     } else if (uri_string.startsWith("#")) {
@@ -5653,24 +5569,23 @@ function parse_host_within_brackets_loop(loop$original, loop$uri_string, loop$pi
       } else {
         let rest = uri_string.slice(1);
         let host = string_codeunit_slice(original, 0, size2);
-        let _block;
-        let _record = pieces;
-        _block = new Uri(
-          _record.scheme,
-          _record.userinfo,
+        let pieces$1 = new Uri(
+          pieces.scheme,
+          pieces.userinfo,
           new Some(host),
-          _record.port,
-          _record.path,
-          _record.query,
-          _record.fragment
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
         );
-        let pieces$1 = _block;
         return parse_fragment(rest, pieces$1);
       }
     } else {
       let $ = pop_codeunit(uri_string);
-      let char = $[0];
-      let rest = $[1];
+      let char;
+      let rest;
+      char = $[0];
+      rest = $[1];
       let $1 = is_valid_host_within_brackets_char(char);
       if ($1) {
         loop$original = original;
@@ -5698,33 +5613,27 @@ function parse_host(uri_string, pieces) {
   if (uri_string.startsWith("[")) {
     return parse_host_within_brackets(uri_string, pieces);
   } else if (uri_string.startsWith(":")) {
-    let _block;
-    let _record = pieces;
-    _block = new Uri(
-      _record.scheme,
-      _record.userinfo,
+    let pieces$1 = new Uri(
+      pieces.scheme,
+      pieces.userinfo,
       new Some(""),
-      _record.port,
-      _record.path,
-      _record.query,
-      _record.fragment
+      pieces.port,
+      pieces.path,
+      pieces.query,
+      pieces.fragment
     );
-    let pieces$1 = _block;
     return parse_port(uri_string, pieces$1);
   } else if (uri_string === "") {
     return new Ok(
-      (() => {
-        let _record = pieces;
-        return new Uri(
-          _record.scheme,
-          _record.userinfo,
-          new Some(""),
-          _record.port,
-          _record.path,
-          _record.query,
-          _record.fragment
-        );
-      })()
+      new Uri(
+        pieces.scheme,
+        pieces.userinfo,
+        new Some(""),
+        pieces.port,
+        pieces.path,
+        pieces.query,
+        pieces.fragment
+      )
     );
   } else {
     return parse_host_outside_of_brackets(uri_string, pieces);
@@ -5743,18 +5652,15 @@ function parse_userinfo_loop(loop$original, loop$uri_string, loop$pieces, loop$s
       } else {
         let rest = uri_string.slice(1);
         let userinfo = string_codeunit_slice(original, 0, size2);
-        let _block;
-        let _record = pieces;
-        _block = new Uri(
-          _record.scheme,
+        let pieces$1 = new Uri(
+          pieces.scheme,
           new Some(userinfo),
-          _record.host,
-          _record.port,
-          _record.path,
-          _record.query,
-          _record.fragment
+          pieces.host,
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
         );
-        let pieces$1 = _block;
         return parse_host(rest, pieces$1);
       }
     } else if (uri_string === "") {
@@ -5767,7 +5673,8 @@ function parse_userinfo_loop(loop$original, loop$uri_string, loop$pieces, loop$s
       return parse_host(original, pieces);
     } else {
       let $ = pop_codeunit(uri_string);
-      let rest = $[1];
+      let rest;
+      rest = $[1];
       loop$original = original;
       loop$uri_string = rest;
       loop$pieces = pieces;
@@ -5781,18 +5688,15 @@ function parse_authority_pieces(string5, pieces) {
 function parse_authority_with_slashes(uri_string, pieces) {
   if (uri_string === "//") {
     return new Ok(
-      (() => {
-        let _record = pieces;
-        return new Uri(
-          _record.scheme,
-          _record.userinfo,
-          new Some(""),
-          _record.port,
-          _record.path,
-          _record.query,
-          _record.fragment
-        );
-      })()
+      new Uri(
+        pieces.scheme,
+        pieces.userinfo,
+        new Some(""),
+        pieces.port,
+        pieces.path,
+        pieces.query,
+        pieces.fragment
+      )
     );
   } else if (uri_string.startsWith("//")) {
     let rest = uri_string.slice(2);
@@ -5812,18 +5716,15 @@ function parse_scheme_loop(loop$original, loop$uri_string, loop$pieces, loop$siz
         return parse_authority_with_slashes(uri_string, pieces);
       } else {
         let scheme = string_codeunit_slice(original, 0, size2);
-        let _block;
-        let _record = pieces;
-        _block = new Uri(
+        let pieces$1 = new Uri(
           new Some(lowercase(scheme)),
-          _record.userinfo,
-          _record.host,
-          _record.port,
-          _record.path,
-          _record.query,
-          _record.fragment
+          pieces.userinfo,
+          pieces.host,
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
         );
-        let pieces$1 = _block;
         return parse_authority_with_slashes(uri_string, pieces$1);
       }
     } else if (uri_string.startsWith("?")) {
@@ -5833,18 +5734,15 @@ function parse_scheme_loop(loop$original, loop$uri_string, loop$pieces, loop$siz
       } else {
         let rest = uri_string.slice(1);
         let scheme = string_codeunit_slice(original, 0, size2);
-        let _block;
-        let _record = pieces;
-        _block = new Uri(
+        let pieces$1 = new Uri(
           new Some(lowercase(scheme)),
-          _record.userinfo,
-          _record.host,
-          _record.port,
-          _record.path,
-          _record.query,
-          _record.fragment
+          pieces.userinfo,
+          pieces.host,
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
         );
-        let pieces$1 = _block;
         return parse_query_with_question_mark(rest, pieces$1);
       }
     } else if (uri_string.startsWith("#")) {
@@ -5854,18 +5752,15 @@ function parse_scheme_loop(loop$original, loop$uri_string, loop$pieces, loop$siz
       } else {
         let rest = uri_string.slice(1);
         let scheme = string_codeunit_slice(original, 0, size2);
-        let _block;
-        let _record = pieces;
-        _block = new Uri(
+        let pieces$1 = new Uri(
           new Some(lowercase(scheme)),
-          _record.userinfo,
-          _record.host,
-          _record.port,
-          _record.path,
-          _record.query,
-          _record.fragment
+          pieces.userinfo,
+          pieces.host,
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
         );
-        let pieces$1 = _block;
         return parse_fragment(rest, pieces$1);
       }
     } else if (uri_string.startsWith(":")) {
@@ -5874,38 +5769,33 @@ function parse_scheme_loop(loop$original, loop$uri_string, loop$pieces, loop$siz
       } else {
         let rest = uri_string.slice(1);
         let scheme = string_codeunit_slice(original, 0, size2);
-        let _block;
-        let _record = pieces;
-        _block = new Uri(
+        let pieces$1 = new Uri(
           new Some(lowercase(scheme)),
-          _record.userinfo,
-          _record.host,
-          _record.port,
-          _record.path,
-          _record.query,
-          _record.fragment
+          pieces.userinfo,
+          pieces.host,
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
         );
-        let pieces$1 = _block;
         return parse_authority_with_slashes(rest, pieces$1);
       }
     } else if (uri_string === "") {
       return new Ok(
-        (() => {
-          let _record = pieces;
-          return new Uri(
-            _record.scheme,
-            _record.userinfo,
-            _record.host,
-            _record.port,
-            original,
-            _record.query,
-            _record.fragment
-          );
-        })()
+        new Uri(
+          pieces.scheme,
+          pieces.userinfo,
+          pieces.host,
+          pieces.port,
+          original,
+          pieces.query,
+          pieces.fragment
+        )
       );
     } else {
       let $ = pop_codeunit(uri_string);
-      let rest = $[1];
+      let rest;
+      rest = $[1];
       loop$original = original;
       loop$uri_string = rest;
       loop$pieces = pieces;
@@ -5936,14 +5826,10 @@ function to_string5(uri) {
   let _block$2;
   let $2 = uri.host;
   let $3 = starts_with(uri.path, "/");
-  if (!$3) {
-    if ($2 instanceof Some) {
-      let host = $2[0];
-      if (host !== "") {
-        _block$2 = prepend("/", parts$2);
-      } else {
-        _block$2 = parts$2;
-      }
+  if (!$3 && $2 instanceof Some) {
+    let host = $2[0];
+    if (host !== "") {
+      _block$2 = prepend("/", parts$2);
     } else {
       _block$2 = parts$2;
     }
@@ -5954,13 +5840,9 @@ function to_string5(uri) {
   let _block$3;
   let $4 = uri.host;
   let $5 = uri.port;
-  if ($5 instanceof Some) {
-    if ($4 instanceof Some) {
-      let port = $5[0];
-      _block$3 = prepend(":", prepend(to_string(port), parts$3));
-    } else {
-      _block$3 = parts$3;
-    }
+  if ($5 instanceof Some && $4 instanceof Some) {
+    let port = $5[0];
+    _block$3 = prepend(":", prepend(to_string(port), parts$3));
   } else {
     _block$3 = parts$3;
   }
@@ -6144,39 +6026,44 @@ function from_uri(uri) {
 }
 function set_header(request, key, value) {
   let headers = key_set(request.headers, lowercase(key), value);
-  let _record = request;
   return new Request(
-    _record.method,
+    request.method,
     headers,
-    _record.body,
-    _record.scheme,
-    _record.host,
-    _record.port,
-    _record.path,
-    _record.query
+    request.body,
+    request.scheme,
+    request.host,
+    request.port,
+    request.path,
+    request.query
   );
 }
 function set_body(req, body) {
-  let method = req.method;
-  let headers = req.headers;
-  let scheme = req.scheme;
-  let host = req.host;
-  let port = req.port;
-  let path = req.path;
-  let query = req.query;
+  let method;
+  let headers;
+  let scheme;
+  let host;
+  let port;
+  let path;
+  let query;
+  method = req.method;
+  headers = req.headers;
+  scheme = req.scheme;
+  host = req.host;
+  port = req.port;
+  path = req.path;
+  query = req.query;
   return new Request(method, headers, body, scheme, host, port, path, query);
 }
 function set_method(req, method) {
-  let _record = req;
   return new Request(
     method,
-    _record.headers,
-    _record.body,
-    _record.scheme,
-    _record.host,
-    _record.port,
-    _record.path,
-    _record.query
+    req.headers,
+    req.body,
+    req.scheme,
+    req.host,
+    req.port,
+    req.path,
+    req.query
   );
 }
 
@@ -6631,12 +6518,10 @@ function active(ep) {
   return ep.active;
 }
 function active_from_custom(ep) {
-  let _record = ep;
-  return new Endpoints(ep.custom, _record.custom, _record.random);
+  return new Endpoints(ep.custom, ep.custom, ep.random);
 }
 function active_from_random(ep) {
-  let _record = ep;
-  return new Endpoints(ep.random, _record.custom, _record.random);
+  return new Endpoints(ep.random, ep.custom, ep.random);
 }
 function custom(ep) {
   return ep.custom;
@@ -6666,8 +6551,7 @@ function new$7() {
   return new Endpoints(new_epp(), new_epp(), new_epp());
 }
 function new_random(ep) {
-  let _record = ep;
-  return new Endpoints(_record.active, _record.custom, new_epp());
+  return new Endpoints(ep.active, ep.custom, new_epp());
 }
 function random2(ep) {
   return ep.random;
@@ -6696,12 +6580,10 @@ function random_start(ep) {
   return start4(_pipe$1);
 }
 function update_custom(epp, ep) {
-  let _record = ep;
-  return new Endpoints(_record.active, epp, _record.random);
+  return new Endpoints(ep.active, epp, ep.random);
 }
 function update_goal(epp, goal3) {
-  let _record = epp;
-  return new EndpointPair(goal3, _record.start);
+  return new EndpointPair(goal3, epp.start);
 }
 function update_custom_goal(ep, goal3) {
   let _pipe = ep;
@@ -6710,16 +6592,10 @@ function update_custom_goal(ep, goal3) {
   return update_custom(_pipe$2, ep);
 }
 function update_random(ep, goal3, start5) {
-  let _record = ep;
-  return new Endpoints(
-    _record.active,
-    _record.custom,
-    new EndpointPair(goal3, start5)
-  );
+  return new Endpoints(ep.active, ep.custom, new EndpointPair(goal3, start5));
 }
 function update_start(epp, start5) {
-  let _record = epp;
-  return new EndpointPair(_record.goal, start5);
+  return new EndpointPair(epp.goal, start5);
 }
 function update_custom_start(ep, start5) {
   let _pipe = ep;
@@ -6954,8 +6830,7 @@ function navigation_possible(nav) {
   }
 }
 function navigated_to(new$10, nav) {
-  let _record = nav;
-  return new Navigation(_record.left, prepend(new$10, nav.right));
+  return new Navigation(nav.left, prepend(new$10, nav.right));
 }
 
 // build/dev/javascript/wrspa/model.mjs
@@ -7024,11 +6899,10 @@ function init(_) {
   ];
 }
 function reset(model) {
-  let _record = model;
   return new Model(
-    _record.dark,
+    model.dark,
     0,
-    _record.endpoints,
+    model.endpoints,
     new None(),
     new$8(),
     (() => {
@@ -7036,7 +6910,8 @@ function reset(model) {
       let _pipe = model.endpoints;
       _block = active_start(_pipe);
       let $ = _block;
-      let st = $[0];
+      let st;
+      st = $[0];
       return st;
     })(),
     new None(),
@@ -7100,23 +6975,20 @@ function check_click(model, href) {
       let $1 = starts_with(url.path, "/wiki/");
       if ($1) {
         return [
-          (() => {
-            let _record = model;
-            return new Model(
-              _record.dark,
-              _record.elapsed,
-              _record.endpoints,
-              _record.goal_error,
-              _record.navigation,
-              url.path,
-              _record.rsvp_error,
-              _record.start_error,
-              _record.state,
-              model.steps + 1,
-              _record.timer_id,
-              _record.wiki_html
-            );
-          })(),
+          new Model(
+            model.dark,
+            model.elapsed,
+            model.endpoints,
+            model.goal_error,
+            model.navigation,
+            url.path,
+            model.rsvp_error,
+            model.start_error,
+            model.state,
+            model.steps + 1,
+            model.timer_id,
+            model.wiki_html
+          ),
           get_wiki_page(
             url.path,
             (var0) => {
@@ -7179,31 +7051,29 @@ function update2(model, msg) {
       let _pipe = model.endpoints;
       _block$1 = custom_start(_pipe);
       let $ = _block$1;
-      let st = $[0];
+      let st;
+      st = $[0];
       _block = "/wiki/" + st;
     }
     let subject = _block;
     return [
-      (() => {
-        let _record = model;
-        return new Model(
-          _record.dark,
-          _record.elapsed,
-          (() => {
-            let _pipe = model.endpoints;
-            return active_from_custom(_pipe);
-          })(),
-          _record.goal_error,
-          _record.navigation,
-          subject,
-          _record.rsvp_error,
-          _record.start_error,
-          new ReadyToPlay(),
-          _record.steps,
-          _record.timer_id,
-          _record.wiki_html
-        );
-      })(),
+      new Model(
+        model.dark,
+        model.elapsed,
+        (() => {
+          let _pipe = model.endpoints;
+          return active_from_custom(_pipe);
+        })(),
+        model.goal_error,
+        model.navigation,
+        subject,
+        model.rsvp_error,
+        model.start_error,
+        new ReadyToPlay(),
+        model.steps,
+        model.timer_id,
+        model.wiki_html
+      ),
       get_wiki_page(subject, (var0) => {
         return new WikiPageFetched(var0);
       })
@@ -7214,70 +7084,61 @@ function update2(model, msg) {
     let $ = check_subject(val);
     if ($ instanceof Ok) {
       return [
-        (() => {
-          let _record = model;
-          return new Model(
-            _record.dark,
-            _record.elapsed,
-            (() => {
-              let _pipe = model.endpoints;
-              return update_custom_goal(_pipe, ep);
-            })(),
-            new None(),
-            _record.navigation,
-            _record.pending,
-            _record.rsvp_error,
-            _record.start_error,
-            _record.state,
-            _record.steps,
-            _record.timer_id,
-            _record.wiki_html
-          );
-        })(),
+        new Model(
+          model.dark,
+          model.elapsed,
+          (() => {
+            let _pipe = model.endpoints;
+            return update_custom_goal(_pipe, ep);
+          })(),
+          new None(),
+          model.navigation,
+          model.pending,
+          model.rsvp_error,
+          model.start_error,
+          model.state,
+          model.steps,
+          model.timer_id,
+          model.wiki_html
+        ),
         none()
       ];
     } else {
       let e = $[0];
       return [
-        (() => {
-          let _record = model;
-          return new Model(
-            _record.dark,
-            _record.elapsed,
-            _record.endpoints,
-            new Some(e),
-            _record.navigation,
-            _record.pending,
-            _record.rsvp_error,
-            _record.start_error,
-            _record.state,
-            _record.steps,
-            _record.timer_id,
-            _record.wiki_html
-          );
-        })(),
+        new Model(
+          model.dark,
+          model.elapsed,
+          model.endpoints,
+          new Some(e),
+          model.navigation,
+          model.pending,
+          model.rsvp_error,
+          model.start_error,
+          model.state,
+          model.steps,
+          model.timer_id,
+          model.wiki_html
+        ),
         none()
       ];
     }
   } else if (msg instanceof CustomSelected) {
     return [
-      (() => {
-        let _record = model;
-        return new Model(
-          _record.dark,
-          _record.elapsed,
-          _record.endpoints,
-          _record.goal_error,
-          _record.navigation,
-          _record.pending,
-          _record.rsvp_error,
-          _record.start_error,
-          new CustomGame(),
-          _record.steps,
-          _record.timer_id,
-          _record.wiki_html
-        );
-      })(),
+      new Model(
+        model.dark,
+        model.elapsed,
+        model.endpoints,
+        model.goal_error,
+        model.navigation,
+        model.pending,
+        model.rsvp_error,
+        model.start_error,
+        new CustomGame(),
+        model.steps,
+        model.timer_id,
+        model.wiki_html
+      ),
       none()
     ];
   } else if (msg instanceof CustomStartChanged) {
@@ -7286,71 +7147,62 @@ function update2(model, msg) {
     let $ = check_subject(val);
     if ($ instanceof Ok) {
       return [
-        (() => {
-          let _record = model;
-          return new Model(
-            _record.dark,
-            _record.elapsed,
-            (() => {
-              let _pipe = model.endpoints;
-              return update_custom_start(_pipe, ep);
-            })(),
-            _record.goal_error,
-            _record.navigation,
-            _record.pending,
-            _record.rsvp_error,
-            new None(),
-            _record.state,
-            _record.steps,
-            _record.timer_id,
-            _record.wiki_html
-          );
-        })(),
+        new Model(
+          model.dark,
+          model.elapsed,
+          (() => {
+            let _pipe = model.endpoints;
+            return update_custom_start(_pipe, ep);
+          })(),
+          model.goal_error,
+          model.navigation,
+          model.pending,
+          model.rsvp_error,
+          new None(),
+          model.state,
+          model.steps,
+          model.timer_id,
+          model.wiki_html
+        ),
         none()
       ];
     } else {
       let e = $[0];
       return [
-        (() => {
-          let _record = model;
-          return new Model(
-            _record.dark,
-            _record.elapsed,
-            _record.endpoints,
-            _record.goal_error,
-            _record.navigation,
-            _record.pending,
-            _record.rsvp_error,
-            new Some(e),
-            _record.state,
-            _record.steps,
-            _record.timer_id,
-            _record.wiki_html
-          );
-        })(),
+        new Model(
+          model.dark,
+          model.elapsed,
+          model.endpoints,
+          model.goal_error,
+          model.navigation,
+          model.pending,
+          model.rsvp_error,
+          new Some(e),
+          model.state,
+          model.steps,
+          model.timer_id,
+          model.wiki_html
+        ),
         none()
       ];
     }
   } else if (msg instanceof DarkModeFetched) {
     let set = msg[0];
     return [
-      (() => {
-        let _record = model;
-        return new Model(
-          set,
-          _record.elapsed,
-          _record.endpoints,
-          _record.goal_error,
-          _record.navigation,
-          _record.pending,
-          _record.rsvp_error,
-          _record.start_error,
-          _record.state,
-          _record.steps,
-          _record.timer_id,
-          _record.wiki_html
-        );
-      })(),
+      new Model(
+        set,
+        model.elapsed,
+        model.endpoints,
+        model.goal_error,
+        model.navigation,
+        model.pending,
+        model.rsvp_error,
+        model.start_error,
+        model.state,
+        model.steps,
+        model.timer_id,
+        model.wiki_html
+      ),
       none()
     ];
   } else if (msg instanceof RandomEndPointsDisplayed) {
@@ -7358,52 +7210,47 @@ function update2(model, msg) {
     let _pipe = model.endpoints;
     _block = random_start(_pipe);
     let $ = _block;
-    let st = $[0];
+    let st;
+    st = $[0];
     let subject = "/wiki/" + st;
     return [
-      (() => {
-        let _record = model;
-        return new Model(
-          _record.dark,
-          _record.elapsed,
-          (() => {
-            let _pipe$1 = model.endpoints;
-            return active_from_random(_pipe$1);
-          })(),
-          _record.goal_error,
-          _record.navigation,
-          subject,
-          _record.rsvp_error,
-          _record.start_error,
-          new ReadyToPlay(),
-          _record.steps,
-          _record.timer_id,
-          _record.wiki_html
-        );
-      })(),
+      new Model(
+        model.dark,
+        model.elapsed,
+        (() => {
+          let _pipe$1 = model.endpoints;
+          return active_from_random(_pipe$1);
+        })(),
+        model.goal_error,
+        model.navigation,
+        subject,
+        model.rsvp_error,
+        model.start_error,
+        new ReadyToPlay(),
+        model.steps,
+        model.timer_id,
+        model.wiki_html
+      ),
       get_wiki_page(subject, (var0) => {
         return new WikiPageFetched(var0);
       })
     ];
   } else if (msg instanceof RandomSelected) {
     return [
-      (() => {
-        let _record = model;
-        return new Model(
-          _record.dark,
-          _record.elapsed,
-          _record.endpoints,
-          _record.goal_error,
-          _record.navigation,
-          _record.pending,
-          _record.rsvp_error,
-          _record.start_error,
-          new RandomGame(),
-          _record.steps,
-          _record.timer_id,
-          _record.wiki_html
-        );
-      })(),
+      new Model(
+        model.dark,
+        model.elapsed,
+        model.endpoints,
+        model.goal_error,
+        model.navigation,
+        model.pending,
+        model.rsvp_error,
+        model.start_error,
+        new RandomGame(),
+        model.steps,
+        model.timer_id,
+        model.wiki_html
+      ),
       none()
     ];
   } else if (msg instanceof SpecialRandomFetched) {
@@ -7411,48 +7258,42 @@ function update2(model, msg) {
     if ($ instanceof Ok) {
       let sr = $[0];
       return [
-        (() => {
-          let _record = model;
-          return new Model(
-            _record.dark,
-            _record.elapsed,
-            (() => {
-              let _pipe = model.endpoints;
-              return update_random(_pipe, sr[0], sr[1]);
-            })(),
-            _record.goal_error,
-            _record.navigation,
-            _record.pending,
-            new None(),
-            _record.start_error,
-            _record.state,
-            _record.steps,
-            _record.timer_id,
-            _record.wiki_html
-          );
-        })(),
+        new Model(
+          model.dark,
+          model.elapsed,
+          (() => {
+            let _pipe = model.endpoints;
+            return update_random(_pipe, sr[0], sr[1]);
+          })(),
+          model.goal_error,
+          model.navigation,
+          model.pending,
+          new None(),
+          model.start_error,
+          model.state,
+          model.steps,
+          model.timer_id,
+          model.wiki_html
+        ),
         none()
       ];
     } else {
       let err = $[0];
       return [
-        (() => {
-          let _record = model;
-          return new Model(
-            _record.dark,
-            _record.elapsed,
-            _record.endpoints,
-            _record.goal_error,
-            _record.navigation,
-            _record.pending,
-            new Some(rsvp_error_to_string(err)),
-            _record.start_error,
-            _record.state,
-            _record.steps,
-            _record.timer_id,
-            _record.wiki_html
-          );
-        })(),
+        new Model(
+          model.dark,
+          model.elapsed,
+          model.endpoints,
+          model.goal_error,
+          model.navigation,
+          model.pending,
+          new Some(rsvp_error_to_string(err)),
+          model.start_error,
+          model.state,
+          model.steps,
+          model.timer_id,
+          model.wiki_html
+        ),
         none()
       ];
     }
@@ -7461,44 +7302,38 @@ function update2(model, msg) {
     return check_click(model, href);
   } else if (msg instanceof GamePaused) {
     return [
-      (() => {
-        let _record = model;
-        return new Model(
-          _record.dark,
-          _record.elapsed,
-          _record.endpoints,
-          _record.goal_error,
-          _record.navigation,
-          _record.pending,
-          _record.rsvp_error,
-          _record.start_error,
-          new Paused(),
-          _record.steps,
-          _record.timer_id,
-          _record.wiki_html
-        );
-      })(),
+      new Model(
+        model.dark,
+        model.elapsed,
+        model.endpoints,
+        model.goal_error,
+        model.navigation,
+        model.pending,
+        model.rsvp_error,
+        model.start_error,
+        new Paused(),
+        model.steps,
+        model.timer_id,
+        model.wiki_html
+      ),
       stop_timer(model.timer_id, new TimerStopped())
     ];
   } else if (msg instanceof GameResumed) {
     return [
-      (() => {
-        let _record = model;
-        return new Model(
-          _record.dark,
-          _record.elapsed,
-          _record.endpoints,
-          _record.goal_error,
-          _record.navigation,
-          _record.pending,
-          _record.rsvp_error,
-          _record.start_error,
-          new Playing(),
-          _record.steps,
-          _record.timer_id,
-          _record.wiki_html
-        );
-      })(),
+      new Model(
+        model.dark,
+        model.elapsed,
+        model.endpoints,
+        model.goal_error,
+        model.navigation,
+        model.pending,
+        model.rsvp_error,
+        model.start_error,
+        new Playing(),
+        model.steps,
+        model.timer_id,
+        model.wiki_html
+      ),
       start_timer(
         1e3,
         (var0) => {
@@ -7509,23 +7344,20 @@ function update2(model, msg) {
     ];
   } else if (msg instanceof GameStarted) {
     return [
-      (() => {
-        let _record = model;
-        return new Model(
-          _record.dark,
-          _record.elapsed,
-          _record.endpoints,
-          _record.goal_error,
-          _record.navigation,
-          _record.pending,
-          _record.rsvp_error,
-          _record.start_error,
-          new Playing(),
-          _record.steps,
-          _record.timer_id,
-          _record.wiki_html
-        );
-      })(),
+      new Model(
+        model.dark,
+        model.elapsed,
+        model.endpoints,
+        model.goal_error,
+        model.navigation,
+        model.pending,
+        model.rsvp_error,
+        model.start_error,
+        new Playing(),
+        model.steps,
+        model.timer_id,
+        model.wiki_html
+      ),
       start_timer(
         1e3,
         (var0) => {
@@ -7550,26 +7382,23 @@ function update2(model, msg) {
     ];
   } else if (msg instanceof RedrawRandom) {
     return [
-      (() => {
-        let _record = model;
-        return new Model(
-          _record.dark,
-          _record.elapsed,
-          (() => {
-            let _pipe = model.endpoints;
-            return new_random(_pipe);
-          })(),
-          _record.goal_error,
-          _record.navigation,
-          _record.pending,
-          _record.rsvp_error,
-          _record.start_error,
-          _record.state,
-          _record.steps,
-          _record.timer_id,
-          _record.wiki_html
-        );
-      })(),
+      new Model(
+        model.dark,
+        model.elapsed,
+        (() => {
+          let _pipe = model.endpoints;
+          return new_random(_pipe);
+        })(),
+        model.goal_error,
+        model.navigation,
+        model.pending,
+        model.rsvp_error,
+        model.start_error,
+        model.state,
+        model.steps,
+        model.timer_id,
+        model.wiki_html
+      ),
       special_random((var0) => {
         return new SpecialRandomFetched(var0);
       })
@@ -7579,7 +7408,8 @@ function update2(model, msg) {
     let _pipe = model.endpoints;
     _block = active_start(_pipe);
     let $ = _block;
-    let st = $[0];
+    let st;
+    st = $[0];
     return [
       reset(model),
       get_wiki_page(
@@ -7599,7 +7429,8 @@ function update2(model, msg) {
       let _pipe = model.endpoints;
       _block = active_goal(_pipe);
       let $1 = _block;
-      let g = $1[0];
+      let g;
+      g = $1[0];
       let _block$1;
       let $3 = lowercase(model.pending) === "/wiki/" + lowercase(
         g
@@ -7618,51 +7449,47 @@ function update2(model, msg) {
         _block$1 = [model.state, scroll_up(new Scrolled())];
       }
       let $2 = _block$1;
-      let st = $2[0];
-      let effie = $2[1];
+      let st;
+      let effie;
+      st = $2[0];
+      effie = $2[1];
       {
         let dest = model.pending;
         return [
-          (() => {
-            let _record = model;
-            return new Model(
-              _record.dark,
-              _record.elapsed,
-              _record.endpoints,
-              _record.goal_error,
-              navigated_to(dest, model.navigation),
-              "",
-              new None(),
-              _record.start_error,
-              st,
-              _record.steps,
-              _record.timer_id,
-              response
-            );
-          })(),
+          new Model(
+            model.dark,
+            model.elapsed,
+            model.endpoints,
+            model.goal_error,
+            navigated_to(dest, model.navigation),
+            "",
+            new None(),
+            model.start_error,
+            st,
+            model.steps,
+            model.timer_id,
+            response
+          ),
           effie
         ];
       }
     } else {
       let err = $[0];
       return [
-        (() => {
-          let _record = model;
-          return new Model(
-            _record.dark,
-            _record.elapsed,
-            _record.endpoints,
-            _record.goal_error,
-            _record.navigation,
-            _record.pending,
-            new Some(rsvp_error_to_string(err)),
-            _record.start_error,
-            _record.state,
-            _record.steps,
-            _record.timer_id,
-            "failed to fetch"
-          );
-        })(),
+        new Model(
+          model.dark,
+          model.elapsed,
+          model.endpoints,
+          model.goal_error,
+          model.navigation,
+          model.pending,
+          new Some(rsvp_error_to_string(err)),
+          model.start_error,
+          model.state,
+          model.steps,
+          model.timer_id,
+          "failed to fetch"
+        ),
         none()
       ];
     }
@@ -7670,29 +7497,28 @@ function update2(model, msg) {
     let $ = model.state;
     if ($ instanceof Playing) {
       let $1 = navigate_back(model.navigation);
-      let navigation = $1[0];
-      let destination = $1[1];
+      let navigation;
+      let destination;
+      navigation = $1[0];
+      destination = $1[1];
       if (destination === "") {
         return [model, none()];
       } else {
         return [
-          (() => {
-            let _record = model;
-            return new Model(
-              _record.dark,
-              _record.elapsed,
-              _record.endpoints,
-              _record.goal_error,
-              navigation,
-              destination,
-              _record.rsvp_error,
-              _record.start_error,
-              _record.state,
-              model.steps + 1,
-              _record.timer_id,
-              _record.wiki_html
-            );
-          })(),
+          new Model(
+            model.dark,
+            model.elapsed,
+            model.endpoints,
+            model.goal_error,
+            navigation,
+            destination,
+            model.rsvp_error,
+            model.start_error,
+            model.state,
+            model.steps + 1,
+            model.timer_id,
+            model.wiki_html
+          ),
           get_wiki_page(
             destination,
             (var0) => {
@@ -7708,29 +7534,28 @@ function update2(model, msg) {
     let $ = model.state;
     if ($ instanceof Playing) {
       let $1 = navigate_forward(model.navigation);
-      let navigation = $1[0];
-      let destination = $1[1];
+      let navigation;
+      let destination;
+      navigation = $1[0];
+      destination = $1[1];
       if (destination === "") {
         return [model, none()];
       } else {
         return [
-          (() => {
-            let _record = model;
-            return new Model(
-              _record.dark,
-              _record.elapsed,
-              _record.endpoints,
-              _record.goal_error,
-              navigation,
-              destination,
-              _record.rsvp_error,
-              _record.start_error,
-              _record.state,
-              model.steps + 1,
-              _record.timer_id,
-              _record.wiki_html
-            );
-          })(),
+          new Model(
+            model.dark,
+            model.elapsed,
+            model.endpoints,
+            model.goal_error,
+            navigation,
+            destination,
+            model.rsvp_error,
+            model.start_error,
+            model.state,
+            model.steps + 1,
+            model.timer_id,
+            model.wiki_html
+          ),
           get_wiki_page(
             destination,
             (var0) => {
@@ -7745,23 +7570,20 @@ function update2(model, msg) {
   } else if (msg instanceof TimerReturnedID) {
     let id2 = msg[0];
     return [
-      (() => {
-        let _record = model;
-        return new Model(
-          _record.dark,
-          _record.elapsed,
-          _record.endpoints,
-          _record.goal_error,
-          _record.navigation,
-          _record.pending,
-          _record.rsvp_error,
-          _record.start_error,
-          _record.state,
-          _record.steps,
-          id2,
-          _record.wiki_html
-        );
-      })(),
+      new Model(
+        model.dark,
+        model.elapsed,
+        model.endpoints,
+        model.goal_error,
+        model.navigation,
+        model.pending,
+        model.rsvp_error,
+        model.start_error,
+        model.state,
+        model.steps,
+        id2,
+        model.wiki_html
+      ),
       none()
     ];
   } else if (msg instanceof TimerStopped) {
@@ -7769,45 +7591,39 @@ function update2(model, msg) {
   } else if (msg instanceof TimerTick) {
     let elapsed = model.elapsed + 1;
     return [
-      (() => {
-        let _record = model;
-        return new Model(
-          _record.dark,
-          elapsed,
-          _record.endpoints,
-          _record.goal_error,
-          _record.navigation,
-          _record.pending,
-          _record.rsvp_error,
-          _record.start_error,
-          _record.state,
-          _record.steps,
-          _record.timer_id,
-          _record.wiki_html
-        );
-      })(),
+      new Model(
+        model.dark,
+        elapsed,
+        model.endpoints,
+        model.goal_error,
+        model.navigation,
+        model.pending,
+        model.rsvp_error,
+        model.start_error,
+        model.state,
+        model.steps,
+        model.timer_id,
+        model.wiki_html
+      ),
       none()
     ];
   } else {
     let mode = msg[0];
     return [
-      (() => {
-        let _record = model;
-        return new Model(
-          mode,
-          _record.elapsed,
-          _record.endpoints,
-          _record.goal_error,
-          _record.navigation,
-          _record.pending,
-          _record.rsvp_error,
-          _record.start_error,
-          _record.state,
-          _record.steps,
-          _record.timer_id,
-          _record.wiki_html
-        );
-      })(),
+      new Model(
+        mode,
+        model.elapsed,
+        model.endpoints,
+        model.goal_error,
+        model.navigation,
+        model.pending,
+        model.rsvp_error,
+        model.start_error,
+        model.state,
+        model.steps,
+        model.timer_id,
+        model.wiki_html
+      ),
       none()
     ];
   }
@@ -7846,16 +7662,15 @@ function on(name, handler) {
 }
 function prevent_default(event4) {
   if (event4 instanceof Event2) {
-    let _record = event4;
     return new Event2(
-      _record.kind,
-      _record.name,
-      _record.handler,
-      _record.include,
+      event4.kind,
+      event4.name,
+      event4.handler,
+      event4.include,
       true,
-      _record.stop_propagation,
-      _record.immediate,
-      _record.limit
+      event4.stop_propagation,
+      event4.immediate,
+      event4.limit
     );
   } else {
     return event4;
@@ -7863,16 +7678,15 @@ function prevent_default(event4) {
 }
 function stop_propagation(event4) {
   if (event4 instanceof Event2) {
-    let _record = event4;
     return new Event2(
-      _record.kind,
-      _record.name,
-      _record.handler,
-      _record.include,
-      _record.prevent_default,
+      event4.kind,
+      event4.name,
+      event4.handler,
+      event4.include,
+      event4.prevent_default,
       true,
-      _record.immediate,
-      _record.limit
+      event4.immediate,
+      event4.limit
     );
   } else {
     return event4;
@@ -8423,10 +8237,14 @@ function custom2(start5, goal3, goal_error, start_error) {
     _block = [toList([none2()]), "grid-rows-3"];
   }
   let $ = _block;
-  let error_line = $[0];
-  let rows = $[1];
-  let gl = goal3[0];
-  let st = start5[0];
+  let error_line;
+  let rows;
+  error_line = $[0];
+  rows = $[1];
+  let gl;
+  gl = goal3[0];
+  let st;
+  st = start5[0];
   return div(
     toList([class$("grid grid-rows-[1fr_3fr_1fr] gap-2")]),
     toList([
@@ -8535,37 +8353,31 @@ function goal2(state) {
   }
 }
 function random3(start5, goal3, rsvp_error) {
-  let gl = goal3[0];
-  let st = start5[0];
+  let gl;
+  gl = goal3[0];
+  let st;
+  st = start5[0];
   let _block;
   if (rsvp_error instanceof Some) {
-    if (gl === "") {
-      if (st === "") {
-        _block = error_message(rsvp_error);
-      } else {
-        _block = none2();
-      }
+    if (gl === "" && st === "") {
+      _block = error_message(rsvp_error);
     } else {
       _block = none2();
     }
-  } else if (gl === "") {
-    if (st === "") {
-      _block = div(
-        toList([class$("justify-self-center")]),
-        toList([
-          i(
-            toList([
-              class$(
-                "fa-solid fa-spinner fa-spin-pulse justify-self-center text-5xl"
-              )
-            ]),
-            toList([none2()])
-          )
-        ])
-      );
-    } else {
-      _block = none2();
-    }
+  } else if (gl === "" && st === "") {
+    _block = div(
+      toList([class$("justify-self-center")]),
+      toList([
+        i(
+          toList([
+            class$(
+              "fa-solid fa-spinner fa-spin-pulse justify-self-center text-5xl"
+            )
+          ]),
+          toList([none2()])
+        )
+      ])
+    );
   } else {
     _block = none2();
   }
@@ -8693,8 +8505,10 @@ function choosing(state, endpoints, goal_error, start_error, rsvp_error) {
 }
 function playing_controls(state, nav) {
   let $ = navigation_possible(nav);
-  let back = $[0];
-  let fwd = $[1];
+  let back;
+  let fwd;
+  back = $[0];
+  fwd = $[1];
   let _block;
   if (state instanceof Completed) {
     _block = disabled(true);
@@ -8715,19 +8529,19 @@ function playing_controls(state, nav) {
   let fwd_disablement = _block$1;
   let _block$2;
   if (state instanceof Completed) {
-    _block$2 = class$("grid-rows-3");
+    _block$2 = class$("grid-cols-3");
   } else if (state instanceof Playing) {
-    _block$2 = class$("grid-rows-3");
+    _block$2 = class$("grid-cols-3");
   } else if (state instanceof Paused) {
-    _block$2 = class$("grid-rows-5");
+    _block$2 = class$("grid-cols-5");
   } else if (state instanceof ReadyToPlay) {
-    _block$2 = class$("grid-rows-3");
+    _block$2 = class$("grid-cols-3");
   } else {
-    _block$2 = class$("grid-rows-3");
+    _block$2 = class$("grid-cols-3");
   }
-  let rows = _block$2;
+  let cols = _block$2;
   return div(
-    toList([class$("grid lg:px-50 md:px-25 sm:px-5 gap-1 justify-center"), rows]),
+    toList([class$("grid lg:px-50 md:px-25 sm:px-5 gap-1 justify-center"), cols]),
     toList([
       button2(
         new Solid(),
@@ -8810,9 +8624,9 @@ function playing_controls(state, nav) {
   );
 }
 function format_seconds(total_seconds) {
-  let hours = divideInt(total_seconds, 3600);
-  let minutes = divideInt(remainderInt(total_seconds, 3600), 60);
-  let seconds = remainderInt(total_seconds, 60);
+  let hours = globalThis.Math.trunc(total_seconds / 3600);
+  let minutes = globalThis.Math.trunc(total_seconds % 3600 / 60);
+  let seconds = total_seconds % 60;
   let _block;
   let h = hours;
   if (h < 10) {
@@ -8959,7 +8773,8 @@ function wiki(page, pending, rsvp_error) {
 }
 function playing(model) {
   let $ = active_goal(model.endpoints);
-  let g = $[0];
+  let g;
+  g = $[0];
   let target = div(
     toList([class$("grid grid-cols-2 gap-4 text-xl")]),
     toList([

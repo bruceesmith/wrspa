@@ -416,12 +416,12 @@ fn playing_controls(state: State, nav: Navigation) -> Element(Msg) {
     Completed, _ | _, False -> disabled(True)
     _, True -> disabled(False)
   }
-  let rows = case state {
-    Playing | Completed | ReadyToPlay -> class("grid-rows-3")
-    Paused -> class("grid-rows-5")
-    _ -> class("grid-rows-3")
+  let cols = case state {
+    Playing | Completed | ReadyToPlay -> class("grid-cols-3")
+    Paused -> class("grid-cols-5")
+    _ -> class("grid-cols-3")
   }
-  h.div([class("grid lg:px-50 md:px-25 sm:px-5 gap-1 justify-center"), rows], [
+  h.div([class("grid lg:px-50 md:px-25 sm:px-5 gap-1 justify-center"), cols], [
     button(
       button.Solid,
       Large,
