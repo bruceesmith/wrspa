@@ -5995,14 +5995,14 @@ function to_uri(request) {
   );
 }
 function from_uri(uri) {
-  return then$(
+  return try$(
     (() => {
       let _pipe = uri.scheme;
       let _pipe$1 = unwrap(_pipe, "");
       return scheme_from_string(_pipe$1);
     })(),
     (scheme) => {
-      return then$(
+      return try$(
         (() => {
           let _pipe = uri.host;
           return to_result(_pipe, void 0);
