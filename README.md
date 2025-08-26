@@ -1,5 +1,6 @@
-# Wiki Racing SPA and API Server
-
+# <div align="center">Wiki Racing SPA and API Server</div>
+ 
+![background image](wrspa.jpg)
 ## About
 
 The Wiki Racing SPA is a simple single-player implementation of the 
