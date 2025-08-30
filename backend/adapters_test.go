@@ -81,7 +81,7 @@ func Test_clientAdapter_Get(t *testing.T) {
 			ca := &clientAdapter{
 				client: tt.fields.client,
 			}
-			gotBody, err := ca.Get(tt.args.path)
+			gotBody, _, err := ca.Get(tt.args.path)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("clientAdapter.Get() error = %v, wantErr %v", err, tt.wantErr)
 				return

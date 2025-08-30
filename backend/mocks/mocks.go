@@ -42,12 +42,13 @@ func (m *MockClientInterface) EXPECT() *MockClientInterfaceMockRecorder {
 }
 
 // Get mocks base method.
-func (m *MockClientInterface) Get(path string) ([]byte, error) {
+func (m *MockClientInterface) Get(path string) ([]byte, string, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Get", path)
 	ret0, _ := ret[0].([]byte)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // Get indicates an expected call of Get.

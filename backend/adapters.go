@@ -14,7 +14,7 @@ func newClientAdapter() (c *clientAdapter) {
 	return &clientAdapter{client: NewClient("")}
 }
 
-func (ca *clientAdapter) Get(path string) (body []byte, err error) {
+func (ca *clientAdapter) Get(path string) (body []byte, contentType string, err error) {
 	return ca.client.Get(path)
 }
 

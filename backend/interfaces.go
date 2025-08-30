@@ -8,7 +8,7 @@ import (
 
 // ClientInterface is an interface for the Client struct
 type ClientInterface interface {
-	Get(path string) (body []byte, err error)
+	Get(path string) (body []byte, contentType string, err error)
 	GetRandom() (path string)
 }
 

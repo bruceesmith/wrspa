@@ -23,7 +23,7 @@ func NewClient(wikiURL string) *Client {
 }
 
 // Get fetches a Wikipedia URL (either a static file or a dynamic page)
-func (c *Client) Get(path string) (body []byte, err error) {
+func (c *Client) Get(path string) (body []byte, contentType string, err error) {
 	var resp *http.Response
 	url := c.wikiURL + path
 	logger.TraceID("client", "get", "URL", url)
@@ -38,6 +38,8 @@ func (c *Client) Get(path string) (body []byte, err error) {
 		err = fmt.Errorf("unexpected status: %s", resp.Status)
 		return
 	}
+
+	contentType = resp.Header.Get("Content-Type")
 
 	body, err = io.ReadAll(resp.Body)
 	if err != nil {

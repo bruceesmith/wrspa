@@ -186,7 +186,7 @@ func (s *Server) WikiPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Fetch the wiki page for the requested aubject
-	pg, err := s.client.Get(request.Subject)
+	pg, _, err := s.client.Get(request.Subject)
 	if err != nil {
 		s.handleError(w, "wikipage", err, http.StatusNotFound, request.Subject)
 		return
@@ -250,10 +250,11 @@ func (s *Server) extractBody(page []byte) ([]byte, error) {
 
 // WikipediaFile serves static files from Wikipedia
 func (s *Server) WikipediaFile(w http.ResponseWriter, r *http.Request) {
-	body, err := s.client.Get(r.URL.Path)
+	body, contentType, err := s.client.Get(r.URL.Path)
 	if err != nil {
 		s.handleError(w, "static", err, http.StatusNotFound, r.URL.Path)
 		return
 	}
+	w.Header().Set("Content-Type", contentType)
 	w.Write(body)
 }

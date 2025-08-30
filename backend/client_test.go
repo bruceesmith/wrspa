@@ -46,15 +46,17 @@ func TestGet(t *testing.T) {
 	// success and server failure cases
 	t.Run("success and server failure", func(t *testing.T) {
 		tests := []struct {
-			name       string
-			body       string
-			want       string
-			shouldFail bool
+			name            string
+			body            string
+			want            string
+			wantContentType string
+			shouldFail      bool
 		}{
 			{
-				name: "success",
-				body: "Hello, client",
-				want: "Hello, client",
+				name:            "success",
+				body:            "Hello, client",
+				want:            "Hello, client",
+				wantContentType: "text/plain; charset=utf-8",
 			},
 			{
 				name:       "http status failure",
@@ -69,12 +71,13 @@ func TestGet(t *testing.T) {
 						w.WriteHeader(http.StatusInternalServerError)
 						return
 					}
+					w.Header().Set("Content-Type", tt.wantContentType)
 					w.Write([]byte(tt.body))
 				}))
 				defer server.Close()
 
 				c := NewClient(server.URL)
-				body, err := c.Get("")
+				body, contentType, err := c.Get("")
 				if tt.shouldFail {
 					if err == nil {
 						t.Errorf("expected error, got nil")
@@ -84,6 +87,10 @@ func TestGet(t *testing.T) {
 
 				if string(body) != tt.want {
 					t.Errorf("got %s, want %s", string(body), tt.want)
+				}
+
+				if contentType != tt.wantContentType {
+					t.Errorf("got content type %s, want %s", contentType, tt.wantContentType)
 				}
 			})
 		}
@@ -95,7 +102,7 @@ func TestGet(t *testing.T) {
 		server.Close() // Close server immediately
 
 		c := NewClient(server.URL)
-		_, err := c.Get("")
+		_, _, err := c.Get("")
 		if err == nil {
 			t.Fatal("expected a network error, but got nil")
 		}
@@ -121,7 +128,7 @@ func TestGet(t *testing.T) {
 		defer server.Close()
 
 		c := NewClient(server.URL)
-		_, err := c.Get("")
+		_, _, err := c.Get("")
 		if err == nil {
 			t.Fatal("expected an error reading the body, but got nil")
 		}

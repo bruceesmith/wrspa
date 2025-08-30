@@ -113,7 +113,7 @@ func TestAPI(t *testing.T) {
 			statusCode:     http.StatusOK,
 			expectedHeader: map[string]string{"Content-Type": "text/html"},
 			mockSetup: func() {
-				mockClient.EXPECT().Get("/wiki/test").Return([]byte("<html><body><p>test</p></body></html>"), nil)
+				mockClient.EXPECT().Get("/wiki/test").Return([]byte("<html><body><p>test</p></body></html>"), "text/html", nil)
 			},
 		},
 		{
@@ -144,7 +144,7 @@ func TestAPI(t *testing.T) {
 			body:       WikiPageRequest{Subject: "/wiki/test"},
 			statusCode: http.StatusNotFound,
 			mockSetup: func() {
-				mockClient.EXPECT().Get("/wiki/test").Return(nil, errors.New("not found"))
+				mockClient.EXPECT().Get("/wiki/test").Return(nil, "", errors.New("not found"))
 			},
 		},
 		{
@@ -154,7 +154,7 @@ func TestAPI(t *testing.T) {
 			body:       WikiPageRequest{Subject: "/wiki/test"},
 			statusCode: http.StatusInternalServerError,
 			mockSetup: func() {
-				mockClient.EXPECT().Get("/wiki/test").Return([]byte("<html></html>"), nil)
+				mockClient.EXPECT().Get("/wiki/test").Return([]byte("<html></html>"), "text/html", nil)
 			},
 		},
 		{
@@ -319,17 +319,19 @@ func TestWikipediaFile(t *testing.T) {
 	mockClient := mocks.NewMockClientInterface(ctrl)
 
 	tests := []struct {
-		name       string
-		path       string
-		statusCode int
-		mockSetup  func()
+		name            string
+		path            string
+		statusCode      int
+		wantContentType string
+		mockSetup       func()
 	}{
 		{
-			name:       "success",
-			path:       "/w/test",
-			statusCode: http.StatusOK,
+			name:            "success",
+			path:            "/w/test",
+			statusCode:      http.StatusOK,
+			wantContentType: "image/png",
 			mockSetup: func() {
-				mockClient.EXPECT().Get("/w/test").Return([]byte("test"), nil)
+				mockClient.EXPECT().Get("/w/test").Return([]byte("test"), "image/png", nil)
 			},
 		},
 		{
@@ -337,7 +339,7 @@ func TestWikipediaFile(t *testing.T) {
 			path:       "/w/notfound",
 			statusCode: http.StatusNotFound,
 			mockSetup: func() {
-				mockClient.EXPECT().Get("/w/notfound").Return(nil, errors.New("not found"))
+				mockClient.EXPECT().Get("/w/notfound").Return(nil, "", errors.New("not found"))
 			},
 		},
 	}
@@ -357,6 +359,10 @@ func TestWikipediaFile(t *testing.T) {
 
 			if w.Code != tt.statusCode {
 				t.Errorf("got status code %d, want %d", w.Code, tt.statusCode)
+			}
+
+			if w.Header().Get("Content-Type") != tt.wantContentType {
+				t.Errorf("got content type %s, want %s", w.Header().Get("Content-Type"), tt.wantContentType)
 			}
 		})
 	}
