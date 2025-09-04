@@ -4,7 +4,7 @@
 
 /// Navigation is the opaque type which holds navigation date
 ///
-pub opaque type Navigation {
+pub type Navigation {
   Navigation(left: List(String), right: List(String))
 }
 
