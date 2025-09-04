@@ -178,7 +178,7 @@ func (s *Server) WikiPage(w http.ResponseWriter, r *http.Request) {
 		s.handleError(w, "wikipage", err, http.StatusBadRequest, string(body))
 		return
 	}
-	// All wiki page subjects must being with "/wiki/"
+	// All wiki page subjects must begin with "/wiki/"
 	if !strings.HasPrefix(request.Subject, "/wiki/") {
 		err := fmt.Errorf("invalid subject: %s", request.Subject)
 		s.handleError(w, "wikipage", err, http.StatusBadRequest, request.Subject)
