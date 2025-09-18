@@ -1,5 +1,5 @@
 .github/
-backend/wrserver
-frontend/build
-frontend/priv/static/fontawesome-free-6.7.2-web
-rustyback/target/
+backend-go/wrserver
+backend-rust/target/
+backend-rust/Cargo.*
+frontend-gleam-tailwind/build
