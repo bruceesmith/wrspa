@@ -136,55 +136,46 @@ func TestGet(t *testing.T) {
 }
 
 func TestGetRandom(t *testing.T) {
-	// success and server failure cases
-	t.Run("success and server failure", func(t *testing.T) {
-		tests := []struct {
-			name       string
-			path       string
-			want       string
-			shouldFail bool
-		}{
-			{
-				name: "success",
-				path: "/wiki/Special:Random",
-				want: "Special:Random",
-			},
-			{
-				name:       "failure",
-				shouldFail: true,
-			},
-		}
+	t.Run("success", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Location", "/wiki/Random_Page")
+			w.WriteHeader(http.StatusFound)
+		}))
+		defer server.Close()
 
-		for _, tt := range tests {
-			t.Run(tt.name, func(t *testing.T) {
-				server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-					if tt.shouldFail {
-						w.WriteHeader(http.StatusInternalServerError)
-						return
-					}
-					w.Header().Set("Location", tt.path)
-					w.WriteHeader(http.StatusOK)
-				}))
-				defer server.Close()
-
-				c := NewClient(server.URL)
-				path := c.GetRandom()
-
-				if tt.shouldFail {
-					if path != "" {
-						t.Errorf("expected empty path, got %s", path)
-					}
-					return
-				}
-
-				if path != tt.want {
-					t.Errorf("got %s, want %s", path, tt.want)
-				}
-			})
+		c := NewClient(server.URL)
+		path := c.GetRandom()
+		if path != "Random_Page" {
+			t.Errorf("got %s, want Random_Page", path)
 		}
 	})
 
-	// network error case
+	t.Run("server failure", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusInternalServerError)
+		}))
+		defer server.Close()
+
+		c := NewClient(server.URL)
+		path := c.GetRandom()
+		if path != "" {
+			t.Errorf("expected empty path, got %s", path)
+		}
+	})
+
+	t.Run("no location header", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusFound)
+		}))
+		defer server.Close()
+
+		c := NewClient(server.URL)
+		path := c.GetRandom()
+		if path != "" {
+			t.Errorf("expected empty path, got %s", path)
+		}
+	})
+
 	t.Run("network error", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {}))
 		server.Close() // Close server immediately
