@@ -2,5 +2,7 @@
 backend-go/wrserver
 backend-rust/target/
 backend-rust/Cargo.*
+frontend-gleam-muster/.lustre
 frontend-gleam-muster/build
+frontend-gleam-tailwind/.lustre
 frontend-gleam-tailwind/build
