@@ -12,22 +12,22 @@ build-prod: gleam-prod tailwind-prod
 ## gleam: translate to JS
 .PHONY: gleam
 gleam:
-	gleam run -m lustre/dev build app
+	gleam run -m lustre/dev build --no-html wrspa
 
 ## gleam-prod: translate to JS and minify
 .PHONY: gleam-prod
 gleam-prod:
-	gleam run -m lustre/dev build --minify app
+	gleam run -m lustre/dev build --minify --no-html wrspa
 
 ## tailwind: generate the CSS
 .PHONY: tailwind
 tailwind:
-	tailwind -i src/base.css -o priv/static/wrspa.css
+	tailwind -i src/base.css -o dist/wrspa.css
 
 ## tailwind-prod: generate the CSS for production
 .PHONY: tailwind-prod
 tailwind-prod:
-	tailwind -i src/base.css -o priv/static/wrspa.min.css --minify
+	tailwind -i src/base.css -o dist/wrspa.min.css --minify
 
 ## help: print this help message
 .PHONY: help
