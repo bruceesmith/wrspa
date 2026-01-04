@@ -5,6 +5,7 @@ backend-rust/Cargo.*
 frontend-gleam-m3e/.lustre
 frontend-gleam-m3e/build
 frontend-gleam-m3e/dist/node_modules
+frontend-gleam-m3e/dist/*.json
 frontend-gleam-muster/.lustre
 frontend-gleam-muster/build
 frontend-gleam-musterdist/node_modules
