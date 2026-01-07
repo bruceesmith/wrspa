@@ -10,7 +10,6 @@ import navigation.{type Navigation}
 ///
 pub type Model {
   Model(
-    dark: Bool,
     elapsed: Int,
     endpoints: Endpoints,
     goal_error: Option(String),

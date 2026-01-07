@@ -14,8 +14,7 @@ import lustre/effect.{type Effect}
 import rsvp
 
 import effects.{
-  dark_mode_on, get_wiki_page, scroll_up, special_random, start_timer,
-  stop_timer,
+  get_wiki_page, scroll_up, special_random, start_timer, stop_timer,
 }
 import endpoints.{
   type EP, type Goal, type Start, EP, active_from_custom, active_from_random,
@@ -29,10 +28,10 @@ import model.{
 }
 import msg.{
   type Msg, Click, CustomEndPointsSelected, CustomGoalChanged, CustomSelected,
-  CustomStartChanged, DarkModeFetched, DarkModeSetting, GamePaused, GameResumed,
-  GameStarted, NavigateBack, NavigateForward, NewGame, RandomEndPointsDisplayed,
-  RandomSelected, RedrawRandom, RestartGame, Scrolled, SpecialRandomFetched,
-  TimerReturnedID, TimerStopped, TimerTick, WikiPageFetched,
+  CustomStartChanged, GamePaused, GameResumed, GameStarted, NavigateBack,
+  NavigateForward, NewGame, RandomEndPointsDisplayed, RandomSelected,
+  RedrawRandom, RestartGame, Scrolled, SpecialRandomFetched, TimerReturnedID,
+  TimerStopped, TimerTick, WikiPageFetched,
 }
 import navigation.{navigate_back, navigate_forward, navigated_to}
 
@@ -53,8 +52,6 @@ import navigation.{navigate_back, navigate_forward, navigated_to}
 pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
   case msg {
     // Setup messages
-    DarkModeFetched(set) -> #(Model(..model, dark: set), effect.none())
-
     CustomSelected -> #(Model(..model, state: CustomGame), effect.none())
 
     CustomEndPointsSelected -> {
@@ -143,7 +140,6 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
       initial(),
       effect.batch([
         special_random(SpecialRandomFetched),
-        dark_mode_on(DarkModeFetched),
       ]),
     )
 
@@ -256,9 +252,6 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
       let elapsed = model.elapsed + 1
       #(Model(..model, elapsed:), effect.none())
     }
-
-    // Settings messages
-    DarkModeSetting(mode) -> #(Model(..model, dark: mode), effect.none())
   }
 }
 

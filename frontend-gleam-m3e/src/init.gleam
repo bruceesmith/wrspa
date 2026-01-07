@@ -5,10 +5,10 @@ import gleam/option.{None}
 
 import lustre/effect.{type Effect}
 
-import effects.{dark_mode_on, special_random}
+import effects.{special_random}
 import endpoints.{type EP, type Start, EP}
 import model.{type Model, ChoosingGame, Model}
-import msg.{type Msg, DarkModeFetched, SpecialRandomFetched}
+import msg.{type Msg, SpecialRandomFetched}
 import navigation
 
 /// init is called by Model-View-Update at application initialisation. It establishes
@@ -19,7 +19,6 @@ pub fn init(_args) -> #(Model, Effect(Msg)) {
     initial(),
     effect.batch([
       special_random(SpecialRandomFetched),
-      dark_mode_on(DarkModeFetched),
     ]),
   )
 }
@@ -29,7 +28,6 @@ pub fn init(_args) -> #(Model, Effect(Msg)) {
 ///
 pub fn initial() -> Model {
   Model(
-    dark: False,
     elapsed: 0,
     endpoints: endpoints.new(),
     goal_error: None,

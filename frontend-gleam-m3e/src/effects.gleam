@@ -11,26 +11,6 @@ import rsvp
 import endpoints.{type EP, type Goal, type Start, EP}
 import msg.{type Msg}
 
-/// dark_mode determines if OS/browser Dark mode is in effect
-///
-pub fn dark_mode_on(dark: fn(Bool) -> msg) -> Effect(msg) {
-  effect.from(fn(dispatch) {
-    let set = dark_mode()
-    dispatch(dark(set))
-  })
-}
-
-/// Interface to a JavaScript function which accesses the
-/// window.matchMedia(() function
-///
-@external(javascript, "./app.ffi.mjs", "dark_mode")
-fn dark_mode() -> Bool {
-  // This function is a placeholder for the external JavaScript function.
-  // The `False` return value is a default for environments where the FFI
-  // is not available.
-  False
-}
-
 const api_wiki_page = "/api/wikipage"
 
 /// get_wiki_page fetches a Wiki page from the API server

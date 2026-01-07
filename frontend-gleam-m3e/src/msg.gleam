@@ -10,7 +10,6 @@ pub type Msg {
   CustomGoalChanged(String)
   CustomSelected
   CustomStartChanged(String)
-  DarkModeFetched(Bool)
   RandomEndPointsDisplayed
   RandomSelected
   SpecialRandomFetched(Result(#(EP(Goal), EP(Start)), rsvp.Error))
@@ -34,7 +33,4 @@ pub type Msg {
   TimerReturnedID(Int)
   TimerStopped
   TimerTick
-
-  // Settings messafes
-  DarkModeSetting(Bool)
 }

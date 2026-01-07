@@ -9,13 +9,12 @@ import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
 
-import lustre/attribute.{attribute, class, disabled, for, id, placeholder}
+import lustre/attribute.{class, disabled, for, id, placeholder}
 import lustre/element.{type Element}
 import lustre/element/html as h
 import lustre/event
 
 import m3e/button
-import m3e/switch
 
 import colours.{PrimaryContainer}
 import endpoints.{
@@ -29,14 +28,12 @@ import model.{
 }
 import msg.{
   type Msg, Click, CustomEndPointsSelected, CustomGoalChanged, CustomSelected,
-  CustomStartChanged, DarkModeSetting, GamePaused, GameResumed, GameStarted,
-  NavigateBack, NavigateForward, NewGame, RandomEndPointsDisplayed,
-  RandomSelected, RedrawRandom, RestartGame,
+  CustomStartChanged, GamePaused, GameResumed, GameStarted, NavigateBack,
+  NavigateForward, NewGame, RandomEndPointsDisplayed, RandomSelected,
+  RedrawRandom, RestartGame,
 }
 import navigation.{type Navigation, navigation_possible}
 import size.{Large}
-
-import tooltip.{Left, tooltip}
 
 // -----------------------------------------------------------------------------
 //
@@ -64,79 +61,17 @@ pub fn view(model: Model) -> Element(Msg) {
     ReadyToPlay | Playing | Paused | Completed -> playing(model)
   }
   let title =
-    h.div([class("grid grid-rows-1 grid-cols-[1fr_18fr_1fr] border-none")], [
+    h.div([class("grid grid-rows-1 border-none")], [
       h.p(
         [
           class(
-            "col-2 font-bold italic pb-1 pt-1 justify-self-center text-primary text-3xl",
+            "font-bold italic pb-1 pt-1 justify-self-center text-primary text-3xl",
           ),
         ],
         [h.text("Wiki Racing")],
       ),
-      settings_menu(model.dark),
     ])
-  let mode = case model.dark {
-    True -> class("dark")
-    False -> class("light")
-  }
-  h.div([mode], [title, ..body])
-}
-
-// -----------------------------------------------------------------------------
-//
-// SETUP PAGE and HELPERS------------------------------------------------------------
-//
-// -----------------------------------------------------------------------------
-
-/// settings_menu builds the popup that appears when the settings gear icon is clicked
-/// 
-fn settings_menu(_: Bool) -> Element(Msg) {
-  h.div(
-    [
-      class("menu self-center justify-self-center"),
-      attribute("data-placement", "bottom-end"),
-    ],
-    [
-      h.i(
-        [
-          attribute("data-toggle", "menu"),
-          attribute("aria-expanded", "false"),
-          class(
-            "fa-solid fa-gear self-center justify-self-center pr-1 text-3xl tooltip",
-          ),
-          class(
-            "transition-all duration-300 ease-in disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none",
-          ),
-        ],
-        [tooltip("Settings", Left)],
-      ),
-      h.ul(
-        [
-          attribute("data-role", "menu"),
-          class(
-            "hidden mt-2 bg-white border border-slate-200 rounded-lg shadow-xl shadow-slate-950/[0.025] p-1 z-10",
-          ),
-        ],
-        [
-          h.li(
-            [],
-            switch.element(
-              switch.switch(
-                "switch",
-                "Dark mode",
-                switch.Both,
-                False,
-                False,
-                None,
-                None,
-              ),
-              [event.on_check(DarkModeSetting)],
-            ),
-          ),
-        ],
-      ),
-    ],
-  )
+  h.div([], [title, ..body])
 }
 
 // -----------------------------------------------------------------------------
