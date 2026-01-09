@@ -141,44 +141,49 @@ fn custom(
   let EP(gl): EP(Goal) = goal
   let EP(st): EP(Start) = start
 
-  h.div([class("grid grid-rows-[1fr_3fr_1fr] gap-2")], [
+  h.div([class("grid grid-rows-[1fr_2fr_1fr] gap-2")], [
     h.div([class("self-center justify-self-center text-xl")], [
-      h.text("Custom game selected. Choose the start and the goal"),
+      h.text("Custom game selected"),
     ]),
-    h.div([class("grid grid-cols-2 lg:px-50 md:px-25 sm:px-5")], [
-      form_field.element(
-        form_field.basic()
-          |> form_field.float_label(form_field.Auto),
-        [class("grid grid-rows-3")],
-        [
-          h.label([attribute("slot", "label"), for("start")], [h.text("Start")]),
-          h.input([
-            event.on_input(CustomStartChanged),
-            id("start"),
-            required(True),
-          ]),
-          h.span([attribute("slot", "hint")], [
-            h.text("Initial Wikipedia topic"),
-          ]),
-        ],
-      ),
-      form_field.element(
-        form_field.basic() |> form_field.float_label(form_field.Auto),
-        [class("grid grid-rows-3")],
-        [
-          h.label([attribute("slot", "label"), for("goal")], [h.text("Goal")]),
-          h.input([
-            event.on_input(CustomGoalChanged),
-            id("goal"),
-            required(True),
-          ]),
-          h.span([attribute("slot", "hint")], [
-            h.text("Goal/target Wikipedia topic"),
-          ]),
-        ],
-      ),
-      ..error_line
-    ]),
+    h.div(
+      [class("grid grid-cols-2 justify-items-center lg:px-50 md:px-25 sm:px-5")],
+      [
+        form_field.element(
+          form_field.basic()
+            |> form_field.float_label(form_field.Auto),
+          [],
+          [
+            h.label([attribute("slot", "label"), for("start")], [
+              h.text("Start"),
+            ]),
+            h.input([
+              event.on_input(CustomStartChanged),
+              id("start"),
+              required(True),
+            ]),
+            h.span([attribute("slot", "hint")], [
+              h.text("Initial Wikipedia topic"),
+            ]),
+          ],
+        ),
+        form_field.element(
+          form_field.basic() |> form_field.float_label(form_field.Auto),
+          [],
+          [
+            h.label([attribute("slot", "label"), for("goal")], [h.text("Goal")]),
+            h.input([
+              event.on_input(CustomGoalChanged),
+              id("goal"),
+              required(True),
+            ]),
+            h.span([attribute("slot", "hint")], [
+              h.text("Goal/target Wikipedia topic"),
+            ]),
+          ],
+        ),
+        ..error_line
+      ],
+    ),
     h.div([class("justify-self-center")], [
       button.element(
         button.basic("Continue", button.Filled)
@@ -280,7 +285,7 @@ fn random(
     "", "", Some(_) -> error_message(rsvp_error)
     _, _, _ -> element.none()
   }
-  h.div([class("grid grid-rows-5")], [
+  h.div([class("grid grid-rows-[1fr_1fr_2fr_1fr_1fr]")], [
     h.div([class("self-center justify-self-center text-xl")], [
       h.text("Random game selected"),
     ]),
@@ -299,7 +304,7 @@ fn random(
     h.div(
       [
         class(
-          "grid grid-cols-2 lg:px-50 md:px-25 sm:px-5 gap-1 content-center justify-items-center",
+          "grid grid-cols-2 lg:px-50 md:px-25 sm:px-5 gap-1 justify-items-center",
         ),
       ],
       [h.p([], [h.text(st)]), h.p([], [h.text(gl)])],
