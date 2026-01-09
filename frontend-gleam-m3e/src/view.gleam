@@ -5,23 +5,22 @@
 import gleam/bool.{or}
 import gleam/dynamic/decode
 import gleam/int
-import gleam/list
 import gleam/option.{type Option, None, Some}
 import gleam/string
 
-import lustre/attribute.{class, disabled, for, id, placeholder}
+import lustre/attribute.{attribute, class, disabled, for, id, required}
 import lustre/element.{type Element}
 import lustre/element/html as h
 import lustre/event
 
 import m3e/button
+import m3e/form_field
 
-import colours.{PrimaryContainer}
 import endpoints.{
   type EP, type Endpoints, type Goal, type Start, EP, active_goal, custom_goal,
   custom_start, random_goal, random_start,
 }
-import input.{input}
+
 import model.{
   type Model, type State, ChoosingGame, Completed, CustomGame, Paused, Playing,
   RandomGame, ReadyToPlay,
@@ -33,7 +32,6 @@ import msg.{
   RedrawRandom, RestartGame,
 }
 import navigation.{type Navigation, navigation_possible}
-import size.{Large}
 
 // -----------------------------------------------------------------------------
 //
@@ -139,7 +137,7 @@ fn custom(
   goal_error: Option(String),
   start_error: Option(String),
 ) -> Element(Msg) {
-  let #(error_line, rows) = custom_error_line(start_error, goal_error)
+  let #(error_line, _) = custom_error_line(start_error, goal_error)
   let EP(gl): EP(Goal) = goal
   let EP(st): EP(Start) = start
 
@@ -147,30 +145,40 @@ fn custom(
     h.div([class("self-center justify-self-center text-xl")], [
       h.text("Custom game selected. Choose the start and the goal"),
     ]),
-    h.div(
-      [class("grid grid-cols-2 " <> rows <> " lg:px-50 md:px-25 sm:px-5")],
-      list.append(
+    h.div([class("grid grid-cols-2 lg:px-50 md:px-25 sm:px-5")], [
+      form_field.element(
+        form_field.basic()
+          |> form_field.float_label(form_field.Auto),
+        [class("grid grid-rows-3")],
         [
-          h.label([class("self-center"), for("start")], [h.text("Start")]),
-          h.label([class("self-center"), for("goal")], [h.text("Goal")]),
-          input(input.Outlined, Large, PrimaryContainer, [
-            class("justify-self-stretch"),
-            id("start"),
-            placeholder("Start"),
+          h.label([attribute("slot", "label"), for("start")], [h.text("Start")]),
+          h.input([
             event.on_input(CustomStartChanged),
+            id("start"),
+            required(True),
           ]),
-          input(input.Outlined, Large, PrimaryContainer, [
-            class("justify-self-stretch"),
-            id("goal"),
-            placeholder("Goal"),
-            event.on_input(CustomGoalChanged),
+          h.span([attribute("slot", "hint")], [
+            h.text("Initial Wikipedia topic"),
           ]),
-          h.p([class("italic")], [h.text("Initial Wikipedia topic")]),
-          h.p([class("italic")], [h.text("Goal/target Wikipedia topic")]),
         ],
-        error_line,
       ),
-    ),
+      form_field.element(
+        form_field.basic() |> form_field.float_label(form_field.Auto),
+        [class("grid grid-rows-3")],
+        [
+          h.label([attribute("slot", "label"), for("goal")], [h.text("Goal")]),
+          h.input([
+            event.on_input(CustomGoalChanged),
+            id("goal"),
+            required(True),
+          ]),
+          h.span([attribute("slot", "hint")], [
+            h.text("Goal/target Wikipedia topic"),
+          ]),
+        ],
+      ),
+      ..error_line
+    ]),
     h.div([class("justify-self-center")], [
       button.element(
         button.basic("Continue", button.Filled)
