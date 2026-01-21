@@ -33,7 +33,7 @@ pub fn serve(port: Int, static_directory: String) {
 
 /// handle_request handles incoming requests to the Mist web server
 /// 
-fn handle_request(req: Request, static_directory: String) -> Response {
+pub fn handle_request(req: Request, static_directory: String) -> Response {
   // Log information about the request and response.
   use <- wisp.log_request(req)
 
@@ -60,7 +60,7 @@ fn handle_request(req: Request, static_directory: String) -> Response {
 
 /// api provides the REST interface for the SPA
 ///
-fn api(req: Request, function: String) -> Response {
+pub fn api(req: Request, function: String) -> Response {
   case req.method {
     Get if function == "specialrandom" -> special_random(req)
 
@@ -72,7 +72,7 @@ fn api(req: Request, function: String) -> Response {
 
 /// special_random fetches the subjects for two random Wikipedia pages
 ///
-pub fn special_random(req: Request) -> Response {
+fn special_random(req: Request) -> Response {
   use <- wisp.require_method(req, Get)
 
   // Fetch one random Wikipedia subject
@@ -174,7 +174,11 @@ fn wikipage(req: Request) -> Response {
 
 /// body_content extracts the content between <body> and </body>
 /// 
-pub fn body_content(page: String) -> Result(String, String) {
+fn body_content(page: String) -> Result(String, String) {
+  // page is a full HTML page, i.e. <!DOCTYPE...><html><head>...</head><body attributes...>...</body></html>
+  // The goal of this function is to extract everything between (but not including) the 
+  // <body attributes...> and </body> tags
+
   // Get the content following the partial <body tag
   use #(_, back) <- result.try(
     string.split_once(page, "<body")
@@ -187,7 +191,7 @@ pub fn body_content(page: String) -> Result(String, String) {
     |> result.replace_error("cannot locate </body>"),
   )
 
-  // Split off the remainder of the leading body tag (i.e. its attributes)
+  // Split off the remainder of the leading body tag (i.e. its attributes and trailing >)
   use #(_, body) <- result.try(
     string.split_once(body_front, ">")
     |> result.replace_error("cannot locate </body>"),
@@ -221,7 +225,7 @@ fn decode_errors_to_string(errors: List(decode.DecodeError)) -> String {
 
 /// wikipedia_file fetches static Wikipedia files
 /// 
-fn wikipedia_file(req: Request) -> Response {
+pub fn wikipedia_file(req: Request) -> Response {
   use <- wisp.require_method(req, Get)
 
   let result = {
