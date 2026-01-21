@@ -1,4 +1,5 @@
 .github/
+backend_gleam/build
 backend-go/wrserver
 backend-rust/target/
 backend-rust/Cargo.*
