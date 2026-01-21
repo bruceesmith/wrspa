@@ -10,6 +10,8 @@ import wisp/wisp_mist
 
 import client
 
+/// serve starts the Mist web server
+/// 
 pub fn serve(port: Int, static_directory: String) {
   // This sets the logger to print INFO level logs, and other sensible defaults
   // for a web application.
@@ -29,6 +31,8 @@ pub fn serve(port: Int, static_directory: String) {
   |> mist.start
 }
 
+/// handle_request handles incoming requests to the Mist web server
+/// 
 fn handle_request(req: Request, static_directory: String) -> Response {
   // Log information about the request and response.
   use <- wisp.log_request(req)
@@ -192,6 +196,7 @@ pub fn body_content(page: String) -> Result(String, String) {
 }
 
 /// WikiSubject is the JSON request to the api/wikipage endpoint
+/// 
 type WikiSubject {
   WikiSubject(subject: String)
 }

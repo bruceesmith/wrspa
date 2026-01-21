@@ -80,10 +80,16 @@ pub fn get_random() -> Result(String, ClientError) {
   }
 }
 
+/// WikiFileResult is the success value returned by get()
+/// 
 pub type WikiFileResult {
   WikiFileResult(body: String, content_type: String)
 }
 
+/// get fetches a file from Wikipedia. This includes both static files with
+/// URL path prefixes of "/static/" and "/w/" and Wikipedia subject files
+/// with URL path prefix of "/wiki"
+/// 
 pub fn get(path: String) -> Result(WikiFileResult, ClientError) {
   // Create a Request
   use req <- result.try(

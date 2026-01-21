@@ -3,6 +3,8 @@ import glint
 
 import daemon
 
+/// wrserver is the main program foir the daemon
+/// 
 pub fn main() -> Nil {
   glint.new()
   |> glint.with_name("wrserver")

@@ -1,9 +1,9 @@
+import daemon
 import gleam/erlang/process
 import gleeunit
 import gleeunit/should
 import glint
 import simplifile
-import daemon
 
 pub fn main() -> Nil {
   gleeunit.main()
@@ -24,7 +24,7 @@ pub fn daemon_test() {
 
 pub fn start_server_supervisor_test() {
   // Test starting the supervisor with valid parameters
-  let result = daemon.start_server_supervisor(8081, "src")
+  let result = daemon.supervisor(8081, "src")
   result |> should.be_ok
 
   let assert Ok(pid) = result
