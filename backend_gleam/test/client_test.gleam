@@ -1,4 +1,5 @@
 import client
+import gleam/http/response
 import gleeunit
 import gleeunit/should
 
@@ -24,39 +25,62 @@ pub fn client_error_to_string_test() {
 }
 
 pub fn get_random_test() {
-  // This is an integration test that hits Wikipedia.
-  // It may fail if there is no internet connection.
-  let result = client.get_random()
+  // Mock a successful 302 redirect from Special:Random
+  let mock_dispatch = fn(_config, _req) {
+    Ok(
+      response.new(302)
+      |> response.set_header(
+        "location",
+        "https://en.wikipedia.org/wiki/Random_Page",
+      ),
+    )
+  }
+
+  let result = client.get_random(mock_dispatch)
   should.be_ok(result)
   let assert Ok(res) = result
-  should.not_equal(res, "")
+  should.equal(res, "Random_Page")
 }
 
 pub fn get_test() {
-  // This is an integration test that hits Wikipedia.
-  // We'll try to fetch the Main Page which should exist.
-  let result = client.get("/wiki/Main_Page")
+  // Mock a successful 200 OK response
+  let mock_dispatch = fn(_config, _req) {
+    Ok(
+      response.new(200)
+      |> response.set_header("content-type", "text/html")
+      |> response.set_body("<html><body>Test Body</body></html>"),
+    )
+  }
+
+  let result = client.get("/wiki/Main_Page", mock_dispatch)
   should.be_ok(result)
   let assert Ok(res) = result
-  should.not_equal(res.body, "")
-  should.not_equal(res.content_type, "")
+  should.equal(res.body, "<html><body>Test Body</body></html>")
+  should.equal(res.content_type, "text/html")
 }
 
 pub fn get_404_test() {
-  // Test 404 error from Wikipedia
-  let result = client.get("/wiki/ThisPageDoesNot_Exist_123")
+  // Mock a 404 Not Found response
+  let mock_dispatch = fn(_config, _req) {
+    Ok(response.new(404) |> response.set_body("Not Found"))
+  }
+
+  let result = client.get("/wiki/ThisPageDoesNot_Exist_123", mock_dispatch)
   should.be_error(result)
-  
+
   case result {
-    Error(client.BadWikiResponse(_)) -> Nil
+    Error(client.BadWikiResponse("Unexpected status code: 404")) -> Nil
     _ -> should.fail()
   }
 }
 
 pub fn get_invalid_url_test() {
+  // Mock dispatcher (should not be called)
+  let mock_dispatch = fn(_config, _req) { Ok(response.new(200)) }
+
   // Test invalid URL creation
   // Passing a control character like newline should fail URL parsing
-  let result = client.get("\n")
+  let result = client.get("\n", mock_dispatch)
   should.be_error(result)
   should.equal(result, Error(client.RequestCreationError))
 }

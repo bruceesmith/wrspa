@@ -13,6 +13,15 @@ const httpc_timeout = 5000
 
 const wiki_url = "https://en.wikipedia.org"
 
+/// Dispatcher is a function that performs an HTTP request, matching the signature
+/// of httpc.dispatch.
+///
+pub type Dispatcher =
+  fn(httpc.Configuration, request.Request(String)) -> Result(
+    response.Response(String),
+    httpc.HttpError,
+  )
+
 /// Client is a record of functions that abstract the operations performed by the
 /// client module.
 ///
@@ -26,7 +35,10 @@ pub type Client {
 /// live returns a Client that uses the real Wikipedia API.
 ///
 pub fn live() -> Client {
-  Client(get_random: get_random, get: get)
+  Client(
+    get_random: fn() { get_random(httpc.dispatch) },
+    get: fn(path) { get(path, httpc.dispatch) },
+  )
 }
 
 /// ClientError is the set of possible errors returned by get_random() and get()
@@ -54,7 +66,7 @@ pub fn client_error_to_string(error: ClientError) -> String {
 /// get_random returns the value of the Location header from a request to
 /// https://en.wikipedia.org/wiki/Special:Random
 ///
-pub fn get_random() -> Result(String, ClientError) {
+pub fn get_random(dispatch: Dispatcher) -> Result(String, ClientError) {
   // Create a Request from the Special:Random URL
   use req <- result.try(
     request.to(special_random_url)
@@ -72,7 +84,7 @@ pub fn get_random() -> Result(String, ClientError) {
     httpc.configure()
     |> httpc.timeout(httpc_timeout)
   use resp <- result.try(
-    httpc.dispatch(config, req)
+    dispatch(config, req)
     |> result.map_error(fn(e) {
       HttpError("Failed to send request: " <> http_error_to_string(e))
     }),
@@ -112,7 +124,7 @@ pub type WikiFileResult {
 /// URL path prefixes of "/static/" and "/w/" and Wikipedia subject files
 /// with URL path prefix of "/wiki"
 /// 
-pub fn get(path: String) -> Result(WikiFileResult, ClientError) {
+pub fn get(path: String, dispatch: Dispatcher) -> Result(WikiFileResult, ClientError) {
   // Create a Request
   use req <- result.try(
     request.to(wiki_url <> path)
@@ -131,7 +143,7 @@ pub fn get(path: String) -> Result(WikiFileResult, ClientError) {
 
   // Send the request and get the response
   use resp <- result.try(
-    httpc.dispatch(config, req)
+    dispatch(config, req)
     |> result.map_error(fn(e) {
       HttpError(
         "Failed to send request to "
