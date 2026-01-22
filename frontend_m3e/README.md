@@ -1,20 +1,10 @@
-# frontend_gleam_m3e
+# <div align="center">Gleam SPA for Wiki Racing</div>
 
-[![Package Version](https://img.shields.io/hexpm/v/frontend_gleam_m3e)](https://hex.pm/packages/frontend_gleam_m3e)
-[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/frontend_gleam_m3e/)
+# Wiki Racing SPA
 
-```sh
-gleam add frontend_gleam_m3e@1
-```
-```gleam
-import frontend_gleam_m3e
-
-pub fn main() -> Nil {
-  // TODO: An example of the project in use
-}
-```
-
-Further documentation can be found at <https://hexdocs.pm/frontend_gleam_m3e>.
+Implemented in [Gleam](https://gleam.run), leveraging the [Lustre web framework](https://hexdocs.pm/lustre/lustre.html), and built upon the 
+[M3E wrapper](https://github.com/bruceesmith/m3e) for the [Material 3 Expressive](https://matraic.github.io/m3e/#/getting-started/overview.html) 
+HTML components.
 
 ## Development
 

@@ -1,20 +1,9 @@
-# backend_gleam
+# <div align="center">Gleam API Server for Wiki Racing</div>
 
-[![Package Version](https://img.shields.io/hexpm/v/backend_gleam)](https://hex.pm/packages/backend_gleam)
-[![Hex Docs](https://img.shields.io/badge/hex-docs-ffaff3)](https://hexdocs.pm/backend_gleam/)
+# Wiki Racing SPA and API Server
 
-```sh
-gleam add backend_gleam@1
-```
-```gleam
-import backend_gleam
-
-pub fn main() -> Nil {
-  // TODO: An example of the project in use
-}
-```
-
-Further documentation can be found at <https://hexdocs.pm/backend_gleam>.
+This is a hand-coded Gleam implementation of the Go language REST server. Gemini advised with the de-coupling of server and client, with removing the 
+hard-code use of httpc.dispatch and with code review. Finally Gemini was used to construct the test cases.
 
 ## Development
 
