@@ -8,7 +8,26 @@ import gleam/uri
 
 const special_random_url = "https://en.wikipedia.org/wiki/Special:Random"
 
+// 5 seconds timeout
+const httpc_timeout = 5000
+
 const wiki_url = "https://en.wikipedia.org"
+
+/// Client is a record of functions that abstract the operations performed by the
+/// client module.
+///
+pub type Client {
+  Client(
+    get_random: fn() -> Result(String, ClientError),
+    get: fn(String) -> Result(WikiFileResult, ClientError),
+  )
+}
+
+/// live returns a Client that uses the real Wikipedia API.
+///
+pub fn live() -> Client {
+  Client(get_random: get_random, get: get)
+}
 
 /// ClientError is the set of possible errors returned by get_random() and get()
 /// 
@@ -49,8 +68,11 @@ pub fn get_random() -> Result(String, ClientError) {
     |> request.set_header("User-Agent", "wrspa/1.0")
 
   // Send the request and get the response
+  let config =
+    httpc.configure()
+    |> httpc.timeout(httpc_timeout)
   use resp <- result.try(
-    httpc.send(req)
+    httpc.dispatch(config, req)
     |> result.map_error(fn(e) {
       HttpError("Failed to send request: " <> http_error_to_string(e))
     }),
@@ -102,7 +124,10 @@ pub fn get(path: String) -> Result(WikiFileResult, ClientError) {
     request.set_header(req, "Accept", "*/*")
     |> request.set_header("User-Agent", "wrspa/1.0")
 
-  let config = httpc.configure() |> httpc.follow_redirects(True)
+  let config =
+    httpc.configure()
+    |> httpc.follow_redirects(True)
+    |> httpc.timeout(httpc_timeout)
 
   // Send the request and get the response
   use resp <- result.try(

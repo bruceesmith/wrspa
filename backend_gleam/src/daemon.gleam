@@ -8,6 +8,7 @@ import gleam/result
 import glint
 import snag
 
+import client
 import server
 import simplifile
 
@@ -53,7 +54,10 @@ pub fn supervisor(
 ) -> Result(process.Pid, actor.StartError) {
   io.println("🚀 Starting daemon with static supervisor...")
 
-  let worker_child = supervision.worker(fn() { server.serve(port, static) })
+  let api_client = client.live()
+  let worker_child = supervision.worker(fn() {
+    server.serve(port, static, api_client)
+  })
 
   supervisor.new(supervisor.OneForOne)
   |> supervisor.add(worker_child)

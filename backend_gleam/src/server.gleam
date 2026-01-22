@@ -8,11 +8,11 @@ import mist
 import wisp.{type Request, type Response}
 import wisp/wisp_mist
 
-import client
+import client.{type Client}
 
 /// serve starts the Mist web server
 /// 
-pub fn serve(port: Int, static_directory: String) {
+pub fn serve(port: Int, static_directory: String, api_client: Client) {
   // This sets the logger to print INFO level logs, and other sensible defaults
   // for a web application.
   wisp.configure_logger()
@@ -23,7 +23,7 @@ pub fn serve(port: Int, static_directory: String) {
 
   // Start the Mist web server.
   wisp_mist.handler(
-    fn(req) { handle_request(req, static_directory) },
+    fn(req) { handle_request(req, static_directory, api_client) },
     secret_key_base,
   )
   |> mist.new
@@ -33,7 +33,11 @@ pub fn serve(port: Int, static_directory: String) {
 
 /// handle_request handles incoming requests to the Mist web server
 /// 
-pub fn handle_request(req: Request, static_directory: String) -> Response {
+pub fn handle_request(
+  req: Request,
+  static_directory: String,
+  api_client: Client,
+) -> Response {
   // Log information about the request and response.
   use <- wisp.log_request(req)
 
@@ -50,9 +54,9 @@ pub fn handle_request(req: Request, static_directory: String) -> Response {
   case wisp.path_segments(req) {
     [] -> wisp.redirect("/index.html")
 
-    ["api", function, ..] -> api(req, function)
+    ["api", function, ..] -> api(req, function, api_client)
 
-    ["static", ..] | ["w", ..] -> wikipedia_file(req)
+    ["static", ..] | ["w", ..] -> wikipedia_file(req, api_client)
 
     _ -> wisp.not_found()
   }
@@ -60,11 +64,11 @@ pub fn handle_request(req: Request, static_directory: String) -> Response {
 
 /// api provides the REST interface for the SPA
 ///
-pub fn api(req: Request, function: String) -> Response {
+pub fn api(req: Request, function: String, api_client: Client) -> Response {
   case req.method {
-    Get if function == "specialrandom" -> special_random(req)
+    Get if function == "specialrandom" -> special_random(req, api_client)
 
-    Post if function == "wikipage" -> wikipage(req)
+    Post if function == "wikipage" -> wikipage(req, api_client)
 
     _ -> wisp.method_not_allowed([Get, Post])
   }
@@ -72,13 +76,13 @@ pub fn api(req: Request, function: String) -> Response {
 
 /// special_random fetches the subjects for two random Wikipedia pages
 ///
-fn special_random(req: Request) -> Response {
+fn special_random(req: Request, api_client: Client) -> Response {
   use <- wisp.require_method(req, Get)
 
   // Fetch one random Wikipedia subject
   let result = {
     use first <- result.try(
-      client.get_random()
+      api_client.get_random()
       |> result.map_error(fn(e) {
         wisp.internal_server_error()
         |> wisp.html_body(
@@ -90,7 +94,7 @@ fn special_random(req: Request) -> Response {
 
     // Fetch a second random Wikipedia subject
     use second <- result.try(
-      client.get_random()
+      api_client.get_random()
       |> result.map_error(fn(e) {
         wisp.internal_server_error()
         |> wisp.html_body(
@@ -118,7 +122,7 @@ fn special_random(req: Request) -> Response {
 
 /// wikipage fetches a Wikipedia page
 /// 
-fn wikipage(req: Request) -> Response {
+fn wikipage(req: Request, api_client: Client) -> Response {
   use <- wisp.require_method(req, Post)
   use jason <- wisp.require_json(req)
 
@@ -144,7 +148,7 @@ fn wikipage(req: Request) -> Response {
 
     // Fetch the page
     use file <- result.try(
-      client.get(subject)
+      api_client.get(subject)
       |> result.map_error(fn(e) {
         wisp.internal_server_error()
         |> wisp.html_body(client.client_error_to_string(e))
@@ -225,7 +229,7 @@ fn decode_errors_to_string(errors: List(decode.DecodeError)) -> String {
 
 /// wikipedia_file fetches static Wikipedia files
 /// 
-pub fn wikipedia_file(req: Request) -> Response {
+pub fn wikipedia_file(req: Request, api_client: Client) -> Response {
   use <- wisp.require_method(req, Get)
 
   let result = {
@@ -243,7 +247,7 @@ pub fn wikipedia_file(req: Request) -> Response {
     // Prepare the full path & fetch the file
     let path = "/" <> string.join(segments, with: "/")
     use file <- result.try(
-      client.get(path)
+      api_client.get(path)
       |> result.map_error(fn(e) {
         wisp.internal_server_error()
         |> wisp.html_body(client.client_error_to_string(e))
