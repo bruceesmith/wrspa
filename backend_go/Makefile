@@ -88,4 +88,4 @@ tidy:
 ## wasm: build the WASM version of the program
 .PHONY: wasm
 wasm:
-	GOARCH=wasm GOOS=js go build -o web/app.wasm ${main_package_path}
+	GOARCH=wasm GOOS=wasip1 go build -a -tags osusergo,netgo -ldflags "-s -X 'github.com/bruceesmith/echidna.BuildDate=$(shell date)' -w -extldflags '-static'" -o wrserver.wasm ${main_package_path}
