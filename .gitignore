@@ -1,6 +1,7 @@
 .github/
 backend_gleam/build
 backend_go/wrserver
+backend_go/wrserver.wasm
 backend_rust/target/
 backend_rust/Cargo.*
 frontend_m3e/.lustre
