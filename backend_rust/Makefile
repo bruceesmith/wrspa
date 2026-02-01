@@ -1,4 +1,4 @@
-.PHONY: all audit build run test fmt fmt-fix clippy
+.PHONY: all audit build run test fmt fmt-fix clippy wasm
 
 all: build
 
@@ -10,6 +10,12 @@ audit: fmt clippy test
 .PHONY: build
 build:
 	cargo build
+
+## wasm: build the application for WebAssembly (WASI)
+# NOTE: Currently fails due to tokio features incompatibility on wasm32-wasip1
+.PHONY: wasm
+wasm:
+	cargo build --target wasm32-wasip1
 
 clippy:
 	cargo clippy -- -D warnings
