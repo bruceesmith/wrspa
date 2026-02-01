@@ -8,5 +8,10 @@ frontend_m3e/.lustre
 frontend_m3e/build
 frontend_m3e/dist/node_modules
 frontend_m3e/dist/*.json
+frontend_m3e/dist/wrspa.css
+frontend_m3e/dist/wrspa.js
 frontend_material_tailwind/.lustre
 frontend_material_tailwind/build
+frontend_material_tailwind/dist/wrspa.css
+frontend_material_tailwind/dist/wrspa.js
+
