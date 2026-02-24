@@ -109,11 +109,11 @@ fn choosing(
   }
   [
     h.div([class("grid grid-cols-2 gap-4 justify-center")], [
-      button.element(button.basic("Random", button.Filled), [
+      button.render(button.new("Random", button.Filled), [
         class("justify-self-end"),
         event.on_click(RandomSelected),
       ]),
-      button.element(button.basic("Custom", button.Filled), [
+      button.render(button.new("Custom", button.Filled), [
         class("justify-self-start"),
         event.on_click(CustomSelected),
       ]),
@@ -148,8 +148,8 @@ fn custom(
     h.div(
       [class("grid grid-cols-2 justify-items-center lg:px-50 md:px-25 sm:px-5")],
       [
-        form_field.element(
-          form_field.basic()
+        form_field.render(
+          form_field.new()
             |> form_field.float_label(form_field.Auto),
           [],
           [
@@ -166,8 +166,8 @@ fn custom(
             ]),
           ],
         ),
-        form_field.element(
-          form_field.basic() |> form_field.float_label(form_field.Auto),
+        form_field.render(
+          form_field.new() |> form_field.float_label(form_field.Auto),
           [],
           [
             h.label([attribute("slot", "label"), for("goal")], [h.text("Goal")]),
@@ -185,8 +185,8 @@ fn custom(
       ],
     ),
     h.div([class("justify-self-center")], [
-      button.element(
-        button.basic("Continue", button.Filled)
+      button.render(
+        button.new("Continue", button.Filled)
           |> button.disabled(or(string.is_empty(st), string.is_empty(gl))),
         [
           event.on_click(CustomEndPointsSelected),
@@ -316,11 +316,11 @@ fn random(
         ),
       ],
       [
-        button.element(button.basic("Continue", button.Filled), [
+        button.render(button.new("Continue", button.Filled), [
           class("self-center"),
           event.on_click(RandomEndPointsDisplayed),
         ]),
-        button.element(button.basic("Deal again", button.Filled), [
+        button.render(button.new("Deal again", button.Filled), [
           class("self-center"),
           event.on_click(RedrawRandom),
         ]),
@@ -381,39 +381,39 @@ fn playing_controls(state: State, nav: Navigation) -> Element(Msg) {
     _ -> class("grid-cols-3")
   }
   h.div([class("grid lg:px-50 md:px-25 sm:px-5 gap-1 justify-center"), cols], [
-    button.element(button.basic("Back", button.Filled), [
+    button.render(button.new("Back", button.Filled), [
       event.on_click(NavigateBack),
       back_disablement,
     ]),
-    button.element(button.basic("Forward", button.Filled), [
+    button.render(button.new("Forward", button.Filled), [
       event.on_click(NavigateForward),
       fwd_disablement,
     ]),
     case state {
       Playing ->
-        button.element(button.basic("Pause", button.Filled), [
+        button.render(button.new("Pause", button.Filled), [
           event.on_click(GamePaused),
         ])
       Paused ->
-        button.element(button.basic("Continue", button.Filled), [
+        button.render(button.new("Continue", button.Filled), [
           event.on_click(GameResumed),
         ])
       ReadyToPlay ->
-        button.element(button.basic("Play", button.Filled), [
+        button.render(button.new("Play", button.Filled), [
           event.on_click(GameStarted),
         ])
       _ -> element.none()
     },
     case state {
       Completed | Paused ->
-        button.element(button.basic("New Game", button.Filled), [
+        button.render(button.new("New Game", button.Filled), [
           event.on_click(NewGame),
         ])
       _ -> element.none()
     },
     case state {
       Paused ->
-        button.element(button.basic("Restart", button.Filled), [
+        button.render(button.new("Restart", button.Filled), [
           event.on_click(RestartGame),
         ])
       _ -> element.none()
