@@ -1,16 +1,16 @@
 module github.com/bruceesmith/wrspa/backend/wrserver
 
-go 1.25
+go 1.26
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
-	github.com/bruceesmith/echidna v1.1.8
-	github.com/bruceesmith/logger v1.3.6
-	github.com/bruceesmith/terminator v1.1.4
+	github.com/bruceesmith/echidna v1.1.10
+	github.com/bruceesmith/logger v1.3.8
+	github.com/bruceesmith/terminator v1.1.6
 	github.com/stretchr/testify v1.11.1
-	github.com/urfave/cli/v3 v3.6.2
+	github.com/urfave/cli/v3 v3.7.0
 	go.uber.org/mock v0.6.0
-	golang.org/x/net v0.49.0
+	golang.org/x/net v0.52.0
 )
 
 require (
@@ -20,7 +20,7 @@ require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/dbaggerman/cuba v0.3.2 // indirect
 	github.com/deckarep/golang-set/v2 v2.8.0 // indirect
-	github.com/gojp/goreportcard v0.0.0-20260129032000-944938baf954 // indirect
+	github.com/gojp/goreportcard v0.0.0-20260302084821-2ae51f4baa2e // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jinzhu/copier v0.4.0 // indirect
@@ -39,18 +39,18 @@ require (
 	github.com/urfave/cli/v2 v2.27.7 // indirect
 	github.com/urfave/sflags v0.4.1 // indirect
 	github.com/xrash/smetrics v0.0.0-20250705151800-55b8f293f342 // indirect
-	golang.org/x/exp/typeparams v0.0.0-20260112195511-716be5621a96 // indirect
-	golang.org/x/mod v0.32.0 // indirect
-	golang.org/x/sync v0.19.0 // indirect
-	golang.org/x/sys v0.40.0 // indirect
-	golang.org/x/telemetry v0.0.0-20260128140115-fcf36f686977 // indirect
-	golang.org/x/text v0.33.0 // indirect
-	golang.org/x/tools v0.41.0 // indirect
+	golang.org/x/exp/typeparams v0.0.0-20260312153236-7ab1446f8b90 // indirect
+	golang.org/x/mod v0.34.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
+	golang.org/x/sys v0.42.0 // indirect
+	golang.org/x/telemetry v0.0.0-20260316223853-b6b0c46d1ccd // indirect
+	golang.org/x/text v0.35.0 // indirect
+	golang.org/x/tools v0.43.0 // indirect
 	golang.org/x/vuln v1.1.4 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	honnef.co/go/tools v0.6.1 // indirect
+	honnef.co/go/tools v0.7.0 // indirect
 )
 
 tool (
