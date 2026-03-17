@@ -60,6 +60,11 @@ push: confirm audit no-dirty
 run: build
 	/tmp/${binary_name}
 
+## fix: apply any new Go features / capabilities
+.PHONY: fix
+fix:
+	go fix ./...
+
 ## run/live: run the application with reloading on file changes
 .PHONY: run/live
 run/live:
