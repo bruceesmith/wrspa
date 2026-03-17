@@ -27,7 +27,7 @@ func (r *randomSelected) view() []app.UI {
 		app.Br(),
 		app.Text("Goal: " + randomGoal),
 		app.Br(),
-		app.MDFilledButton().Text("Next").
+		app.Button().Text("Next").
 			OnClick(r.next).
 			Class("gwr-custom-next-step"),
 	}
