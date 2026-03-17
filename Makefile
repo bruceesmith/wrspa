@@ -30,6 +30,11 @@ build: generate
 generate:
 	go generate ./...
 
+## fix: apply any new Go features / capabilities
+.PHONY: fix
+fix:
+	go fix ./...
+
 ## help: print this help message
 .PHONY: help
 help:
