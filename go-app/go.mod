@@ -1,4 +1,4 @@
-module github.com/bruceesmith/wrspa/goapp
+module github.com/bruceesmith/wrspa/go-app
 
 go 1.26
 
@@ -6,7 +6,7 @@ require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
 	github.com/bruceesmith/echidna v1.1.10
 	github.com/bruceesmith/logger v1.3.8
-	github.com/bruceesmith/terminator v1.1.6
+	github.com/bruceesmith/terminator v1.2.0
 	github.com/urfave/cli/v3 v3.7.0
 )
 
@@ -56,5 +56,3 @@ tool (
 	golang.org/x/vuln/cmd/govulncheck
 	honnef.co/go/tools/cmd/staticcheck
 )
-
-// replace github.com/maxence-charriere/go-app/v10 => /home/bruce/Dropbox/Code/goapp/
