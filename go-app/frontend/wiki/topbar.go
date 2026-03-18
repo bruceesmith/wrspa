@@ -1,7 +1,7 @@
 package wiki
 
 import (
-	"github.com/bruceesmith/go-wikiracing/frontend/observables"
+	"github.com/bruceesmith/wrspa/go-app/frontend/observables"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 )
 

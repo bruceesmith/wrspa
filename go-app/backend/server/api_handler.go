@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/bruceesmith/go-wikiracing/backend/api"
+	"github.com/bruceesmith/wrspa/go-app/backend/api"
 	"github.com/bruceesmith/logger"
 )
 

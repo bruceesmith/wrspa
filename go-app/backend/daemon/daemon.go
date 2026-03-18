@@ -8,8 +8,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/bruceesmith/go-wikiracing/backend/server"
-	"github.com/bruceesmith/go-wikiracing/frontend/game"
+	"github.com/bruceesmith/wrspa/go-app/backend/server"
+	"github.com/bruceesmith/wrspa/go-app/frontend/game"
 	"github.com/bruceesmith/logger"
 	"github.com/bruceesmith/terminator"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"

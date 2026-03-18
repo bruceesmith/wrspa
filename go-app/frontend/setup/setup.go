@@ -10,7 +10,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/bruceesmith/go-wikiracing/backend/api"
+	"github.com/bruceesmith/wrspa/go-app/backend/api"
 	"github.com/bruceesmith/logger"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 )

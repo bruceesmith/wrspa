@@ -6,7 +6,7 @@ import (
 
 	"github.com/asaskevich/govalidator"
 	"github.com/bruceesmith/echidna"
-	"github.com/bruceesmith/go-wikiracing/backend/daemon"
+	"github.com/bruceesmith/wrspa/go-app/backend/daemon"
 	"github.com/urfave/cli/v3"
 )
 
