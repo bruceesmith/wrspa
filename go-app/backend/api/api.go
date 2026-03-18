@@ -3,14 +3,14 @@ Package api defines the external REST API of the backend
 */
 package api
 
-// Settingsresponse is the response for the settings endpoint
+// SettingsResponse is the response for the settings endpoint
 // It contains the log level and the trace IDs that are used for tracing
 type SettingsResponse struct {
 	LogLevel string   `json:"loglevel"`
 	TraceIDs []string `json:"traceids"`
 }
 
-// SpecialRandomresponse is the response for the specialrandom endpoint
+// SpecialRandomResponse is the response for the specialrandom endpoint
 // It contains the random Wikipedia start and goal subjects
 type SpecialRandomResponse struct {
 	Start string `json:"start"`
@@ -33,7 +33,7 @@ type WikiPageRequest struct {
 	Subject string `json:"subject"`
 }
 
-// wikiPageResponse is the response for the wikipage endpoint
+// WikiPageResponse is the response for the wikipage endpoint
 // It contains either a (string) page HTML or a (binary) asset,
 // and an error message if the page or asset could not be retrieved
 type WikiPageResponse struct {
