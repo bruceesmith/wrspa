@@ -1,4 +1,4 @@
-module github.com/bruceesmith/go-wikiracing
+module github.com/bruceesmith/wrspa/goapp
 
 go 1.26
 
