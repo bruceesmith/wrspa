@@ -20,7 +20,11 @@ func getRandom() (path string) {
 		logger.Error("error fetching Special:Random", "error", err.Error())
 		return
 	}
-	defer r.Body.Close()
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			logger.Error("error closing response body", "error", err)
+		}
+	}()
 	return
 }
 
@@ -32,7 +36,11 @@ func get(path string) (body []byte, err error) {
 		logger.Error("error fetching "+path, "error", err.Error())
 		return
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logger.Error("error closing response body", "error", err)
+		}
+	}()
 	body, err = io.ReadAll(resp.Body)
 	if err != nil {
 		logger.Error("error reading response to GET("+path+")", "error", err.Error())

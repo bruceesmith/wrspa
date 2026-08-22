@@ -1,6 +1,10 @@
 package server
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/bruceesmith/logger"
+)
 
 type staticHandler struct{}
 
@@ -11,5 +15,7 @@ func (s staticHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	w.Write(body)
+	if _, err = w.Write(body); err != nil {
+		logger.Error("error on static file response Write", "error", err)
+	}
 }

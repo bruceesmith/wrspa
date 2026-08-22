@@ -13,10 +13,10 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/bruceesmith/logger"
 	"github.com/bruceesmith/wrspa/go-app/backend/api"
 	"github.com/bruceesmith/wrspa/go-app/frontend/actions"
 	"github.com/bruceesmith/wrspa/go-app/frontend/observables"
-	"github.com/bruceesmith/logger"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 )
 
@@ -80,12 +80,20 @@ func (w *Wiki) Render() app.UI {
 func (w *Wiki) get(subject string) (s string, err error) {
 	req := api.WikiPageRequest{Subject: subject}
 	bites, err := json.Marshal(req)
+	if err != nil {
+		logger.Error("error marshaling Wiki request", "error", err.Error())
+		return "", fmt.Errorf("error marshaling Wiki request %s: [%w]", subject, err)
+	}
 	resp, err := http.Post("/api/wikipage", "application/json", bytes.NewBuffer(bites))
 	if err != nil {
 		logger.Error("Wiki.OnMount error fetching "+subject, "error", err.Error())
 		return "", fmt.Errorf("Wiki.OnMount error fetching %s: [%w]", subject, err)
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logger.Error("error closing response body", "error", err)
+		}
+	}()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		logger.Error("Wiki.OnMount error reading WikiPage response", "error", err.Error())

@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/bruceesmith/wrspa/go-app/backend/api"
 	"github.com/bruceesmith/logger"
+	"github.com/bruceesmith/wrspa/go-app/backend/api"
 )
 
 // apiHandler handles REST requests to the various /api/ endpoints
@@ -40,9 +40,13 @@ func (a apiHandler) Settings(w http.ResponseWriter, r *http.Request) {
 	}
 	jason, err := json.Marshal(response)
 	if err != nil {
-		w.Write([]byte(marshalFailure("settings", err, response)))
+		if _, err = w.Write([]byte(marshalFailure("settings", err, response))); err != nil {
+			logger.Error("error on Settings response Write", "error", err)
+		}
 	} else {
-		w.Write(jason)
+		if _, err = w.Write(jason); err != nil {
+			logger.Error("error on Settings response Write", "error", err)
+		}
 	}
 }
 
@@ -54,9 +58,13 @@ func (a apiHandler) SpecialRandom(w http.ResponseWriter, r *http.Request) {
 	}
 	jason, err := json.Marshal(response)
 	if err != nil {
-		w.Write([]byte(marshalFailure("specialrandom", err, response)))
+		if _, err = w.Write([]byte(marshalFailure("specialrandom", err, response))); err != nil {
+			logger.Error("error on SpecialRandom response Write", "error", err)
+		}
 	} else {
-		w.Write(jason)
+		if _, err = w.Write(jason); err != nil {
+			logger.Error("error on SpecialRandom response Write", "error", err)
+		}
 	}
 }
 
@@ -66,14 +74,18 @@ func (a apiHandler) WikiPage(w http.ResponseWriter, r *http.Request) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		logger.Error("wikipage request failure", "error", err.Error())
-		w.Write([]byte(marshalFailure("wikipage", err, body)))
+		if _, err = w.Write([]byte(marshalFailure("wikipage", err, body))); err != nil {
+			logger.Error("error on WikiPage response Write", "error", err)
+		}
 		return
 	}
 	var request api.WikiPageRequest
 	err = json.Unmarshal(body, &request)
 	if err != nil {
 		logger.Error("wikipage request failure", "error", err.Error())
-		w.Write([]byte(marshalFailure("wikipage", err, body)))
+		if _, err = w.Write([]byte(marshalFailure("wikipage", err, body))); err != nil {
+			logger.Error("error on WikiPage response Write", "error", err)
+		}
 		return
 	}
 	// Fetch the wiki page for the requested aubject
@@ -90,8 +102,12 @@ func (a apiHandler) WikiPage(w http.ResponseWriter, r *http.Request) {
 	}
 	jason, err := json.Marshal(response)
 	if err != nil {
-		w.Write([]byte(marshalFailure("wikipage", err, response)))
+		if _, err = w.Write([]byte(marshalFailure("wikipage", err, response))); err != nil {
+			logger.Error("error on WikiPage response Write", "error", err)
+		}
 	} else {
-		w.Write(jason)
+		if _, err = w.Write(jason); err != nil {
+			logger.Error("error on WikiPage response Write", "error", err)
+		}
 	}
 }

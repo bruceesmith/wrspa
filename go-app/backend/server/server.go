@@ -85,7 +85,9 @@ func (s *Server) Serve() {
 	terminator.Add(1)
 	go func() {
 		<-terminator.ShutDown()
-		s.server.Shutdown(context.Background())
+		if err := s.server.Shutdown(context.Background()); err != nil {
+			logger.Error("error shutting down the server", "error", err)
+		}
 		terminator.Done()
 	}()
 

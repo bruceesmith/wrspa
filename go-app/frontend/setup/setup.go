@@ -10,8 +10,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/bruceesmith/wrspa/go-app/backend/api"
 	"github.com/bruceesmith/logger"
+	"github.com/bruceesmith/wrspa/go-app/backend/api"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 )
 
@@ -68,12 +68,13 @@ func (s *Setup) Render() app.UI {
 		components,
 		s.selector.view()...,
 	)
-	if s.Tipe == custom {
+	switch s.Tipe {
+	case custom:
 		components = append(
 			components,
 			s.customSelected.view()...,
 		)
-	} else if s.Tipe == random {
+	case random:
 		components = append(
 			components,
 			s.randomSelected.view()...,
@@ -99,7 +100,11 @@ func (s *Setup) OnMount(ctx app.Context) {
 				logger.Error("Setup.OnMount error fetching SpecialRandom", "error", err.Error())
 				return
 			}
-			defer resp.Body.Close()
+			defer func() {
+				if err := resp.Body.Close(); err != nil {
+					logger.Error("error closing response body", "error", err)
+				}
+			}()
 			body, err := io.ReadAll(resp.Body)
 			if err != nil {
 				logger.Error("Setup.OnMount error reading SpecialRandom response", "error", err.Error())

@@ -10,11 +10,11 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/bruceesmith/logger"
 	"github.com/bruceesmith/wrspa/go-app/backend/api"
 	"github.com/bruceesmith/wrspa/go-app/frontend/observables"
 	"github.com/bruceesmith/wrspa/go-app/frontend/setup"
 	"github.com/bruceesmith/wrspa/go-app/frontend/wiki"
-	"github.com/bruceesmith/logger"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 )
 
@@ -82,7 +82,11 @@ func (g *Game) settings() {
 		logger.Error("Game.OnMount error fetching server settings", "error", err.Error())
 		return
 	}
-	defer resp.Body.Close()
+	defer func() {
+		if err := resp.Body.Close(); err != nil {
+			logger.Error("error closing response body", "error", err)
+		}
+	}()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		logger.Error("Game.OnMount error reading server settings", "error", err.Error())
