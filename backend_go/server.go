@@ -90,7 +90,10 @@ func (s *Server) API(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleError(w http.ResponseWriter, function string, err error, statusCode int, details any) {
 	logger.Error(function+" failure", "error", err.Error())
 	w.WriteHeader(statusCode)
-	w.Write([]byte(s.MarshalFailure(function, err, details)))
+	_, err = w.Write([]byte(s.MarshalFailure(function, err, details)))
+	if err != nil {
+		logger.Error("error writing header", "error", err)
+	}
 }
 
 // MarshalFailure creates a sensible JSON-format error message
@@ -106,7 +109,10 @@ func (s *Server) Serve(t *terminator.Terminator) {
 	t.Add(1)
 	go func() {
 		<-t.ShutDown()
-		s.server.Shutdown(context.Background())
+		err := s.server.Shutdown(context.Background())
+		if err != nil {
+			logger.Error("error shutting down the server", "error", err)
+		}
 		t.Done()
 	}()
 
@@ -134,7 +140,10 @@ func (s *Server) Settings(w http.ResponseWriter, r *http.Request) {
 		s.handleError(w, "settings", err, http.StatusInternalServerError, response)
 		return
 	}
-	w.Write(jason)
+	_, err = w.Write(jason)
+	if err != nil {
+		logger.Error("error on Write", "error", err)
+	}
 }
 
 // SPAFile serves static files for the SPA (index.html, JavaScript, CSS, etc.)
@@ -161,7 +170,10 @@ func (s *Server) SpecialRandom(w http.ResponseWriter, r *http.Request) {
 		s.handleError(w, "specialrandom", err, http.StatusInternalServerError, response)
 		return
 	}
-	w.Write(jason)
+	_, err = w.Write(jason)
+	if err != nil {
+		logger.Error("error on Write", "error", err)
+	}
 }
 
 // WikiPage is the handler for the /api/wikipage REST endpoint
@@ -200,7 +212,10 @@ func (s *Server) WikiPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "text/html")
-	w.Write(page)
+	_, err = w.Write(page)
+	if err != nil {
+		logger.Error("error on Write", "error", err)
+	}
 }
 
 // extractBody extracts the HTML from the <body> of a page
@@ -256,5 +271,8 @@ func (s *Server) WikipediaFile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Content-Type", contentType)
-	w.Write(body)
+	_, err = w.Write(body)
+	if err != nil {
+		logger.Error("error on Write", "error", err)
+	}
 }

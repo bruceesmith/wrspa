@@ -43,7 +43,12 @@ func (c *Client) Get(path string) (body []byte, contentType string, err error) {
 		logger.Error("error fetching "+path, "error", err.Error())
 		return
 	}
-	defer resp.Body.Close()
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			logger.Error("error closing response Body", "error", err)
+		}
+	}()
 
 	if resp.StatusCode != http.StatusOK {
 		err = fmt.Errorf("unexpected status: %s", resp.Status)
@@ -85,7 +90,12 @@ func (c *Client) GetRandom() (path string) {
 		logger.Error("error fetching Special:Random", "error", err.Error())
 		return
 	}
-	defer resp.Body.Close()
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			logger.Error("error closing response Body", "error", err)
+		}
+	}()
 
 	if resp.StatusCode != http.StatusFound {
 		logger.Error("unexpected status getting random", "status", resp.Status)

@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/bruceesmith/logger"
 	"github.com/bruceesmith/terminator"
 	"github.com/bruceesmith/wrspa/backend/wrserver/mocks"
 	"github.com/urfave/cli/v3"
@@ -32,7 +33,12 @@ func Test_daemon(t *testing.T) {
 			})
 
 			term := terminator.New()
-			go daemon(mockServer, term)
+			go func() {
+				err := daemon(mockServer, term)
+				if err != nil {
+					logger.Error("daemon returned error", "error", err)
+				}
+			}()
 
 			select {
 			case <-serveCalled:

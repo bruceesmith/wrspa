@@ -72,7 +72,11 @@ func TestGet(t *testing.T) {
 						return
 					}
 					w.Header().Set("Content-Type", tt.wantContentType)
-					w.Write([]byte(tt.body))
+					_, err := w.Write([]byte(tt.body))
+					if err != nil {
+						t.Errorf("Get() error on Write %v", err)
+						return
+					}
 				}))
 				defer server.Close()
 
@@ -122,8 +126,14 @@ func TestGet(t *testing.T) {
 				return
 			}
 			// Write a partial response and then close the connection to cause io.ReadAll to fail
-			conn.Write([]byte("HTTP/1.1 200 OK\r\nContent-Length: 100\r\n\r\nHello"))
-			conn.Close()
+			_, err = conn.Write([]byte("HTTP/1.1 200 OK\r\nContent-Length: 100\r\n\r\nHello"))
+			if err != nil {
+				t.Errorf("Get() error on Write %v", err)
+			}
+			err = conn.Close()
+			if err != nil {
+				t.Errorf("Get() error on Close %v", err)
+			}
 		}))
 		defer server.Close()
 

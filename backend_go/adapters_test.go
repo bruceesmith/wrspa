@@ -33,7 +33,11 @@ func Test_clientAdapter_Get(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/success" {
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(`success`))
+			_, err := w.Write([]byte(`success`))
+			if err != nil {
+				t.Errorf("clientAdapter.Get() error on Write %v", err)
+				return
+			}
 		} else {
 			w.WriteHeader(http.StatusNotFound)
 		}
