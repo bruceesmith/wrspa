@@ -1,5 +1,8 @@
 import gleeunit/should
-import navigation.{Navigation, navigate_back, navigate_forward, navigated_to, navigation_possible, new}
+import navigation.{
+  Navigation, navigate_back, navigate_forward, navigated_to, navigation_possible,
+  new,
+}
 
 pub fn new_test() {
   let nav = new()

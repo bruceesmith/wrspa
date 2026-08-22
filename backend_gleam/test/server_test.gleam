@@ -12,15 +12,12 @@ pub fn main() {
 }
 
 fn mock_client() -> client.Client {
-  client.Client(
-    get_random: fn() { Ok("/wiki/Mock_Page") },
-    get: fn(_) {
-      Ok(client.WikiFileResult(
-        body: "<html><body>Mock Body</body></html>",
-        content_type: "text/html",
-      ))
-    },
-  )
+  client.Client(get_random: fn() { Ok("/wiki/Mock_Page") }, get: fn(_) {
+    Ok(client.WikiFileResult(
+      body: "<html><body>Mock Body</body></html>",
+      content_type: "text/html",
+    ))
+  })
 }
 
 pub fn handle_request_test() {

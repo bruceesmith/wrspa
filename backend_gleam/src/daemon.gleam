@@ -55,9 +55,8 @@ pub fn supervisor(
   io.println("🚀 Starting daemon with static supervisor...")
 
   let api_client = client.live()
-  let worker_child = supervision.worker(fn() {
-    server.serve(port, static, api_client)
-  })
+  let worker_child =
+    supervision.worker(fn() { server.serve(port, static, api_client) })
 
   supervisor.new(supervisor.OneForOne)
   |> supervisor.add(worker_child)
