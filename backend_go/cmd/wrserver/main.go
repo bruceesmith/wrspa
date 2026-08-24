@@ -1,6 +1,6 @@
 package main
 
-//go:generate go tool mockgen -source=../../interfaces.go -destination=../../mocks/mocks.go -package=mocks
+//go:generate go tool -modfile=../../tools/go.mod mockgen -source=../../interfaces.go -destination=../../mocks/mocks.go -package=mocks
 
 import (
 	"context"
