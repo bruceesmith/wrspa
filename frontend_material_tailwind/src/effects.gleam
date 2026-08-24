@@ -43,7 +43,7 @@ const api_wiki_page = "/api/wikipage"
 ///
 pub fn get_wiki_page(
   subject: String,
-  on_fetch: fn(Result(String, rsvp.Error)) -> Msg,
+  on_fetch: fn(Result(String, rsvp.Error(String))) -> Msg,
 ) -> Effect(Msg) {
   let body = json.object([#("subject", json.string(subject))])
   let handler = rsvp.expect_text(on_fetch)
@@ -77,7 +77,7 @@ const api_special_random = "/api/specialrandom"
 ///             topics have been fetched
 ///
 pub fn special_random(
-  on_fetch: fn(Result(#(EP(Goal), EP(Start)), rsvp.Error)) -> Msg,
+  on_fetch: fn(Result(#(EP(Goal), EP(Start)), rsvp.Error(String))) -> Msg,
 ) -> Effect(Msg) {
   let decoder = {
     use random_goal <- decode.field("goal", decode.string)
