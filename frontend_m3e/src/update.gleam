@@ -314,7 +314,7 @@ fn check_subject(subject: String) -> Result(Nil, String) {
 
 /// rsvp_error_to_string translates an error from the rsvp module to a string
 ///
-fn rsvp_error_to_string(err: rsvp.Error) -> String {
+fn rsvp_error_to_string(err: rsvp.Error(String)) -> String {
   case err {
     rsvp.BadBody -> "The server sent a response with a bad body."
 

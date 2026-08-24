@@ -12,7 +12,7 @@ pub type Msg {
   CustomStartChanged(String)
   RandomEndPointsDisplayed
   RandomSelected
-  SpecialRandomFetched(Result(#(EP(Goal), EP(Start)), rsvp.Error))
+  SpecialRandomFetched(Result(#(EP(Goal), EP(Start)), rsvp.Error(String)))
 
   // Game play messages
   Click(String)
@@ -23,7 +23,7 @@ pub type Msg {
   RedrawRandom
   RestartGame
   Scrolled
-  WikiPageFetched(Result(String, rsvp.Error))
+  WikiPageFetched(Result(String, rsvp.Error(String)))
 
   // Navigation messages
   NavigateBack

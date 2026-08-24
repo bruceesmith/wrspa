@@ -7,6 +7,7 @@ import gleam/dynamic/decode
 import gleam/int
 import gleam/option.{type Option, None, Some}
 import gleam/string
+import m3e/button_variant
 
 import lustre/attribute.{attribute, class, disabled, for, id, required}
 import lustre/element.{type Element}
@@ -14,6 +15,7 @@ import lustre/element/html as h
 import lustre/event
 
 import m3e/button
+import m3e/float_label_type
 import m3e/form_field
 
 import endpoints.{
@@ -109,14 +111,26 @@ fn choosing(
   }
   [
     h.div([class("grid grid-cols-2 gap-4 justify-center")], [
-      button.render(button.new("Random", button.Filled), [
-        class("justify-self-end"),
-        event.on_click(RandomSelected),
-      ]),
-      button.render(button.new("Custom", button.Filled), [
-        class("justify-self-start"),
-        event.on_click(CustomSelected),
-      ]),
+      button.render(
+        button.new()
+          |> button.variant(button_variant.Filled)
+          |> button.name("Random"),
+        [
+          class("justify-self-end"),
+          event.on_click(RandomSelected),
+        ],
+        [],
+      ),
+      button.render(
+        button.new()
+          |> button.variant(button_variant.Filled)
+          |> button.name("Custom"),
+        [
+          class("justify-self-start"),
+          event.on_click(CustomSelected),
+        ],
+        [],
+      ),
     ]),
     second_row,
   ]
@@ -140,6 +154,10 @@ fn custom(
   let #(error_line, _) = custom_error_line(start_error, goal_error)
   let EP(gl): EP(Goal) = goal
   let EP(st): EP(Start) = start
+  let disabled = case or(string.is_empty(st), string.is_empty(gl)) {
+    True -> button.IsDisabled
+    False -> button.IsNotDisabled
+  }
 
   h.div([class("grid grid-rows-[1fr_2fr_1fr] gap-2")], [
     h.div([class("self-center justify-self-center text-xl")], [
@@ -150,7 +168,7 @@ fn custom(
       [
         form_field.render(
           form_field.new()
-            |> form_field.float_label(form_field.Auto),
+            |> form_field.float_label(float_label_type.Auto),
           [],
           [
             h.label([attribute("slot", "label"), for("start")], [
@@ -167,7 +185,7 @@ fn custom(
           ],
         ),
         form_field.render(
-          form_field.new() |> form_field.float_label(form_field.Auto),
+          form_field.new() |> form_field.float_label(float_label_type.Auto),
           [],
           [
             h.label([attribute("slot", "label"), for("goal")], [h.text("Goal")]),
@@ -186,11 +204,14 @@ fn custom(
     ),
     h.div([class("justify-self-center")], [
       button.render(
-        button.new("Continue", button.Filled)
-          |> button.disabled(or(string.is_empty(st), string.is_empty(gl))),
+        button.new()
+          |> button.variant(button_variant.Filled)
+          |> button.name("Continue")
+          |> button.disabled(disabled),
         [
           event.on_click(CustomEndPointsSelected),
         ],
+        [],
       ),
     ]),
   ])
@@ -316,14 +337,26 @@ fn random(
         ),
       ],
       [
-        button.render(button.new("Continue", button.Filled), [
-          class("self-center"),
-          event.on_click(RandomEndPointsDisplayed),
-        ]),
-        button.render(button.new("Deal again", button.Filled), [
-          class("self-center"),
-          event.on_click(RedrawRandom),
-        ]),
+        button.render(
+          button.new()
+            |> button.variant(button_variant.Filled)
+            |> button.name("Continue"),
+          [
+            class("self-center"),
+            event.on_click(RandomEndPointsDisplayed),
+          ],
+          [],
+        ),
+        button.render(
+          button.new()
+            |> button.variant(button_variant.Filled)
+            |> button.name("Deal again"),
+          [
+            class("self-center"),
+            event.on_click(RedrawRandom),
+          ],
+          [],
+        ),
       ],
     ),
   ])
@@ -381,41 +414,83 @@ fn playing_controls(state: State, nav: Navigation) -> Element(Msg) {
     _ -> class("grid-cols-3")
   }
   h.div([class("grid lg:px-50 md:px-25 sm:px-5 gap-1 justify-center"), cols], [
-    button.render(button.new("Back", button.Filled), [
-      event.on_click(NavigateBack),
-      back_disablement,
-    ]),
-    button.render(button.new("Forward", button.Filled), [
-      event.on_click(NavigateForward),
-      fwd_disablement,
-    ]),
+    button.render(
+      button.new()
+        |> button.variant(button_variant.Filled)
+        |> button.name("Back"),
+      [
+        event.on_click(NavigateBack),
+        back_disablement,
+      ],
+      [],
+    ),
+    button.render(
+      button.new()
+        |> button.variant(button_variant.Filled)
+        |> button.name("Forward"),
+      [
+        event.on_click(NavigateForward),
+        fwd_disablement,
+      ],
+      [],
+    ),
     case state {
       Playing ->
-        button.render(button.new("Pause", button.Filled), [
-          event.on_click(GamePaused),
-        ])
+        button.render(
+          button.new()
+            |> button.variant(button_variant.Filled)
+            |> button.name("Pause"),
+          [
+            event.on_click(GamePaused),
+          ],
+          [],
+        )
       Paused ->
-        button.render(button.new("Continue", button.Filled), [
-          event.on_click(GameResumed),
-        ])
+        button.render(
+          button.new()
+            |> button.variant(button_variant.Filled)
+            |> button.name("Continue"),
+          [
+            event.on_click(GameResumed),
+          ],
+          [],
+        )
       ReadyToPlay ->
-        button.render(button.new("Play", button.Filled), [
-          event.on_click(GameStarted),
-        ])
+        button.render(
+          button.new()
+            |> button.variant(button_variant.Filled)
+            |> button.name("Play"),
+          [
+            event.on_click(GameStarted),
+          ],
+          [],
+        )
       _ -> element.none()
     },
     case state {
       Completed | Paused ->
-        button.render(button.new("New Game", button.Filled), [
-          event.on_click(NewGame),
-        ])
+        button.render(
+          button.new()
+            |> button.variant(button_variant.Filled)
+            |> button.name("New game"),
+          [
+            event.on_click(NewGame),
+          ],
+          [],
+        )
       _ -> element.none()
     },
     case state {
       Paused ->
-        button.render(button.new("Restart", button.Filled), [
-          event.on_click(RestartGame),
-        ])
+        button.render(
+          button.new()
+            |> button.variant(button_variant.Filled)
+            |> button.name("Restart"),
+          [
+            event.on_click(RestartGame),
+          ],
+          [],
+        )
       _ -> element.none()
     },
   ])
