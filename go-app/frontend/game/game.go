@@ -79,30 +79,30 @@ func (g *Game) settings() {
 	var err error
 	resp, err := http.Get("/api/settings")
 	if err != nil {
-		logger.Error("Game.OnMount error fetching server settings", "error", err.Error())
+		slog.Error("Game.OnMount error fetching server settings", "error", err.Error())
 		return
 	}
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			logger.Error("error closing response body", "error", err)
+			slog.Error("error closing response body", "error", err)
 		}
 	}()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		logger.Error("Game.OnMount error reading server settings", "error", err.Error())
+		slog.Error("Game.OnMount error reading server settings", "error", err.Error())
 		return
 	}
 	settings := api.SettingsResponse{}
 	err = json.Unmarshal(body, &settings)
 	if err != nil {
-		logger.Error("Game.OnMount error unmarshaling server settings", "error", err.Error())
+		slog.Error("Game.OnMount error unmarshaling server settings", "error", err.Error())
 		return
 	}
 	// Apply the settings
 	var ll logger.LogLevel
 	err = (&ll).Set(settings.LogLevel)
 	if err != nil {
-		logger.Error("Game.OnMount error setting log level", "error", err.Error())
+		slog.Error("Game.OnMount error setting log level", "error", err.Error())
 		return
 	}
 	logger.SetLevel(slog.Level(ll))

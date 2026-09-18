@@ -7,8 +7,8 @@ package daemon
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
-	"github.com/bruceesmith/logger"
 	"github.com/bruceesmith/terminator"
 	"github.com/bruceesmith/wrspa/go-app/backend/server"
 	"github.com/bruceesmith/wrspa/go-app/frontend/game"
@@ -24,7 +24,7 @@ func Daemon(ctx context.Context, cmd *cli.Command) error {
 	if app.IsServer {
 		svr, err = server.New(cmd.String("port"))
 		if err != nil {
-			logger.Error("initialisation error", "error", err.Error())
+			slog.Error("initialisation error", "error", err.Error())
 			err = fmt.Errorf("initialisation error: [%w]", err)
 			return err
 		}
@@ -40,7 +40,7 @@ func Daemon(ctx context.Context, cmd *cli.Command) error {
 
 	// Following code is only executed on the server, never in the browser
 
-	logger.Info("gwr server starting")
+	slog.Info("gwr server starting")
 	go svr.Serve()
 
 	// Wait for SIGTERM
@@ -48,6 +48,6 @@ func Daemon(ctx context.Context, cmd *cli.Command) error {
 
 	// Wait for all goroutines to stop
 	terminator.Wait()
-	logger.Info("gwr server exiting")
+	slog.Info("gwr server exiting")
 	return nil
 }

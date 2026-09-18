@@ -1,7 +1,8 @@
 package setup
 
 import (
-	"github.com/bruceesmith/logger"
+	"log/slog"
+
 	"github.com/bruceesmith/wrspa/go-app/frontend/observables"
 	"github.com/maxence-charriere/go-app/v10/pkg/app"
 )
@@ -70,6 +71,6 @@ func (c *customSelected) next(ctx app.Context, e app.Event) {
 		tags.Set("goal", c.goal)
 		ctx.SetState(observables.GameSelected, tags)
 	} else {
-		logger.Info("customSelected one or both fields not filled")
+		slog.Info("customSelected one or both fields not filled")
 	}
 }

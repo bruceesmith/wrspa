@@ -2,6 +2,7 @@ package server
 
 import (
 	"io"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -17,12 +18,12 @@ func getRandom() (path string) {
 	}
 	r, err := client.Get("https://en.wikipedia.org/wiki/Special:Random")
 	if err != nil {
-		logger.Error("error fetching Special:Random", "error", err.Error())
+		slog.Error("error fetching Special:Random", "error", err.Error())
 		return
 	}
 	defer func() {
 		if err := r.Body.Close(); err != nil {
-			logger.Error("error closing response body", "error", err)
+			slog.Error("error closing response body", "error", err)
 		}
 	}()
 	return
@@ -33,17 +34,17 @@ func get(path string) (body []byte, err error) {
 	logger.TraceID("server", "get", "URL", "https://en.wikipedia.org"+path)
 	resp, err = http.Get("https://en.wikipedia.org" + path)
 	if err != nil {
-		logger.Error("error fetching "+path, "error", err.Error())
+		slog.Error("error fetching "+path, "error", err.Error())
 		return
 	}
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			logger.Error("error closing response body", "error", err)
+			slog.Error("error closing response body", "error", err)
 		}
 	}()
 	body, err = io.ReadAll(resp.Body)
 	if err != nil {
-		logger.Error("error reading response to GET("+path+")", "error", err.Error())
+		slog.Error("error reading response to GET("+path+")", "error", err.Error())
 		return
 	}
 	return

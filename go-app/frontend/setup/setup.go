@@ -8,6 +8,7 @@ package setup
 import (
 	"encoding/json"
 	"io"
+	"log/slog"
 	"net/http"
 
 	"github.com/bruceesmith/logger"
@@ -97,23 +98,23 @@ func (s *Setup) OnMount(ctx app.Context) {
 		func() {
 			resp, err := http.Get("/api/SpecialRandom")
 			if err != nil {
-				logger.Error("Setup.OnMount error fetching SpecialRandom", "error", err.Error())
+				slog.Error("Setup.OnMount error fetching SpecialRandom", "error", err.Error())
 				return
 			}
 			defer func() {
 				if err := resp.Body.Close(); err != nil {
-					logger.Error("error closing response body", "error", err)
+					slog.Error("error closing response body", "error", err)
 				}
 			}()
 			body, err := io.ReadAll(resp.Body)
 			if err != nil {
-				logger.Error("Setup.OnMount error reading SpecialRandom response", "error", err.Error())
+				slog.Error("Setup.OnMount error reading SpecialRandom response", "error", err.Error())
 				return
 			}
 			var response api.SpecialRandomResponse
 			err = json.Unmarshal(body, &response)
 			if err != nil {
-				logger.Error("Setup.OnMount error unmarshaling SpecialRandom response", "error", err.Error())
+				slog.Error("Setup.OnMount error unmarshaling SpecialRandom response", "error", err.Error())
 				return
 			}
 			randomStart = response.Start

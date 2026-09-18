@@ -6,6 +6,7 @@ package server
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -86,17 +87,17 @@ func (s *Server) Serve() {
 	go func() {
 		<-terminator.ShutDown()
 		if err := s.server.Shutdown(context.Background()); err != nil {
-			logger.Error("error shutting down the server", "error", err)
+			slog.Error("error shutting down the server", "error", err)
 		}
 		terminator.Done()
 	}()
 
 	// Start the server
-	logger.Debug("API server starting on :" + s.port)
+	slog.Debug("API server starting on :" + s.port)
 	if err := s.server.ListenAndServe(); err != nil {
 		if err != http.ErrServerClosed {
-			logger.Error("Server.Serve() ListenAndServe error", "error", err.Error())
+			slog.Error("Server.Serve() ListenAndServe error", "error", err.Error())
 		}
 	}
-	logger.Debug("API server exiting")
+	slog.Debug("API server exiting")
 }

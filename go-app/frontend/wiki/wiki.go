@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -81,28 +82,28 @@ func (w *Wiki) get(subject string) (s string, err error) {
 	req := api.WikiPageRequest{Subject: subject}
 	bites, err := json.Marshal(req)
 	if err != nil {
-		logger.Error("error marshaling Wiki request", "error", err.Error())
+		slog.Error("error marshaling Wiki request", "error", err.Error())
 		return "", fmt.Errorf("error marshaling Wiki request %s: [%w]", subject, err)
 	}
 	resp, err := http.Post("/api/wikipage", "application/json", bytes.NewBuffer(bites))
 	if err != nil {
-		logger.Error("Wiki.OnMount error fetching "+subject, "error", err.Error())
+		slog.Error("Wiki.OnMount error fetching "+subject, "error", err.Error())
 		return "", fmt.Errorf("Wiki.OnMount error fetching %s: [%w]", subject, err)
 	}
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			logger.Error("error closing response body", "error", err)
+			slog.Error("error closing response body", "error", err)
 		}
 	}()
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		logger.Error("Wiki.OnMount error reading WikiPage response", "error", err.Error())
+		slog.Error("Wiki.OnMount error reading WikiPage response", "error", err.Error())
 		return "", fmt.Errorf("Wiki.OnMount error reading WikiPage response: [%w]", err)
 	}
 	pageResponse := api.WikiPageResponse{}
 	err = json.Unmarshal(body, &pageResponse)
 	if err != nil {
-		logger.Error("Wiki.OnMount error unmarshaing WikiPage response", "error", err.Error())
+		slog.Error("Wiki.OnMount error unmarshaing WikiPage response", "error", err.Error())
 		return "", fmt.Errorf("Wiki.OnMount error unmarshaing WikiPage response: [%w]", err)
 	}
 	return pageResponse.Page, nil
@@ -149,13 +150,13 @@ func (w *Wiki) updatePage(ctx app.Context, a app.Action) {
 	// Get the full page HTML source passed via the Action
 	page, ok := a.Value.(string)
 	if !ok {
-		logger.Error("Wiki.updatePage internal error, unexpected type in Action.Value")
+		slog.Error("Wiki.updatePage internal error, unexpected type in Action.Value")
 		return
 	}
 	// Extract the HTML between (but not including) the <body> and </body> tags
 	matches := pageRe.FindSubmatch([]byte(page))
 	if len(matches) == 0 {
-		logger.Error("Wiki.updatePage got zero matches")
+		slog.Error("Wiki.updatePage got zero matches")
 		return
 	}
 	// Update the Wiki Racing content
@@ -177,7 +178,7 @@ func (w *Wiki) wikiclick(ctx app.Context, e app.Event) {
 	logger.TraceID("wiki", "click", "href", href)
 	url, err := url.Parse(href)
 	if err != nil {
-		logger.Error("cannot parse href", "href", href, "error", err.Error())
+		slog.Error("cannot parse href", "href", href, "error", err.Error())
 		return
 	}
 	if strings.HasPrefix(url.Path, "/wiki/") || strings.HasPrefix(url.Path, "/static/") {
