@@ -3,6 +3,7 @@ package wrserver
 import (
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -32,7 +33,7 @@ func (c *Client) Get(path string) (body []byte, contentType string, err error) {
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		logger.Error("error creating http.Request", "error", err.Error())
+		slog.Error("error creating http.Request", "error", err.Error())
 		return
 	}
 	req.Header.Add("Accept", "*/*")
@@ -40,13 +41,13 @@ func (c *Client) Get(path string) (body []byte, contentType string, err error) {
 
 	resp, err = client.Do(req)
 	if err != nil {
-		logger.Error("error fetching "+path, "error", err.Error())
+		slog.Error("error fetching "+path, "error", err.Error())
 		return
 	}
 	defer func() {
 		err := resp.Body.Close()
 		if err != nil {
-			logger.Error("error closing response Body", "error", err)
+			slog.Error("error closing response Body", "error", err)
 		}
 	}()
 
@@ -59,7 +60,7 @@ func (c *Client) Get(path string) (body []byte, contentType string, err error) {
 
 	body, err = io.ReadAll(resp.Body)
 	if err != nil {
-		logger.Error("error reading response to GET("+path+")", "error", err.Error())
+		slog.Error("error reading response to GET("+path+")", "error", err.Error())
 		return
 	}
 	return
@@ -79,7 +80,7 @@ func (c *Client) GetRandom() (path string) {
 
 	req, err := http.NewRequest("HEAD", url, nil)
 	if err != nil {
-		logger.Error("error creating http.Request", "error", err.Error())
+		slog.Error("error creating http.Request", "error", err.Error())
 		return
 	}
 	req.Header.Add("Accept", "*/*")
@@ -87,24 +88,24 @@ func (c *Client) GetRandom() (path string) {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		logger.Error("error fetching Special:Random", "error", err.Error())
+		slog.Error("error fetching Special:Random", "error", err.Error())
 		return
 	}
 	defer func() {
 		err := resp.Body.Close()
 		if err != nil {
-			logger.Error("error closing response Body", "error", err)
+			slog.Error("error closing response Body", "error", err)
 		}
 	}()
 
 	if resp.StatusCode != http.StatusFound {
-		logger.Error("unexpected status getting random", "status", resp.Status)
+		slog.Error("unexpected status getting random", "status", resp.Status)
 		return
 	}
 
 	l, err := resp.Location()
 	if err != nil {
-		logger.Error("error getting location", "error", err.Error())
+		slog.Error("error getting location", "error", err.Error())
 		return
 	}
 	path = strings.TrimPrefix(l.Path, "/wiki/")

@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"os"
 	"strconv"
@@ -88,11 +89,11 @@ func (s *Server) API(w http.ResponseWriter, r *http.Request) {
 
 // handleError is a helper function to handle errors in a consistent way
 func (s *Server) handleError(w http.ResponseWriter, function string, err error, statusCode int, details any) {
-	logger.Error(function+" failure", "error", err.Error())
+	slog.Error(function+" failure", "error", err.Error())
 	w.WriteHeader(statusCode)
 	_, err = w.Write([]byte(s.MarshalFailure(function, err, details)))
 	if err != nil {
-		logger.Error("error writing header", "error", err)
+		slog.Error("error writing header", "error", err)
 	}
 }
 
@@ -111,19 +112,19 @@ func (s *Server) Serve(t *terminator.Terminator) {
 		<-t.ShutDown()
 		err := s.server.Shutdown(context.Background())
 		if err != nil {
-			logger.Error("error shutting down the server", "error", err)
+			slog.Error("error shutting down the server", "error", err)
 		}
 		t.Done()
 	}()
 
 	// Start the server
-	logger.Debug("API server starting on :" + s.port)
+	slog.Debug("API server starting on :" + s.port)
 	if err := s.server.ListenAndServe(); err != nil {
 		if err != http.ErrServerClosed {
-			logger.Error("Server.Serve() ListenAndServe error", "error", err.Error())
+			slog.Error("Server.Serve() ListenAndServe error", "error", err.Error())
 		}
 	}
-	logger.Debug("API server exiting")
+	slog.Debug("API server exiting")
 }
 
 // Settings is the handler for the /api/settings REST endpoint
@@ -142,7 +143,7 @@ func (s *Server) Settings(w http.ResponseWriter, r *http.Request) {
 	}
 	_, err = w.Write(jason)
 	if err != nil {
-		logger.Error("error on Write", "error", err)
+		slog.Error("error on Write", "error", err)
 	}
 }
 
@@ -172,7 +173,7 @@ func (s *Server) SpecialRandom(w http.ResponseWriter, r *http.Request) {
 	}
 	_, err = w.Write(jason)
 	if err != nil {
-		logger.Error("error on Write", "error", err)
+		slog.Error("error on Write", "error", err)
 	}
 }
 
@@ -214,7 +215,7 @@ func (s *Server) WikiPage(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	_, err = w.Write(page)
 	if err != nil {
-		logger.Error("error on Write", "error", err)
+		slog.Error("error on Write", "error", err)
 	}
 }
 
@@ -273,6 +274,6 @@ func (s *Server) WikipediaFile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", contentType)
 	_, err = w.Write(body)
 	if err != nil {
-		logger.Error("error on Write", "error", err)
+		slog.Error("error on Write", "error", err)
 	}
 }

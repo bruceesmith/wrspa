@@ -3,14 +3,14 @@ package wrserver
 import (
 	"context"
 	"fmt"
+	"log/slog"
 
-	"github.com/bruceesmith/logger"
 	"github.com/bruceesmith/terminator"
 	"github.com/urfave/cli/v3"
 )
 
 func daemon(svr ServerInterface, t *terminator.Terminator) error {
-	logger.Info("wr server starting")
+	slog.Info("wr server starting")
 	go svr.Serve(t)
 
 	// Wait for SIGTERM
@@ -18,7 +18,7 @@ func daemon(svr ServerInterface, t *terminator.Terminator) error {
 
 	// Wait for all goroutines to stop
 	t.Wait()
-	logger.Info("wr server exiting")
+	slog.Info("wr server exiting")
 	return nil
 
 }

@@ -2,10 +2,10 @@ package wrserver
 
 import (
 	"context"
+	"log/slog"
 	"testing"
 	"time"
 
-	"github.com/bruceesmith/logger"
 	"github.com/bruceesmith/terminator"
 	"github.com/bruceesmith/wrspa/backend/wrserver/mocks"
 	"github.com/urfave/cli/v3"
@@ -36,7 +36,7 @@ func Test_daemon(t *testing.T) {
 			go func() {
 				err := daemon(mockServer, term)
 				if err != nil {
-					logger.Error("daemon returned error", "error", err)
+					slog.Error("daemon returned error", "error", err)
 				}
 			}()
 
